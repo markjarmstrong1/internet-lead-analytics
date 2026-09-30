@@ -106,14 +106,14 @@ describe("selectLeadMatch", () => {
     taskLeadSource: "OEM",
   };
 
-    const leadOne: LeadCandidate = {
+  const leadOne: LeadCandidate = {
     leadId: "lead-1",
     leadName: "John Smith",
     leadYear: "2026",
     leadMake: "Honda",
     leadModel: "CR-V",
     leadSource: "OEM",
-    };
+  };
 
   const leadTwo: LeadCandidate = {
     leadId: "lead-2",
@@ -122,7 +122,6 @@ describe("selectLeadMatch", () => {
     leadMake: "Honda",
     leadModel: "CR-V",
     leadSource: "OEM",
-    taskName: "",
   };
 
   it("selects the unique matching lead", () => {
@@ -167,8 +166,9 @@ describe("selectLeadMatch", () => {
     expect(result.leadId).toBeUndefined();
     expect(result.features).toEqual([]);
     expect(result.candidates).toHaveLength(2);
-    expect(result.candidates.map((candidate) => candidate.leadId))
-      .toEqual(["lead-1", "lead-3"]);
+    expect(
+      result.candidates.map((candidate) => candidate.leadId),
+    ).toEqual(["lead-1", "lead-3"]);
   });
 
   it("marks the task unmatched when nothing satisfies the rule", () => {
