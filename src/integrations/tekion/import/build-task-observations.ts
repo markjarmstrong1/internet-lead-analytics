@@ -1,5 +1,5 @@
 import type { TekionTaskRecord } from "../csv/task-record";
-import { mapTaskSourceRecord } from "./map-task-source-record";
+import { mapTaskToSourceRecord } from "./map-task-source-record";
 
 export function buildTaskObservations(
   tasks: Array<{
@@ -8,6 +8,6 @@ export function buildTaskObservations(
   }>,
 ) {
   return tasks.map(({ record, rawData }) =>
-    mapTaskSourceRecord(record, rawData),
+    mapTaskToSourceRecord(record, rawData),
   );
 }

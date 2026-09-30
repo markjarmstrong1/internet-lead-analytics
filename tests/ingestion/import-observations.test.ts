@@ -48,7 +48,6 @@ describe("import observations", () => {
             associatedWith: "Jane Smith",
             assignee: "Salesperson",
             vehicleOfInterest: "2026 Ford F-150",
-            priority: "High",
             status: "Done",
             department: "Sales",
             createdBy: "BDC",

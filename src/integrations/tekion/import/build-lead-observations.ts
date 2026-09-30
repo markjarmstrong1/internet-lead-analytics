@@ -1,5 +1,5 @@
 import type { TekionLeadRecord } from "../csv/lead-record";
-import { mapLeadSourceRecord } from "./map-lead-source-record";
+import { mapLeadToSourceRecord } from "./map-lead-source-record";
 
 export function buildLeadObservations(
   leads: Array<{
@@ -8,6 +8,6 @@ export function buildLeadObservations(
   }>,
 ) {
   return leads.map(({ record, rawData }) =>
-    mapLeadSourceRecord(record, rawData),
+    mapLeadToSourceRecord(record, rawData),
   );
 }
