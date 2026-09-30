@@ -1,0 +1,534 @@
+﻿Stage Changed
+Amanda McGregor
+Sep 22 2026 1:29 PM
+Stage got changed from Sold to Closed
+Status Changed
+Amanda McGregor
+Sep 22 2026 1:29 PM
+Status got changed from Booked to Closed
+Stage Changed
+Robert Coley
+Sep 18 2026 8:38 PM
+Stage got changed from Pending Finance to Sold
+Status Changed
+Robert Coley
+Sep 18 2026 8:38 PM
+Status got changed from Active to Booked
+Inbound Call
+Senal Mul Kapuge
+Sep 18 2026 7:02 PM
+Received a call from +1 (262) 397 - 6556
+Duration 02:33
+Call Back
+Missed Call
+Matt Ley
+Sep 18 2026 7:00 PM
+Missed a call from +1 (262) 397 - 6556
+Call Back
+Note
+V Bui
+Sep 18 2026 5:01 PM
+sold.. need to send us diploma.
+Check-out
+V Bui
+Sep 18 2026 5:01 PM
+The customer was checked out of the store for the check-in done on Sep 18 2026, at Sep 18 2026 1:19 PM by V Bui.
+Read More
+Visit Metrics:
+Walk Around, Test Drive, Trade Appraisal, Deal Proposed, Financial Turnover, Manager Turnover
+Viewed Concierge
+System
+Sep 18 2026 4:09 PM
+Buyer opened Concierge Website.
+Viewed Concierge
+System
+Sep 18 2026 4:09 PM
+Buyer opened Concierge Website.
+Concierge Shared
+Robert Coley
+Sep 18 2026 4:08 PM
+Concierge Shared With Customer
+Concierge Shared
+Robert Coley
+Sep 18 2026 4:07 PM
+Concierge Shared With Customer
+Stage Changed
+V Bui
+Sep 18 2026 3:04 PM
+Stage got changed from Proposal to Pending Finance
+Note
+V Bui
+Sep 18 2026 3:04 PM
+College Grad rebate... need diploma.
+Text Received
+Matt Ley
+Sep 18 2026 2:56 PM
+Reply
+Deal Sheet
+V Bui
+Sep 18 2026 1:58 PM
+Deal Number:
+329257
+Vehicle:
+2026 Honda CR-V Hybrid
+329257_DealSheet-6d2d01bd-a029-4e52-adb7-dff0b4b51765.pdf
+Print
+Email
+Text
+Deal Sheet
+V Bui
+Sep 18 2026 1:57 PM
+Deal Number:
+329257
+Vehicle:
+2026 Honda CR-V Hybrid
+329257_DealSheet-5b3170fd-2fa1-4256-b428-02a85d639689.pdf
+Print
+Email
+Text
+Deal Sheet
+V Bui
+Sep 18 2026 1:57 PM
+Deal Number:
+329257
+Vehicle:
+2026 Honda CR-V Hybrid
+329257_DealSheet-12203d9f-c6c8-4d82-bc69-3de7993a2ddd.pdf
+Print
+Email
+Text
+Trade-in Updated
+V Bui
+Sep 18 2026 1:53 PM
+Vehicle Updated:
+2010 Chevrolet Cobalt
+Trade Allowance:
+None
+$500.00
+Trade-in Added
+Matt Ley
+Sep 18 2026 1:49 PM
+Vehicle Added:
+2010 Chevrolet Cobalt
+Year:
+None
+2010
+Make:
+None
+chevrolet
+Model:
+None
+Cobalt
+VIN:
+None
+1G1AA1F52A7208330
+Ownership Type:
+None
+Loaned/Owned
+Trade In Vehicle:
+None
+Included
+Sales Manager Assigned
+Joon Bae
+Sep 18 2026 1:24 PM
+Joon Bae got assigned as a Sales Manager
+Stage Changed
+Joon Bae
+Sep 18 2026 1:24 PM
+Stage got changed from Appt. Created to Proposal
+Sales Manager Assigned
+Joon Bae
+Sep 18 2026 1:24 PM
+Joon Bae got assigned as a Sales Manager
+Stage Changed
+Joon Bae
+Sep 18 2026 1:24 PM
+Stage got changed from Appt. Created to Proposal
+Deal Updated
+Joon Bae
+Sep 18 2026 1:24 PM
+Deal Number:
+329257
+Vehicle:
+2026 Honda CR-V Hybrid | 7FARS6H63TE147422
+Status:
+Closed Or Sold
+Text Sent
+Mark Armstrong
+Sep 18 2026 1:20 PM
+Great, the product specialists should be able to take it from here. Let me know if you have any questions or need any other assistance
+BDC Specialist Assigned
+V Bui
+Sep 18 2026 1:19 PM
+Mark Armstrong got assigned as a BDC Specialist
+Salesperson Assigned
+V Bui
+Sep 18 2026 1:19 PM
+Salesperson changed from Mark Armstrong to Matt Ley
+Check-in
+V Bui
+Sep 18 2026 1:19 PM
+The customer was checked in to the store
+Text Received
+Mark Armstrong
+Sep 18 2026 1:19 PM
+Hey Mark I just arrived
+Reply
+Text Sent
+Mark Armstrong
+Sep 18 2026 12:43 PM
+Perfect, thanks for letting me know!
+Text Received
+Mark Armstrong
+Sep 18 2026 12:41 PM
+I am running a bit late, I will be there at 1:20!
+Reply
+Text Received
+Mark Armstrong
+Sep 18 2026 10:35 AM
+Thank you see you soon
+Reply
+Text Sent
+Mark Armstrong
+Sep 18 2026 9:32 AM
+Just sent you the email. Also my mistake, when you arrive your appointment will be at the Buick/GMC building. That address is 10660 Automotive Dr Manassas, VA 20109
+Email Sent
+Mark Armstrong
+Sep 18 2026 9:31 AM
+jbecker678@gmail.com
+Subject: Visit Set for Honda CR-V Hybrid
+Great Prices | Special Rates | Huge Inventory Hi Jeffrey , Your visit to Joyce Koons in Manassas is set for at 09/18/26 1:00 PM , for your vehicle of interest 2026 Honda CR-V Hybrid. When you arrive, please come to the Buick/GMC building. That's at 10660 Automotive Dr Manassas, VA 20109. Please reply YES to this email to confirm. You can also contact me directly if you have any questions. Thank you, Mark Armstrong We do not rent, sell or exchange email addresses. We encourage you not to unsubscribe so that we can keep you informed about promotions, new vehicles, service tips and service specials, but if you choose to, you can opt out here. If you prefer not to receive further emails from us, Click here to Unsubscribe
+Reply All
+Preview
+0 Open 0 Clicks
+Stage Changed
+Mark Armstrong
+Sep 18 2026 9:27 AM
+Stage got changed from Engage to Appt. Created
+General Sales
+Completed
+Mark Armstrong +1
+Sep 18 2026 9:27 AM
+09/18/2026 | 1:30 PM - 2:00 PM
+Assigned To:
+Mark Armstrong
+Text Sent
+Mark Armstrong
+Sep 18 2026 9:27 AM
+That’s perfect. I’ll send you an email confirmation shortly. The address is 10640 Automotive Dr Manassas, VA 20109
+Text Received
+Mark Armstrong
+Sep 18 2026 9:25 AM
+Will 1PM work?
+Reply
+Email Sent
+Bob Thompson
+Sep 18 2026 9:24 AM
+jbecker678@gmail.com
+Subject: Can I assist you? | Joyce Koons Automotive
+Great Prices | Special Rates | Big Inventory Hi Jeffrey, Thank you for contacting us regarding one of our Honda-Certified CR-V Hybrids. We assigned your request to Mark Armstrong. Has Mark made contact with you and provided all information you need to this point? If not, how may I as Sales Manager, best assist you? Please do not hesitate to contact me directly with any additional questions. I can be reached by replying to this email or calling +1(703) 366-1062. Thank you again for opportunity to be of service. Bob Thompson +1(703) 366-1062 Joyce Koons Automotive Delivering Great Value and Exceptional Customer Service 10660 Automotive Dr Manassas, VA 20109 JoyceKoons.com We do not rent, sell or exchange email addresses. We encourage you not to unsubscribe so that we can keep you informed about promotions, new vehicles, service tips and service specials, but if you choose to, you can opt out here. If you prefer not to receive further emails from us, Click here to Unsubscribe
+Reply All
+Preview
+0 Open 0 Clicks
+Text Sent
+Mark Armstrong
+Sep 18 2026 9:18 AM
+Of course, are you thinking earlier or later this afternoon?
+Note
+Mark Armstrong
+Sep 18 2026 9:17 AM
+I called and left a voicemail to the customer’s machine.
+Outbound Voicemail
+Mark Armstrong
+Sep 18 2026 9:16 AM
+Called +1 (262) 397 - 6556 and left voicemail
+Duration 00:37
+Note: I called and left a voicemail to the customer’s machine.
+Call Attempt
+Mark Armstrong
+Sep 18 2026 9:14 AM
+Called +1 (262) 397 - 6556
+Text Received
+Mark Armstrong
+Sep 18 2026 9:03 AM
+Yes can I stop by this afternoon?
+Reply
+Text Sent
+Mark Armstrong
+Sep 18 2026 9:02 AM
+Jeffrey, 2026 Honda Certified CR-V Hybrid available > https://tinyurl.com/4sndr2kt | details emailed (check spam/junk).  Vehicle comes with extended factory warranty >> visit today or tomorrow for test drive?  Mark @ Joyce Koons Honda in Manassas, VA
+Email Sent
+Mark Armstrong
+Sep 18 2026 9:01 AM
+jbecker678@gmail.com
+Subject: Exclusive Joyce Koons Honda offer
+Great Prices | Special Rates | Big Inventory Jeffrey, This 2026 HondaTrue Certified CR-V Hybrid is available and ready to be parked in your driveway. It comes with an extended factory warranty & owner benefits: > 5yr or 100k miles Comprehensive factory warranty > 7yr or 100k miles Limited Powertrain factory warranty > Roadside assistance for 5yr or 100k miles > Two complimentary oil changes 2026 Honda CR-V Hybrid Stock Number Xl 17746 Exterior Ash Green Metallic Interior Black 2026 Honda CR-V Hybrid TrailSport AWD Ash Green Metallic > view details & additional photos here Market Price : $37,602 Processing Fee : $1,199 Selling Price : $38,801* Recent college grad or active-duty or retired U.S. Military? You may qualify for additional discounts -- ask me for details. Are you interested in visiting us today or tomorrow to see CR-V Hybrid? Please give me an idea of when you will drop by for a visit so I can re-confirm availability and ensure the CR-V Hybrid is washed & waiting in front of the showroom for you. If you have any questions, please feel free to give me a call - it will be my pleasure to help you. Hope to hear from you soon! Mark Armstrong +1(703) 365-8713 Joyce Koons Automotive Delivering Great Value and Exceptional Customer Service 10660 Automotive Dr Manassas, VA 20109 JoyceKoons.com *Selling Price EXCLUDES applicable sales tax, title, registration and electronic titling fees. Selling price includes $1,199 processing fee. All vehicles subject to prior sale. Not responsible for typographical errors. Click here to Unsubscribe
+Reply All
+Preview
+2 Open 0 Clicks | Last Opened Sep 18 2026 2:22 PM
+Email Sent
+Mark Armstrong
+Sep 18 2026 9:00 AM
+jbecker678@gmail.com
+Subject: Exclusive Joyce Koons Honda offer
+Great Prices | Special Rates | Big Inventory Jeffrey, This 2026 HondaTrue Certified CR-V Hybrid is available and ready to be parked in your driveway. It comes with an extended factory warranty & owner benefits: > 5yr or 100k miles Comprehensive factory warranty > 7yr or 100k miles Limited Powertrain factory warranty > Roadside assistance for 5yr or 100k miles > Two complimentary oil changes 2026 Honda CR-V Hybrid Stock Number Xl 17746 Exterior Ash Green Metallic Interior Black 2026 Honda CR-V Hybrid TrailSport AWD Ash Green Metallic > view details & additional photos here Market Price : $37,602 Processing Fee : $1,199 Selling Price : $38,801* Recent college grad or active-duty or retired U.S. Military? You may qualify for additional discounts -- ask me for details. Are you interested in visiting us today or tomorrow to see CR-V Hybrid? Please give me an idea of when you will drop by for a visit so I can re-confirm availability and ensure the CR-V Hybrid is washed & waiting in front of the showroom for you. If you have any questions, please feel free to give me a call - it will be my pleasure to help you. Hope to hear from you soon! Mark Armstrong +1(703) 365-8713 Joyce Koons Automotive Delivering Great Value and Exceptional Customer Service 10660 Automotive Dr Manassas, VA 20109 JoyceKoons.com *Selling Price EXCLUDES applicable sales tax, title, registration and electronic titling fees. Selling price includes $1,199 processing fee. All vehicles subject to prior sale. Not responsible for typographical errors. Click here to Unsubscribe
+Reply All
+Preview
+1 Open 0 Clicks | Last Opened Sep 18 2026 9:08 AM
+Stage Changed
+Mark Armstrong
+Sep 18 2026 8:58 AM
+Stage got changed from Attempted Contact to Engage
+Text Received
+Mark Armstrong
+Sep 18 2026 8:58 AM
+Sounds good, I'll watch out for your call
+Reply
+Email Sent
+Mark Armstrong
+Sep 18 2026 8:57 AM
+jbecker678@gmail.com
+Subject: My pleasure to help you today!
+Great Prices | Special Rates | Big Inventory Jeffrey, Thank you for contacting Joyce Koons Honda Buick GMC as you think about purchasing a Honda CR-V Hybrid. My name is Mark, and it will be my pleasure to assist you. My next email will outline the availability and Selling Price for 2026 Honda CR-V Hybrid. If you don't see another email in your inbox from me in a few minutes, please check your spam/junk folder for my Special ePrice email. Thank you Mark Armstrong +1(703) 365-8713 Joyce Koons Automotive Delivering Great Value and Exceptional Customer Service 10660 Automotive Dr Manassas, VA 20109 JoyceKoons.com We do not rent, sell or exchange email addresses. We encourage you not to unsubscribe so that we can keep you informed about promotions, new vehicles, service tips and service specials, but if you choose to, you can opt out here. If you prefer not to receive further emails from us, Click here to Unsubscribe
+Reply All
+Preview
+0 Open 0 Clicks
+Stage Changed
+Mark Armstrong
+Sep 18 2026 8:56 AM
+Stage got changed from Assigned to Attempted Contact
+Text Sent
+Mark Armstrong
+Sep 18 2026 8:56 AM
+Hey Jeffrey!  Mark from Joyce Koons Automotive. I’m about to email you the CR-V Hybrid info you asked for (check spam/junk). I’ll give you a quick ring after. Thanks for checking us out!  'Reply STOP to unsubscribe'
+Conversica Lead Response
+System
+Sep 18 2026 7:43 AM
+Yes
+Conversica Lead Response
+System
+Sep 18 2026 7:41 AM
+Hey Lola
+
+
+Text is great!
+
+
+262 397-656
+
+
+Jeff
+Read More
+Conversica Message
+System
+Sep 18 2026 7:40 AM
+Good morning Jeffrey,
+
+
+
+
+
+
+Thanks for the quick reply earlier. Ashley will be ready to help when we open.
+
+
+
+
+
+
+Is (262) 397-6556 your preferred number?
+
+
+
+
+
+
+Best regards and have a great morning,
+
+
+
+
+
+
+Lola | Customer Care Assistant
+
+
+Joyce Koons Honda Buick GMC
+
+
+(866) 711-4118
+
+
+10660 Automotive Drive, Manassas, VA 20109
+
+
+www.joycekoonsbuickgmc.com
+
+
+
+
+
+
+
+
+
+
+https://unsubscribe.mailferret.net/unsubscribe.php?sr=S-7dT.3j3jgbl
+Read More
+Salesperson Assigned
+Doug Miller
+Sep 18 2026 6:43 AM
+Salesperson changed from Ashley Alvarez to Mark Armstrong
+Conversica Message
+System
+Sep 18 2026 12:06 AM
+Good evening Jeffrey,
+
+
+
+
+
+
+Thank you for submitting your request on the Honda Cr-v Hybrid.
+
+
+
+
+
+
+We are happy to text. We also have the option to call and email. Which do you like best?
+
+
+
+
+
+
+Thank you very much and have a great evening,
+
+
+
+
+
+
+Lola | Customer Care Assistant
+
+
+Joyce Koons Honda Buick GMC
+
+
+(866) 711-4118
+
+
+10660 Automotive Drive, Manassas, VA 20109
+
+
+www.joycekoonsbuickgmc.com
+
+
+
+
+
+
+
+
+
+
+P.S. If you prefer text, we may send the info you asked for through an automated system. Otherwise, you can still work with us over email or phone.
+
+
+
+
+
+
+¡Se habla español! Háganos saber si prefiere nuestros servicios en español.
+
+
+
+
+
+
+https://unsubscribe.mailferret.net/unsubscribe.php?sr=S-7dT.3j3jgbl
+Read More
+New Internet Lead - Immediate Follow Up Email
+System
+Sep 17 2026 11:48 PM
+New Internet Lead - Immediate Follow Up Email
+High
+September 18, 2026
+Done
+Assigned To:
+Mark Armstrong
+New Internet Lead - Immediate Follow Up Text
+System
+Sep 17 2026 11:48 PM
+New Internet Lead - Immediate Follow Up Text
+High
+September 18, 2026
+Done
+Assigned To:
+Mark Armstrong
+New Internet Lead - Immediate Follow Up Call
+System
+Sep 17 2026 11:48 PM
+New Internet Lead - Immediate Follow Up Call
+High
+September 18, 2026
+Done
+Assigned To:
+Mark Armstrong
+Salesperson Assigned
+Lead Assignment Rule | Honda (CPO/Used) Internet Lead Assignment
+Sep 17 2026 11:48 PM
+Ashley Alvarez got assigned as a Salesperson
+Stage Changed
+System
+Sep 17 2026 11:48 PM
+Stage got changed from Created to Assigned
+Primary Vehicle Interest Updated
+System
+Sep 17 2026 11:48 PM
+Year:
+None
+2026
+Make:
+None
+Honda
+Model:
+None
+Cr-v hybrid
+Stock ID:
+None
+Xl17746
+VIN:
+None
+7FARS6H63TE147422
+Customer Comment
+System
+Sep 17 2026 11:48 PM
+Customer Comments:
+
+
+
+
+
+
+Jeffrey Becker would like to schedule a test drive.
+
+
+Requested date for test drive: 09/18/2026
+
+
+Time of day for test drive: Afternoon
+
+
+Vehicle URL: https://www.joycekoonsbuickgmc.com/vehicle/Used/2026/Honda/CR-V-Hybrid/7FARS6H63TE147422
+
+
+Read More
+Lead Created
+System
+Sep 17 2026 11:48 PM
+Vehicle:
+2026 Honda CR-V Hybrid
+Source:
+Dealer Alchemist / Joyce Koons Buick Gmc - Schedule Test Drive (Internet)
