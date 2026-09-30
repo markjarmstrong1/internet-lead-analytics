@@ -1,0 +1,23 @@
+export type TekionLeadRecord = {
+  leadId: string;
+  contactName: string;
+  creationTime: string;
+  source: string;
+  vehicleInterest: string;
+  sourceTypeDetailed: string;
+  leadSourceGroup: string;
+  email: string;
+  mobilePhone: string;
+  homePhone: string;
+  workPhone: string;
+  year: string;
+  make: string;
+  model: string;
+  status: string;
+  stage: string;
+  department: string;
+  dealership: string;
+  dealStatus: string;
+  soldDate: string;
+  closedTime: string;
+};

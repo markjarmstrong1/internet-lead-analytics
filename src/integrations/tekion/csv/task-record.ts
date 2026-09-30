@@ -1,0 +1,26 @@
+export type TekionTaskRecord = {
+  taskTitle: string;
+  dueDate: string;
+  action: string;
+  associatedWith: string;
+  assignee: string;
+  vehicleOfInterest: string;
+  status: string;
+  department: string;
+  createdBy: string;
+  leadSource: string;
+  createdDate: string;
+  year: string;
+  make: string;
+  model: string;
+  leadSourceName: string;
+  manuallyClosedBy: string;
+  manuallyClosedTime: string;
+  leadStatus: string;
+  customStage: string;
+  taskSource: string;
+  campaignName: string;
+  campaignObjective: string;
+  leadSourceGroup: string;
+  completedBy: string;
+};
