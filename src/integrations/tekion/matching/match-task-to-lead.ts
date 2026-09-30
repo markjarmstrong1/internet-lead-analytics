@@ -4,6 +4,8 @@ import {
   type MatchFeatureInput,
 } from "./match-features";
 
+export type { MatchFeatureInput } from "./match-features";
+
 export type TaskLeadMatchInput = MatchFeatureInput & {
   taskName: string;
   leadName: string;
