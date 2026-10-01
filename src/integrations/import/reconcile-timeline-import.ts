@@ -165,7 +165,10 @@ function areTimelineRecordsEqual(
     incoming.external_record_id === existing.external_record_id &&
     incoming.fixture_source_key === existing.fixture_source_key &&
     incoming.source_file === existing.source_file &&
-    JSON.stringify(incoming.raw_data) === JSON.stringify(existing.raw_data)
+    areJsonValuesEqual(
+      incoming.raw_data,
+      existing.raw_data,
+    )
   );
 }
 
