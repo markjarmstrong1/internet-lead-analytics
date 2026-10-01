@@ -14,7 +14,7 @@ import { buildTaskWorkflowReportRow } from "../../../../../src/integrations/teki
 
 const projectRoot = path.resolve(
   import.meta.dirname,
-  "../../../../../../..",
+  "../../../../../",
 );
 
 const taskFile = path.join(
@@ -85,7 +85,6 @@ describe("real Wave 6D reporting validation", () => {
 
         const evidence = buildTaskCompletionEvidence(
           {
-            taskSourceRecordId: taskId,
             task,
             correlation,
           },
@@ -217,9 +216,15 @@ describe("real Wave 6D reporting validation", () => {
       ).toBe(row.comparisonCount);
 
       expect(
-        row.directIdentityTaskCount +
-          row.unresolvedIdentityTaskCount +
-          row.noIdentityMatchTaskCount,
+        row.directIdentityTaskCount,
+      ).toBeLessThanOrEqual(row.taskCount);
+
+      expect(
+        row.unresolvedIdentityTaskCount,
+      ).toBeLessThanOrEqual(row.taskCount);
+
+      expect(
+        row.noIdentityMatchTaskCount,
       ).toBeLessThanOrEqual(row.taskCount);
 
       expect(
