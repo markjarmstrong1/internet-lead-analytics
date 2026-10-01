@@ -33,9 +33,9 @@ export function EvidenceEvents({
 
   return (
     <div className="space-y-3">
-      {orderedEvents.map((event) => (
+      {orderedEvents.map((event, index) => (
         <article
-          key={event.sourceEventId}
+          key={`${event.sourceEventId}-${index}`}
           className="rounded-lg border border-slate-200 bg-white px-4 py-3"
         >
           <div className="flex flex-wrap items-start justify-between gap-3">

@@ -30,7 +30,7 @@ export function WorkflowTable({
         <div className="grid grid-cols-[minmax(0,1fr)_120px_140px_160px] border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
           <span>Workflow</span>
           <span>Tasks</span>
-          <span>Comparisons</span>
+          <span>Identity evidence</span>
           <span>Qualifying outbound</span>
         </div>
 
