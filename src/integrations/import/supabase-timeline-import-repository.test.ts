@@ -1,8 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   SupabaseTimelineImportRepository,
 } from "./supabase-timeline-import-repository";
+import type {
+  TimelineImportSyncPlan,
+} from "./build-timeline-import-sync-plan";
 import type {
   TimelineEventPersistenceRow,
   TimelineRecordPersistenceRow,
@@ -33,13 +36,27 @@ function createQuery<T>(result: QueryResult<T>) {
 function createFakeClient(results: {
   records: QueryResult<unknown>;
   events: QueryResult<unknown>;
+  sourceImports: QueryResult<unknown>;
+  rpcResult?: {
+    error: { message: string } | null;
+  };
 }) {
   return {
     from(table: string) {
-      return table === "timeline_records"
-        ? createQuery(results.records)
-        : createQuery(results.events);
+      if (table === "timeline_records") {
+        return createQuery(results.records);
+      }
+
+      if (table === "timeline_events") {
+        return createQuery(results.events);
+      }
+
+      return createQuery(results.sourceImports);
     },
+
+    rpc: vi.fn().mockResolvedValue(
+      results.rpcResult ?? { error: null },
+    ),
   } as never;
 }
 
@@ -72,6 +89,22 @@ const event: TimelineEventPersistenceRow = {
   },
 };
 
+const plan: TimelineImportSyncPlan = {
+  records: [
+    {
+      status: "new",
+      incoming: record,
+    },
+  ],
+  events: [
+    {
+      status: "new",
+      recordIdentity: "tekion:timeline:fixture:timelines/ana_yu.txt",
+      incoming: event,
+    },
+  ],
+};
+
 describe("SupabaseTimelineImportRepository", () => {
   it("loads timeline records and events", async () => {
     const persistedRecord = {
@@ -95,6 +128,10 @@ describe("SupabaseTimelineImportRepository", () => {
           data: [persistedEvent],
           error: null,
         },
+        sourceImports: {
+          data: [],
+          error: null,
+        },
       }),
     );
 
@@ -104,102 +141,133 @@ describe("SupabaseTimelineImportRepository", () => {
     });
   });
 
-  it("inserts and returns a timeline record", async () => {
-    const persistedRecord = {
-      ...record,
-      id: "record-1",
+  it("creates a source import", async () => {
+    const persistedImport = {
+      ...{
+        source_system: "tekion",
+        import_type: "timeline",
+        file_name: "ana_yu.txt",
+        status: "processing",
+        record_count: 1,
+      },
+      id: "import-1",
+      imported_at: "2026-01-01T00:00:00.000Z",
+      error_message: null,
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z",
     };
 
     const repository = new SupabaseTimelineImportRepository(
       createFakeClient({
-        records: {
-          data: persistedRecord,
-          error: null,
-        },
-        events: {
-          data: [],
-          error: null,
-        },
-      }),
-    );
-
-    await expect(repository.insertRecord(record)).resolves.toEqual(
-      persistedRecord,
-    );
-  });
-
-  it("updates and returns a timeline record", async () => {
-    const persistedRecord = {
-      ...record,
-      id: "record-1",
-    };
-
-    const repository = new SupabaseTimelineImportRepository(
-      createFakeClient({
-        records: {
-          data: persistedRecord,
-          error: null,
-        },
-        events: {
-          data: [],
+        records: { data: [], error: null },
+        events: { data: [], error: null },
+        sourceImports: {
+          data: persistedImport,
           error: null,
         },
       }),
     );
 
     await expect(
-      repository.updateRecord("record-1", record),
-    ).resolves.toEqual(persistedRecord);
+      repository.createSourceImport({
+        source_system: "tekion",
+        import_type: "timeline",
+        file_name: "ana_yu.txt",
+        status: "processing",
+        record_count: 1,
+      }),
+    ).resolves.toEqual(persistedImport);
   });
 
-  it("inserts and returns a timeline event", async () => {
-    const persistedEvent = {
-      ...event,
-      id: "event-1",
-      timeline_record_id: "record-1",
+  it("updates source import status", async () => {
+    const persistedImport = {
+      source_system: "tekion",
+      import_type: "timeline",
+      file_name: "ana_yu.txt",
+      status: "failed",
+      record_count: 1,
+      id: "import-1",
+      imported_at: "2026-01-01T00:00:00.000Z",
+      error_message: "database unavailable",
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:01:00.000Z",
     };
 
     const repository = new SupabaseTimelineImportRepository(
       createFakeClient({
-        records: {
-          data: [],
-          error: null,
-        },
-        events: {
-          data: persistedEvent,
+        records: { data: [], error: null },
+        events: { data: [], error: null },
+        sourceImports: {
+          data: persistedImport,
           error: null,
         },
       }),
     );
 
     await expect(
-      repository.insertEvent("record-1", event),
-    ).resolves.toEqual(persistedEvent);
+      repository.updateSourceImportStatus(
+        "import-1",
+        "failed",
+        "database unavailable",
+      ),
+    ).resolves.toEqual(persistedImport);
   });
 
-  it("updates and returns a timeline event", async () => {
-    const persistedEvent = {
-      ...event,
-      id: "event-1",
-      timeline_record_id: "record-1",
-    };
+  it("executes the complete import through the database RPC", async () => {
+    const client = createFakeClient({
+      records: { data: [], error: null },
+      events: { data: [], error: null },
+      sourceImports: {
+        data: [],
+        error: null,
+      },
+    });
 
+    const repository =
+      new SupabaseTimelineImportRepository(client);
+
+    await expect(
+      repository.executeAtomicImport(
+        "import-1",
+        plan,
+      ),
+    ).resolves.toBeUndefined();
+
+    expect(client.rpc).toHaveBeenCalledWith(
+      "apply_timeline_import",
+      {
+        import_id: "import-1",
+        record_operations: plan.records,
+        event_operations: plan.events,
+      },
+    );
+  });
+
+  it("surfaces RPC persistence errors", async () => {
     const repository = new SupabaseTimelineImportRepository(
       createFakeClient({
-        records: {
+        records: { data: [], error: null },
+        events: { data: [], error: null },
+        sourceImports: {
           data: [],
           error: null,
         },
-        events: {
-          data: persistedEvent,
-          error: null,
+        rpcResult: {
+          error: {
+            message: "transaction failed",
+          },
         },
       }),
     );
 
     await expect(
-      repository.updateEvent("event-1", "record-1", event),
-    ).resolves.toEqual(persistedEvent);
+      repository.executeAtomicImport(
+        "import-1",
+        plan,
+      ),
+    ).rejects.toThrow(
+      "Failed to persist timeline import import-1: transaction failed",
+    );
   });
 
   it("surfaces database errors when loading records", async () => {
@@ -212,6 +280,10 @@ describe("SupabaseTimelineImportRepository", () => {
           },
         },
         events: {
+          data: [],
+          error: null,
+        },
+        sourceImports: {
           data: [],
           error: null,
         },
