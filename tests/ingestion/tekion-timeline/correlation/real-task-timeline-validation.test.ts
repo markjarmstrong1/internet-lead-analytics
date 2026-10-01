@@ -6,6 +6,7 @@ import { importTimelineFile } from "../../../../src/integrations/tekion/timeline
 import { buildTaskTimelineCorrelation } from "../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
 import type { TekionTaskRecord } from "../../../../src/integrations/tekion/csv/task-record";
 import { mapTaskRow } from "../../../../src/integrations/tekion/csv/map-task-row";
+import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
 
 const TIMELINE_FILES = [
   "ana_yu.txt",
@@ -40,7 +41,7 @@ function readTasks(): TekionTaskRecord[] {
 function readTimelines() {
   return TIMELINE_FILES.map((file) => {
     const content = readFileSync(
-      join(process.cwd(), "data/tekion", file),
+      getTekionTimelinePath(file),
       "utf8",
     );
 

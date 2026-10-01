@@ -8,6 +8,7 @@ import { importTimelineFile } from "../../../../../src/integrations/tekion/timel
 import { buildTaskTimelineCorrelation } from "../../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
 import { buildTaskCompletionEvidence } from "../../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
 import { analyzeTaskWorkflows } from "../../../../../src/integrations/tekion/timeline/task-evidence/analytics/task-workflow-analysis";
+import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
 
 const TASK_FILE = resolve(
   process.cwd(),

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { summarizeActionEvidence } from "../../../../src/integrations/tekion/timeline/action-evidence/summarize-action-evidence";
+import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
 
 const DATA_DIR = join(process.cwd(), "data", "tekion");
 
@@ -15,7 +16,7 @@ const FILES = [
 describe("real Tekion timeline action evidence", () => {
   it("processes all real timeline samples and reports aggregate evidence only", () => {
     const summaries = FILES.map((fileName) => {
-      const content = readFileSync(join(DATA_DIR, fileName), "utf8");
+      const content = readFileSync(getTekionTimelinePath(fileName), "utf8");
 
       return summarizeActionEvidence(content, fileName);
     });

@@ -7,6 +7,7 @@ import { importTimelineFile } from "../../../../src/integrations/tekion/timeline
 import { buildTaskTimelineCorrelation } from "../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
 import { buildTaskCompletionEvidence } from "../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
 import {
+import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
   summarizeTaskCompletionEvidence,
 } from "../../../../src/integrations/tekion/timeline/task-evidence/task-evidence-summary";
 

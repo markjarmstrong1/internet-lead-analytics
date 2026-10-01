@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import path from "node:path";
 
 import { parseCsv } from "@/integrations/tekion/csv/parse-csv";
 import { mapTaskRow } from "@/integrations/tekion/csv/map-task-row";
@@ -13,19 +12,11 @@ import { buildTaskWorkflowReportRow } from "@/integrations/tekion/timeline/task-
 import { buildTaskWorkflowReport } from "@/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report";
 import type { TaskWorkflowReport } from "@/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report";
 
-const projectRoot = process.cwd();
-
-const taskFile = path.join(
-  projectRoot,
-  "data/tekion/tasks/_CRM_TASK_LIST_48e53783-3c35-4c92-b5c0-3c9d89daaeff15226785944713350597.csv",
-);
-
-const timelineFiles = [
-  "ana_yu.txt",
-  "anthony_bacon.txt",
-  "jeffery_becker.txt",
-  "jim_wilson.txt",
-];
+import {
+  getTekionTimelinePath,
+  tekionTaskFile,
+  tekionTimelineFiles,
+} from "@/lib/tekion/fixture-paths";
 
 export type DashboardReportData = {
   taskCount: number;
@@ -40,11 +31,7 @@ function identityFromTimelineFile(file: string): string {
 }
 
 function readTimeline(file: string) {
-  const fullPath = path.join(
-    projectRoot,
-    "data/tekion",
-    file,
-  );
+  const fullPath = getTekionTimelinePath(file);
 
   return {
     file,
@@ -58,10 +45,10 @@ function readTimeline(file: string) {
 
 export function buildDashboardReportData(): DashboardReportData {
   const tasks = parseCsv(
-    fs.readFileSync(taskFile, "utf8"),
+    fs.readFileSync(tekionTaskFile, "utf8"),
   ).map(mapTaskRow);
 
-  const timelines = timelineFiles.map(readTimeline);
+  const timelines = tekionTimelineFiles.map(readTimeline);
 
   const inputsByTitle = new Map<
     string,

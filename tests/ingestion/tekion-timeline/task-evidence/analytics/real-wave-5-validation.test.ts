@@ -11,6 +11,7 @@ import { analyzeTaskWorkflows } from "../../../../../src/integrations/tekion/tim
 import { analyzeTaskWorkflowChannels } from "../../../../../src/integrations/tekion/timeline/task-evidence/analytics/task-workflow-channel-analysis";
 import { profileTaskWorkflowCompletion } from "../../../../../src/integrations/tekion/timeline/task-evidence/analytics/task-workflow-completion-profile";
 import { analyzeTaskWorkflowTiming } from "../../../../../src/integrations/tekion/timeline/task-evidence/analytics/task-workflow-timing-analysis";
+import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
 
 const root = resolve(process.cwd());
 

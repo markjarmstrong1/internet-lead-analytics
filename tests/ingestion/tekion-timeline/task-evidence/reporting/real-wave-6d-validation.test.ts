@@ -11,6 +11,7 @@ import { buildTaskCompletionEvidence } from "../../../../../src/integrations/tek
 import { buildTaskWorkflowCoverageProfile } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-coverage-profile";
 import { buildTaskWorkflowChannelProfile } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-channel-profile";
 import { buildTaskWorkflowReportRow } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report-row";
+import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
 
 const projectRoot = path.resolve(
   import.meta.dirname,
