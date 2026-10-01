@@ -24,7 +24,28 @@ const EVENT_TYPES = new Set([
   "Inbound Call",
   "Call Back",
   "Engaged Lead Follow Up",
+  "Day 1 Internet Lead Tasking - Call",
+  "Day 2 Internet Lead Tasking - Call",
+  "Day 3 Internet Lead Tasking - Call",
+  "Day 5 Internet Lead Tasking - Touch",
+  "Day 7 Internet Lead Tasking - Touch",
+  "Day 11 Internet Lead Tasking - Touch",
+  "Day 15 Internet Lead Tasking - Touch",
+  "Day 19 Internet Lead Tasking - Touch",
+  "Day 23 Internet Lead Tasking - Touch",
+  "New Internet Lead - Immediate Follow Up Email",
+  "New Internet Lead - Immediate Follow Up Text",
+  "New Internet Lead - Immediate Follow Up Call",
   "Customer Comments",
+  "Customer Comment",
+  "Lead Created",
+  "Missed Call",
+  "Call Attempt",
+  "Sent Campaign Email",
+  "Deal Updated",
+  "BDC Specialist Assigned",
+  "Completed",
+  "Price Change - Reduced",
   "checkin",
   "Check-in",
   "Check-out",
@@ -64,6 +85,12 @@ function parseOccurredAt(value: string): string {
   return parsed.toISOString();
 }
 
+function isTimestamp(line: string): boolean {
+  const parsed = new Date(line);
+
+  return !Number.isNaN(parsed.getTime());
+}
+
 function parseEventBlock(
   lines: string[],
   start: number,
@@ -71,13 +98,29 @@ function parseEventBlock(
   sourceFile: string,
 ): TekionTimelineEvent {
   const rawType = lines[start];
-  const actor = lines[start + 1];
-  const occurredAt = parseOccurredAt(lines[start + 2]);
-  const details = lines.slice(start + 3, end).join("\n");
 
-  if (!actor) {
+  let timestampIndex = -1;
+
+  for (
+    let index = start + 1;
+    index < Math.min(end, start + 6);
+    index += 1
+  ) {
+    if (isTimestamp(lines[index])) {
+      timestampIndex = index;
+      break;
+    }
+  }
+
+  if (timestampIndex === -1 || timestampIndex === start + 1) {
     throw new Error(`Malformed Tekion timeline event: ${rawType}`);
   }
+
+  const actor = lines[timestampIndex - 1];
+  const occurredAt = parseOccurredAt(lines[timestampIndex]);
+  const headerDetails = lines.slice(start + 1, timestampIndex - 1);
+  const bodyDetails = lines.slice(timestampIndex + 1, end);
+  const details = [...headerDetails, ...bodyDetails].join("\n");
 
   return {
     sourceFile,

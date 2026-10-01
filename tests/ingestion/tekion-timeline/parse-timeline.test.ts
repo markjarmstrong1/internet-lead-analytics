@@ -47,6 +47,24 @@ Third line`;
     );
   });
 
+
+  it("supports optional metadata before the actor", () => {
+    const content = `Sent Campaign Email
+(Automatic)
+System
+Sep 24 2026 1:14 PM
+Subject: Campaign email`;
+
+    const result = parseTimeline(content, "sample.txt");
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      rawType: "Sent Campaign Email",
+      actor: "System",
+      details: expect.stringContaining("(Automatic)"),
+    });
+  });
+
   it("ignores text before the first recognized event", () => {
     const content = `Some exported header
 Another line
