@@ -6,6 +6,9 @@ import { mapTaskRow } from "../../../../src/integrations/tekion/csv/map-task-row
 import { importTimelineFile } from "../../../../src/integrations/tekion/timeline/import-timeline-file";
 import { buildTaskTimelineCorrelation } from "../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
 import { buildTaskCompletionEvidence } from "../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
+import {
+  summarizeTaskCompletionEvidence,
+} from "../../../../src/integrations/tekion/timeline/task-evidence/task-evidence-summary";
 
 const TASK_FILE = resolve(
   process.cwd(),
@@ -57,6 +60,18 @@ function readTimelines() {
     });
 }
 
+function qualifyingEvidenceCount(
+  results: Array<{
+    communicationEvidenceStatus: string;
+  }>,
+): number {
+  return results.filter(
+    (result) =>
+      result.communicationEvidenceStatus ===
+      "qualifying_outbound",
+  ).length;
+}
+
 describe("real Task ↔ Timeline completion evidence", () => {
   it("measures aggregate historical completion evidence without exposing PII", () => {
     const tasks = readTasks();
@@ -94,110 +109,168 @@ describe("real Task ↔ Timeline completion evidence", () => {
       }
     }
 
-    const counts = <T extends string>(
-      values: T[],
-    ): Record<string, number> =>
-      values.reduce<Record<string, number>>(
-        (result, value) => {
-          result[value] =
-            (result[value] ?? 0) + 1;
+    const summary =
+      summarizeTaskCompletionEvidence(results);
 
-          return result;
-        },
-        {},
-      );
-
-    const completionModes = counts(
-      results.map(
-        (result) => result.completionMode,
-      ),
-    );
-
-    const evidenceStatuses = counts(
-      results.map(
-        (result) =>
-          result.communicationEvidenceStatus,
-      ),
-    );
-
-    const windowStatuses = counts(
-      results.map(
-        (result) => result.windowStatus,
-      ),
-    );
-
-    const allowedChannels = counts(
-      results.flatMap(
-        (result) => result.allowedChannels,
-      ),
-    );
-
-    const directMatches = results.filter(
+    const completedAutomatically = results.filter(
       (result) =>
-        result.identityStatus === "direct_match",
+        result.completionMode ===
+        "completed_automatically",
     );
 
-    const unresolvedVariants = results.filter(
+    const completedManually = results.filter(
       (result) =>
-        result.identityStatus ===
-        "unresolved_variant",
+        result.completionMode ===
+        "completed_manually",
     );
 
-    const qualifyingEvidence =
-      results.filter(
+    const automaticallyCompletedWithEvidence =
+      completedAutomatically.filter(
         (result) =>
           result.communicationEvidenceStatus ===
           "qualifying_outbound",
       );
 
-    const distinctQualifyingTaskIds =
-      new Set(
-        qualifyingEvidence.map(
-          (result) =>
-            result.taskSourceRecordId,
-        ),
+    const manuallyCompletedWithEvidence =
+      completedManually.filter(
+        (result) =>
+          result.communicationEvidenceStatus ===
+          "qualifying_outbound",
       );
+
+    const directMatchesWithEvidence =
+      results.filter(
+        (result) =>
+          result.identityStatus ===
+            "direct_match" &&
+          result.communicationEvidenceStatus ===
+            "qualifying_outbound",
+      );
+
+    const directMatchesWithoutEvidence =
+      results.filter(
+        (result) =>
+          result.identityStatus ===
+            "direct_match" &&
+          result.communicationEvidenceStatus !==
+            "qualifying_outbound",
+      );
+
+    const directMatchEvidenceStatuses =
+      directMatchesWithEvidence.map(
+        (result) =>
+          result.communicationEvidenceStatus,
+      );
+
+    const distinctQualifyingTaskIds =
+      new Set(summary.qualifyingTaskIds);
 
     const distinctQualifyingEventIds =
-      new Set(
-        qualifyingEvidence.flatMap(
-          (result) =>
-            result.allowedChannelEventIds,
-        ),
-      );
+      new Set(summary.qualifyingEventIds);
 
     console.log(`
-Tekion Task ↔ Timeline Completion Evidence — aggregate validation
-================================================================
+Tekion Task ↔ Timeline Completion Evidence — Wave 4B
+======================================================
 Tasks: ${tasks.length}
 Timeline samples: ${timelines.length}
-Correlation/evidence comparisons: ${results.length}
+Correlation/evidence comparisons:
+  ${summary.totalComparisons}
 
-Completion modes:
-${JSON.stringify(completionModes, null, 2)}
+Identity:
+  Direct matches:
+    ${summary.directIdentityComparisons}
+  Unresolved variants:
+    ${summary.unresolvedIdentityComparisons}
+  No match:
+    ${summary.noIdentityMatchComparisons}
 
-Allowed Task channels:
-${JSON.stringify(allowedChannels, null, 2)}
+Completion:
+  Automatically completed:
+    ${summary.completedAutomatically}
+  Manually completed:
+    ${summary.completedManually}
+  Dismissed:
+    ${summary.dismissed}
+  Overdue:
+    ${summary.overdue}
+  Pending:
+    ${summary.pending}
+  Unknown:
+    ${summary.unknownCompletionMode}
 
-Window status:
-${JSON.stringify(windowStatuses, null, 2)}
+Communication evidence:
+  Qualifying outbound:
+    ${summary.qualifyingOutbound}
+  Outbound channel mismatch:
+    ${summary.outboundChannelMismatch}
+  Inbound only:
+    ${summary.inboundOnly}
+  No communication evidence:
+    ${summary.noCommunicationEvidence}
+  Window unavailable:
+    ${summary.windowUnavailable}
+  Window invalid:
+    ${summary.windowInvalid}
+  Not evaluated:
+    ${summary.notEvaluated}
 
-Communication evidence status:
-${JSON.stringify(evidenceStatuses, null, 2)}
+Cross-tab:
+  Automatically completed + qualifying evidence:
+    ${automaticallyCompletedWithEvidence.length}
+  Manually completed + qualifying evidence:
+    ${manuallyCompletedWithEvidence.length}
+  Direct identity + qualifying evidence:
+    ${directMatchesWithEvidence.length}
+  Direct identity + other outcome:
+    ${directMatchesWithoutEvidence.length}
 
-Direct identity comparisons: ${directMatches.length}
-Unresolved identity comparisons: ${unresolvedVariants.length}
+Unique evidence:
+  Tasks with qualifying evidence:
+    ${distinctQualifyingTaskIds.size}
+  Timeline events supporting qualifying evidence:
+    ${distinctQualifyingEventIds.size}
 
-Qualifying outbound evidence comparisons:
-${qualifyingEvidence.length}
-
-Distinct Tasks with qualifying outbound evidence:
-${distinctQualifyingTaskIds.size}
-
-Distinct timeline events supporting allowed-channel evidence:
-${distinctQualifyingEventIds.size}
-================================================================
+Direct-match qualifying evidence statuses:
+${JSON.stringify(directMatchEvidenceStatuses, null, 2)}
+======================================================
 `);
+
+    expect(summary.totalComparisons).toBe(1392);
+    expect(summary.directIdentityComparisons).toBe(18);
+    expect(summary.unresolvedIdentityComparisons).toBe(3);
+    expect(summary.noIdentityMatchComparisons).toBe(1371);
+
+    expect(summary.qualifyingOutbound).toBe(
+      qualifyingEvidenceCount(results),
+    );
+
+    expect(
+      summary.qualifyingTaskIds.length,
+    ).toBe(distinctQualifyingTaskIds.size);
+
+    expect(
+      summary.qualifyingEventIds.length,
+    ).toBe(distinctQualifyingEventIds.size);
+
+    expect(
+      automaticallyCompletedWithEvidence.every(
+        (result) =>
+          result.completionMode ===
+          "completed_automatically" &&
+          result.communicationEvidenceStatus ===
+          "qualifying_outbound",
+      ),
+    ).toBe(true);
+
+    expect(
+      manuallyCompletedWithEvidence.every(
+        (result) =>
+          result.completionMode ===
+          "completed_manually" &&
+          result.communicationEvidenceStatus ===
+          "qualifying_outbound",
+      ),
+    ).toBe(true);
 
     expect(tasks.length).toBe(348);
     expect(timelines.length).toBe(4);
