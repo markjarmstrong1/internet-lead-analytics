@@ -59,7 +59,7 @@ export function calculateFirstOutboundResponseRate(
   return {
     id: "first_outbound_response_rate_24h",
     title:
-      "Customer response rate after first outbound employee communication",
+      "Inbound communication response rate after first outbound employee communication",
     classification: "descriptive",
     denominator,
     numerator,
@@ -71,7 +71,7 @@ export function calculateFirstOutboundResponseRate(
       "This is an observational descriptive metric.",
       "It does not establish that the outbound communication caused the response.",
       "Only the first qualifying outbound employee communication per timeline record is used as the exposure.",
-      "A response is defined as the first inbound communication within 24 hours after exposure.",
+      "A response is defined as the first inbound communication within 24 hours after exposure; current timeline actor classification does not yet prove that every inbound event is a customer event.",
     ],
   };
 }

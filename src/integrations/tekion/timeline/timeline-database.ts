@@ -1,0 +1,58 @@
+import type {
+  PersistedTimelineEvent,
+  PersistedTimelineRecord,
+} from "@/integrations/import/reconcile-timeline-import";
+import type {
+  TimelineEventPersistenceRow,
+  TimelineRecordPersistenceRow,
+} from "./timeline-persistence-row";
+
+export type TimelineDatabase = {
+  public: {
+    Tables: {
+      timeline_records: {
+        Row: PersistedTimelineRecord &
+          Record<string, unknown> & {
+            import_id: string | null;
+            created_at: string;
+            updated_at: string;
+          };
+        Insert: TimelineRecordPersistenceRow &
+          Record<string, unknown>;
+        Update: Partial<TimelineRecordPersistenceRow> &
+          Record<string, unknown>;
+        Relationships: [];
+      };
+      timeline_events: {
+        Row: PersistedTimelineEvent &
+          Record<string, unknown> & {
+            created_at: string;
+            updated_at: string;
+          };
+        Insert: (TimelineEventPersistenceRow & {
+          timeline_record_id: string;
+        }) &
+          Record<string, unknown>;
+        Update: Partial<
+          TimelineEventPersistenceRow & {
+            timeline_record_id: string;
+          }
+        > &
+          Record<string, unknown>;
+        Relationships: [];
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
+};
