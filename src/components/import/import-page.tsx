@@ -7,6 +7,7 @@ import { parseTimeline } from "@/integrations/tekion/timeline/parse-timeline";
 import { getImportSourceKey } from "./get-import-source-key";
 import { ImportBatchSummary } from "./import-batch-summary";
 import { ImportCsvPreview } from "./import-csv-preview";
+import { ImportCommitButton } from "./import-commit-button";
 import { ImportFilePreview } from "./import-file-preview";
 import { parseImportCsv } from "./parse-import-csv";
 import type {
@@ -210,6 +211,8 @@ export function ImportPage() {
               <ImportFilePreview batch={batch} />
 
               <ImportCsvPreview files={batch.csvFiles} />
+
+              <ImportCommitButton batch={batch} />
             </>
           ) : (
             <section className="rounded-xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
