@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { analyzeTaskWorkflows } from "../../../../../../src/integrations/tekion/timeline/task-evidence/analytics/task-workflow-analysis";
-import type { TekionTaskRecord } from "../../../../../../src/integrations/tekion/csv/task-record";
-import type { TaskCompletionEvidence } from "../../../../../../src/integrations/tekion/timeline/task-evidence/task-completion-evidence";
+import { analyzeTaskWorkflows } from "../../../../../src/integrations/tekion/timeline/task-evidence/analytics/task-workflow-analysis";
+import type { TekionTaskRecord } from "../../../../../src/integrations/tekion/csv/task-record";
+import type { TaskCompletionEvidence } from "../../../../../src/integrations/tekion/timeline/task-evidence/task-completion-evidence";
 
 function task(
   taskTitle: string,
