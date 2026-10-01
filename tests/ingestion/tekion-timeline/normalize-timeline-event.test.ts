@@ -17,6 +17,7 @@ describe("normalizeTimelineEvent", () => {
   it("normalizes outbound email semantics", () => {
     const result = normalizeTimelineEvent(event("Email Sent"));
 
+    expect(result.sourceEventId).toMatch(/^tekion:/);
     expect(result.category).toBe("communication");
     expect(result.communicationChannel).toBe("email");
     expect(result.communicationDirection).toBe("outbound");

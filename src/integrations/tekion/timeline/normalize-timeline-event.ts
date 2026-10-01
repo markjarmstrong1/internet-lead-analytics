@@ -1,5 +1,6 @@
 import { actorTypeForTimelineEvent } from "./actor-semantics";
 import { communicationSemanticsForType } from "./communication-semantics";
+import { sourceEventId } from "./source-event-id";
 import type { TekionNormalizedTimelineEvent } from "./normalized-timeline-event";
 import type {
   TekionTimelineEvent,
@@ -94,6 +95,13 @@ export function normalizeTimelineEvent(
 
   return {
     ...event,
+    sourceEventId: sourceEventId(
+      event.sourceFile,
+      event.rawType,
+      event.occurredAt,
+      event.actor,
+      event.details,
+    ),
     category: categoryForType(event.rawType),
     actorType: actorTypeForTimelineEvent(event.actor),
     ...(communication

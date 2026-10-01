@@ -19,6 +19,7 @@ export type TekionActorType =
   | "unknown";
 
 export type TekionNormalizedTimelineEvent = TekionTimelineEvent & {
+  sourceEventId: string;
   communicationChannel?: TekionCommunicationChannel;
   communicationDirection?: TekionCommunicationDirection;
   actorType: TekionActorType;
