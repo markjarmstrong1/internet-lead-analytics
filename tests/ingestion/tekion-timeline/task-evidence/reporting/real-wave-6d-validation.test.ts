@@ -37,11 +37,7 @@ function identityFromTimelineFile(file: string): string {
 }
 
 function readTimeline(file: string) {
-  const fullPath = path.join(
-    projectRoot,
-    "data/tekion",
-    file,
-  );
+  const fullPath = getTekionTimelinePath(file);
 
   const content = fs.readFileSync(fullPath, "utf8");
 

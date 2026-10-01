@@ -20,7 +20,7 @@ const taskFile = resolve(
   "data/tekion/tasks/_CRM_TASK_LIST_48e53783-3c35-4c92-b5c0-3c9d89daaeff15226785944713350597.csv",
 );
 
-const timelineDir = resolve(root, "data/tekion");
+const timelineDir = resolve(root, "data/tekion/timelines");
 
 function identityFromTimelineFile(file: string): string {
   return file
@@ -50,7 +50,7 @@ describe("Wave 5 real-data analytics", () => {
       file,
       identity: identityFromTimelineFile(file),
       import: importTimelineFile(
-        readFileSync(resolve(timelineDir, file), "utf8"),
+        readFileSync(getTekionTimelinePath(file), "utf8"),
         file,
       ),
     }));

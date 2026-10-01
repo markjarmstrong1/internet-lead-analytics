@@ -17,7 +17,7 @@ const TASK_FILE = resolve(
 
 const TIMELINE_DIRECTORY = resolve(
   process.cwd(),
-  "data/tekion",
+  "data/tekion/timelines",
 );
 
 const TIMELINE_FILES = [
@@ -47,7 +47,7 @@ function readTimelines() {
       identity: identityFromTimelineFile(file),
       events: importTimelineFile(
         readFileSync(
-          resolve(TIMELINE_DIRECTORY, file),
+          getTekionTimelinePath(file),
           "utf8",
         ),
         file,
