@@ -14,21 +14,37 @@ type TimelineDatabase = {
   public: {
     Tables: {
       timeline_records: {
-        Row: PersistedTimelineRecord;
-        Insert: TimelineRecordPersistenceRow;
-        Update: Partial<TimelineRecordPersistenceRow>;
+        Row: PersistedTimelineRecord & Record<string, unknown>;
+        Insert: TimelineRecordPersistenceRow & Record<string, unknown>;
+        Update: Partial<TimelineRecordPersistenceRow> & Record<string, unknown>;
+        Relationships: [];
       };
       timeline_events: {
-        Row: PersistedTimelineEvent;
-        Insert: TimelineEventPersistenceRow & {
+        Row: PersistedTimelineEvent & Record<string, unknown>;
+        Insert: (TimelineEventPersistenceRow & {
           timeline_record_id: string;
-        };
+        }) &
+          Record<string, unknown>;
         Update: Partial<
           TimelineEventPersistenceRow & {
             timeline_record_id: string;
           }
-        >;
+        > &
+          Record<string, unknown>;
+        Relationships: [];
       };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 };
