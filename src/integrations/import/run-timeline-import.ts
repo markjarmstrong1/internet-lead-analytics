@@ -14,15 +14,55 @@ export async function runTimelineImport(
   const repository =
     createServerTimelineImportRepository();
 
-  const existing = await repository.loadSnapshot();
+  const sourceImport =
+    await repository.createSourceImport({
+      source_system: "tekion",
+      import_type: "timeline",
+      file_name:
+        batch.timelineFiles.length === 1
+          ? batch.timelineFiles[0]?.fileName ?? null
+          : null,
+      status: "processing",
+      record_count: persistencePlan.timelineBatches.length,
+    });
 
-  const syncPlan = buildTimelineImportSyncPlan(
-    persistencePlan,
-    existing,
-  );
+  try {
+    const existing = await repository.loadSnapshot();
 
-  return executeTimelineImportSync(
-    syncPlan,
-    repository,
-  );
+    const syncPlan = buildTimelineImportSyncPlan(
+      persistencePlan,
+      existing,
+    );
+
+    const result = await executeTimelineImportSync(
+      syncPlan,
+      repository,
+      sourceImport.id,
+    );
+
+    return {
+      ...result,
+      import: {
+        id: sourceImport.id,
+        status: "completed" as const,
+      },
+    };
+  } catch (caught) {
+    const message =
+      caught instanceof Error
+        ? caught.message
+        : "The timeline import could not be completed.";
+
+    try {
+      await repository.updateSourceImportStatus(
+        sourceImport.id,
+        "failed",
+        message,
+      );
+    } catch {
+      // Preserve the original import failure.
+    }
+
+    throw caught;
+  }
 }

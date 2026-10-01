@@ -3,6 +3,10 @@ import type {
   PersistedTimelineRecord,
 } from "@/integrations/import/reconcile-timeline-import";
 import type {
+  PersistedSourceImport,
+  SourceImportPersistenceRow,
+} from "@/integrations/import/source-import";
+import type {
   TimelineEventPersistenceRow,
   TimelineRecordPersistenceRow,
 } from "./timeline-persistence-row";
@@ -10,6 +14,19 @@ import type {
 export type TimelineDatabase = {
   public: {
     Tables: {
+      source_imports: {
+        Row: PersistedSourceImport;
+        Insert: SourceImportPersistenceRow &
+          Record<string, unknown>;
+        Update: Partial<
+          SourceImportPersistenceRow & {
+            error_message: string | null;
+          }
+        > &
+          Record<string, unknown>;
+        Relationships: [];
+      };
+
       timeline_records: {
         Row: PersistedTimelineRecord &
           Record<string, unknown> & {
@@ -23,6 +40,7 @@ export type TimelineDatabase = {
           Record<string, unknown>;
         Relationships: [];
       };
+
       timeline_events: {
         Row: PersistedTimelineEvent &
           Record<string, unknown> & {
@@ -42,15 +60,26 @@ export type TimelineDatabase = {
         Relationships: [];
       };
     };
+
     Views: {
       [_ in never]: never;
     };
+
     Functions: {
-      [_ in never]: never;
+      apply_timeline_import: {
+        Args: {
+          import_id: string;
+          record_operations: Record<string, unknown>[];
+          event_operations: Record<string, unknown>[];
+        };
+        Returns: null;
+      };
     };
+
     Enums: {
       [_ in never]: never;
     };
+
     CompositeTypes: {
       [_ in never]: never;
     };
