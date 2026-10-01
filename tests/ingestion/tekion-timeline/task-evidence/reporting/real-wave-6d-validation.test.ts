@@ -2,14 +2,15 @@ import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 
-import { parseTaskCsv } from "../../../../../../src/integrations/tekion/csv/parse-task-csv";
-import { createTaskRecordId } from "../../../../../../src/integrations/tekion/csv/create-task-record-id";
-import { importTimelineFile } from "../../../../../../src/integrations/tekion/timeline/import-timeline-file";
-import { buildTaskTimelineCorrelation } from "../../../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
-import { buildTaskCompletionEvidence } from "../../../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
-import { buildTaskWorkflowCoverageProfile } from "../../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-coverage-profile";
-import { buildTaskWorkflowChannelProfile } from "../../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-channel-profile";
-import { buildTaskWorkflowReportRow } from "../../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report-row";
+import { parseCsv } from "../../../../../src/integrations/tekion/csv/parse-csv";
+import { mapTaskRow } from "../../../../../src/integrations/tekion/csv/map-task-row";
+import { createTaskRecordId } from "../../../../../src/integrations/tekion/import/create-task-record-id";
+import { importTimelineFile } from "../../../../../src/integrations/tekion/timeline/import-timeline-file";
+import { buildTaskTimelineCorrelation } from "../../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
+import { buildTaskCompletionEvidence } from "../../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
+import { buildTaskWorkflowCoverageProfile } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-coverage-profile";
+import { buildTaskWorkflowChannelProfile } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-channel-profile";
+import { buildTaskWorkflowReportRow } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report-row";
 
 const projectRoot = path.resolve(
   import.meta.dirname,
@@ -53,7 +54,8 @@ function readTimeline(file: string) {
 describe("real Wave 6D reporting validation", () => {
   it("reconciles reporting output with the real Wave 5 evidence set", () => {
     const csv = fs.readFileSync(taskFile, "utf8");
-    const tasks = parseTaskCsv(csv);
+
+    const tasks = parseCsv(csv).map(mapTaskRow);
     const timelines = timelineFiles.map(readTimeline);
 
     expect(tasks).toHaveLength(348);
@@ -63,12 +65,9 @@ describe("real Wave 6D reporting validation", () => {
       string,
       Array<{
         taskId: string;
-        evidence: Awaited<
-          ReturnType<typeof buildTaskCompletionEvidence>
+        evidence: ReturnType<
+          typeof buildTaskCompletionEvidence
         >;
-        timelineEvents: ReturnType<
-          typeof importTimelineFile
-        >["events"];
       }>
     >();
 
@@ -100,7 +99,6 @@ describe("real Wave 6D reporting validation", () => {
         const item = {
           taskId,
           evidence,
-          timelineEvents: timeline.import.events,
         };
 
         if (existing) {
@@ -111,28 +109,22 @@ describe("real Wave 6D reporting validation", () => {
       }
     }
 
-    expect(
-      [...inputsByTitle.values()].reduce(
-        (total, items) => total + items.length,
-        0,
-      ),
-    ).toBe(1392);
+    const comparisonCount = [
+      ...inputsByTitle.values(),
+    ].reduce(
+      (total, inputs) => total + inputs.length,
+      0,
+    );
+
+    expect(comparisonCount).toBe(1392);
 
     const reportRows = [...inputsByTitle.entries()]
       .map(([taskTitle, inputs]) => {
-        const coverage = buildTaskWorkflowCoverageProfile(
-          inputs.map((input) => ({
-            taskId: input.taskId,
-            evidence: input.evidence,
-          })),
-        );
+        const coverage =
+          buildTaskWorkflowCoverageProfile(inputs);
 
-        const channels = buildTaskWorkflowChannelProfile(
-          inputs.map((input) => ({
-            taskId: input.taskId,
-            evidence: input.evidence,
-          })),
-        );
+        const channels =
+          buildTaskWorkflowChannelProfile(inputs);
 
         return buildTaskWorkflowReportRow(
           taskTitle,
@@ -164,11 +156,12 @@ describe("real Wave 6D reporting validation", () => {
       ),
     ).toBe(1392);
 
-    const directIdentityComparisons = reportRows.reduce(
-      (total, row) =>
-        total + row.directIdentityComparisonCount,
-      0,
-    );
+    const directIdentityComparisons =
+      reportRows.reduce(
+        (total, row) =>
+          total + row.directIdentityComparisonCount,
+        0,
+      );
 
     const unresolvedIdentityComparisons =
       reportRows.reduce(
@@ -177,11 +170,12 @@ describe("real Wave 6D reporting validation", () => {
         0,
       );
 
-    const noIdentityMatchComparisons = reportRows.reduce(
-      (total, row) =>
-        total + row.noIdentityMatchComparisonCount,
-      0,
-    );
+    const noIdentityMatchComparisons =
+      reportRows.reduce(
+        (total, row) =>
+          total + row.noIdentityMatchComparisonCount,
+        0,
+      );
 
     expect(directIdentityComparisons).toBe(18);
     expect(unresolvedIdentityComparisons).toBe(3);
@@ -202,11 +196,12 @@ describe("real Wave 6D reporting validation", () => {
 
     expect(qualifyingOutboundComparisons).toBe(7);
 
-    const allowedChannelEvents = reportRows.reduce(
-      (total, row) =>
-        total + row.allowedChannelEventCount,
-      0,
-    );
+    const allowedChannelEvents =
+      reportRows.reduce(
+        (total, row) =>
+          total + row.allowedChannelEventCount,
+        0,
+      );
 
     expect(allowedChannelEvents).toBeGreaterThanOrEqual(7);
 
