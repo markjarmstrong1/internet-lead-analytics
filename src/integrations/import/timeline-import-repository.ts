@@ -4,10 +4,6 @@ import type {
 } from "./reconcile-timeline-import";
 import type { TimelineImportSyncPlan } from "./build-timeline-import-sync-plan";
 import type {
-  TimelineEventPersistenceRow,
-  TimelineRecordPersistenceRow,
-} from "@/integrations/tekion/timeline/timeline-persistence-row";
-import type {
   PersistedSourceImport,
   SourceImportPersistenceRow,
   SourceImportStatus,
@@ -36,23 +32,5 @@ export interface TimelineImportRepository {
     plan: TimelineImportSyncPlan,
   ): Promise<void>;
 
-  insertRecord(
-    record: TimelineRecordPersistenceRow,
-  ): Promise<PersistedTimelineRecord>;
 
-  updateRecord(
-    id: string,
-    record: TimelineRecordPersistenceRow,
-  ): Promise<PersistedTimelineRecord>;
-
-  insertEvent(
-    timelineRecordId: string,
-    event: TimelineEventPersistenceRow,
-  ): Promise<PersistedTimelineEvent>;
-
-  updateEvent(
-    id: string,
-    timelineRecordId: string,
-    event: TimelineEventPersistenceRow,
-  ): Promise<PersistedTimelineEvent>;
 }
