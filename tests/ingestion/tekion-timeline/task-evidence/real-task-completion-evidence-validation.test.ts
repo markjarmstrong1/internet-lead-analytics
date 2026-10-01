@@ -1,0 +1,227 @@
+import { readFileSync, readdirSync } from "node:fs";
+import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import { parseCsv } from "../../../../src/integrations/tekion/csv/parse-csv";
+import { mapTaskRow } from "../../../../src/integrations/tekion/csv/map-task-row";
+import { importTimelineFile } from "../../../../src/integrations/tekion/timeline/import-timeline-file";
+import { buildTaskTimelineCorrelation } from "../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
+import { buildTaskCompletionEvidence } from "../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
+
+const TASK_FILE = resolve(
+  process.cwd(),
+  "data/tekion/tasks/_CRM_TASK_LIST_48e53783-3c5c-4c92-b5c0-3c9d89daaeff15226785944713350597.csv",
+);
+
+const TIMELINE_DIRECTORY = resolve(
+  process.cwd(),
+  "data/tekion",
+);
+
+function identityFromTimelineFile(file: string): string {
+  return file
+    .replace(/\.txt$/i, "")
+    .replace(/_/g, " ");
+}
+
+function readTasks() {
+  const content = readFileSync(TASK_FILE, "utf8");
+
+  return parseCsv(content).map(mapTaskRow);
+}
+
+function readTimelines() {
+  return readdirSync(TIMELINE_DIRECTORY)
+    .filter((file) => file.endsWith(".txt"))
+    .filter((file) =>
+      [
+        "ana_yu.txt",
+        "anthony_bacon.txt",
+        "jeffery_becker.txt",
+        "jim_wilson.txt",
+      ].includes(file),
+    )
+    .map((file) => {
+      const content = readFileSync(
+        resolve(TIMELINE_DIRECTORY, file),
+        "utf8",
+      );
+
+      return {
+        file,
+        identity: identityFromTimelineFile(file),
+        events: importTimelineFile(
+          content,
+          file,
+        ).events,
+      };
+    });
+}
+
+describe("real Task ↔ Timeline completion evidence", () => {
+  it("measures aggregate historical completion evidence without exposing PII", () => {
+    const tasks = readTasks();
+    const timelines = readTimelines();
+
+    const results = [];
+
+    for (
+      let taskIndex = 0;
+      taskIndex < tasks.length;
+      taskIndex += 1
+    ) {
+      const task = tasks[taskIndex];
+
+      for (const timeline of timelines) {
+        const correlation =
+          buildTaskTimelineCorrelation({
+            taskSourceRecordId:
+              `historical-task-${taskIndex + 1}`,
+            taskIdentity: task.associatedWith,
+            timelineIdentity: timeline.identity,
+            timelineSourceFile: timeline.file,
+            timelineEvents: timeline.events,
+          });
+
+        results.push(
+          buildTaskCompletionEvidence(
+            {
+              task,
+              correlation,
+            },
+            timeline.events,
+          ),
+        );
+      }
+    }
+
+    const counts = <T extends string>(
+      values: T[],
+    ): Record<string, number> =>
+      values.reduce<Record<string, number>>(
+        (result, value) => {
+          result[value] =
+            (result[value] ?? 0) + 1;
+
+          return result;
+        },
+        {},
+      );
+
+    const completionModes = counts(
+      results.map(
+        (result) => result.completionMode,
+      ),
+    );
+
+    const evidenceStatuses = counts(
+      results.map(
+        (result) =>
+          result.communicationEvidenceStatus,
+      ),
+    );
+
+    const windowStatuses = counts(
+      results.map(
+        (result) => result.windowStatus,
+      ),
+    );
+
+    const allowedChannels = counts(
+      results.flatMap(
+        (result) => result.allowedChannels,
+      ),
+    );
+
+    const directMatches = results.filter(
+      (result) =>
+        result.identityStatus === "direct_match",
+    );
+
+    const unresolvedVariants = results.filter(
+      (result) =>
+        result.identityStatus ===
+        "unresolved_variant",
+    );
+
+    const qualifyingEvidence =
+      results.filter(
+        (result) =>
+          result.communicationEvidenceStatus ===
+          "qualifying_outbound",
+      );
+
+    const distinctQualifyingTaskIds =
+      new Set(
+        qualifyingEvidence.map(
+          (result) =>
+            result.taskSourceRecordId,
+        ),
+      );
+
+    const distinctQualifyingEventIds =
+      new Set(
+        qualifyingEvidence.flatMap(
+          (result) =>
+            result.allowedChannelEventIds,
+        ),
+      );
+
+    console.log(`
+Tekion Task ↔ Timeline Completion Evidence — aggregate validation
+================================================================
+Tasks: ${tasks.length}
+Timeline samples: ${timelines.length}
+Correlation/evidence comparisons: ${results.length}
+
+Completion modes:
+${JSON.stringify(completionModes, null, 2)}
+
+Allowed Task channels:
+${JSON.stringify(allowedChannels, null, 2)}
+
+Window status:
+${JSON.stringify(windowStatuses, null, 2)}
+
+Communication evidence status:
+${JSON.stringify(evidenceStatuses, null, 2)}
+
+Direct identity comparisons: ${directMatches.length}
+Unresolved identity comparisons: ${unresolvedVariants.length}
+
+Qualifying outbound evidence comparisons:
+${qualifyingEvidence.length}
+
+Distinct Tasks with qualifying outbound evidence:
+${distinctQualifyingTaskIds.size}
+
+Distinct timeline events supporting allowed-channel evidence:
+${distinctQualifyingEventIds.size}
+================================================================
+`);
+
+    expect(tasks.length).toBe(348);
+    expect(timelines.length).toBe(4);
+    expect(results.length).toBe(1392);
+
+    expect(
+      results.every(
+        (result) =>
+          result.timelineEventIds.every(
+            (eventId) => eventId.length > 0,
+          ),
+      ),
+    ).toBe(true);
+
+    expect(
+      results.every(
+        (result) =>
+          result.allowedChannelEventIds.every(
+            (eventId) =>
+              result.employeeOutboundEventIds.includes(
+                eventId,
+              ),
+          ),
+      ),
+    ).toBe(true);
+  });
+});
