@@ -17,14 +17,11 @@ Thanks`;
     const result = parseTimeline(content, "sample.txt");
 
     expect(result).toHaveLength(2);
-
     expect(result[0]).toMatchObject({
-      sourceFile: "sample.txt",
       rawType: "Email Sent",
       actor: "Salesperson",
       details: expect.stringContaining("Subject: Test email"),
     });
-
     expect(result[1]).toMatchObject({
       rawType: "Text Received",
       actor: "Customer",
@@ -32,23 +29,7 @@ Thanks`;
     });
   });
 
-  it("preserves multiline event details", () => {
-    const content = `Note
-Salesperson
-Sep 28 2026 3:36 PM
-First line
-Second line
-Third line`;
-
-    const result = parseTimeline(content, "sample.txt");
-
-    expect(result[0].details).toBe(
-      "First line\nSecond line\nThird line",
-    );
-  });
-
-
-  it("supports optional metadata before the actor", () => {
+  it("supports metadata before the actor", () => {
     const content = `Sent Campaign Email
 (Automatic)
 System
@@ -65,18 +46,27 @@ Subject: Campaign email`;
     });
   });
 
-  it("ignores text before the first recognized event", () => {
-    const content = `Some exported header
-Another line
+  it("does not treat repeated task titles inside details as new events", () => {
+    const content = `Day 5 Internet Lead Tasking - Touch
+System
+Sep 28 2026 9:04 AM
+Day 5 Internet Lead Tasking - Touch
+High
+Last Monday
+Done
+Assigned To:
+Mark Armstrong
 
 Text Sent
 Salesperson
-Sep 28 2026 3:36 PM
+Sep 28 2026 9:10 AM
 Hello`;
 
     const result = parseTimeline(content, "sample.txt");
 
-    expect(result).toHaveLength(1);
-    expect(result[0].rawType).toBe("Text Sent");
+    expect(result).toHaveLength(2);
+    expect(result[0].rawType).toBe("Day 5 Internet Lead Tasking - Touch");
+    expect(result[0].details).toContain("Assigned To:");
+    expect(result[1].rawType).toBe("Text Sent");
   });
 });

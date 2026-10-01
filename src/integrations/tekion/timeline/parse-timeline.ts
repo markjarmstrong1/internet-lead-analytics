@@ -24,6 +24,21 @@ const EVENT_TYPES = new Set([
   "Inbound Call",
   "Call Back",
   "Engaged Lead Follow Up",
+  "Customer Comments",
+  "Customer Comment",
+  "checkin",
+  "Check-in",
+  "Check-out",
+  "Viewed Concierge",
+  "Concierge Shared",
+  "Lead Created",
+  "Missed Call",
+  "Call Attempt",
+  "Sent Campaign Email",
+  "Deal Updated",
+  "BDC Specialist Assigned",
+  "Completed",
+  "Price Change - Reduced",
   "Day 1 Internet Lead Tasking - Call",
   "Day 2 Internet Lead Tasking - Call",
   "Day 3 Internet Lead Tasking - Call",
@@ -36,30 +51,52 @@ const EVENT_TYPES = new Set([
   "New Internet Lead - Immediate Follow Up Email",
   "New Internet Lead - Immediate Follow Up Text",
   "New Internet Lead - Immediate Follow Up Call",
-  "Customer Comments",
-  "Customer Comment",
-  "Lead Created",
-  "Missed Call",
-  "Call Attempt",
-  "Sent Campaign Email",
-  "Deal Updated",
-  "BDC Specialist Assigned",
-  "Completed",
-  "Price Change - Reduced",
-  "checkin",
-  "Check-in",
-  "Check-out",
-  "Viewed Concierge",
-  "Concierge Shared",
 ]);
 
 function isEventType(line: string): boolean {
   return EVENT_TYPES.has(line.trim());
 }
 
+function isTimestamp(line: string): boolean {
+  const parsed = new Date(line);
+  return !Number.isNaN(parsed.getTime());
+}
+
+function findTimestampIndex(
+  lines: string[],
+  start: number,
+  end: number,
+): number {
+  for (
+    let index = start + 1;
+    index < Math.min(end, start + 6);
+    index += 1
+  ) {
+    if (isEventType(lines[index])) {
+      return -1;
+    }
+
+    if (isTimestamp(lines[index])) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+function isEventStart(lines: string[], index: number): boolean {
+  if (!isEventType(lines[index])) {
+    return false;
+  }
+
+  const timestampIndex = findTimestampIndex(lines, index, lines.length);
+
+  return timestampIndex > index + 1;
+}
+
 function findNextEventStart(lines: string[], start: number): number {
   for (let index = start; index < lines.length; index += 1) {
-    if (isEventType(lines[index])) {
+    if (isEventStart(lines, index)) {
       return index;
     }
   }
@@ -85,12 +122,6 @@ function parseOccurredAt(value: string): string {
   return parsed.toISOString();
 }
 
-function isTimestamp(line: string): boolean {
-  const parsed = new Date(line);
-
-  return !Number.isNaN(parsed.getTime());
-}
-
 function parseEventBlock(
   lines: string[],
   start: number,
@@ -98,19 +129,7 @@ function parseEventBlock(
   sourceFile: string,
 ): TekionTimelineEvent {
   const rawType = lines[start];
-
-  let timestampIndex = -1;
-
-  for (
-    let index = start + 1;
-    index < Math.min(end, start + 6);
-    index += 1
-  ) {
-    if (isTimestamp(lines[index])) {
-      timestampIndex = index;
-      break;
-    }
-  }
+  const timestampIndex = findTimestampIndex(lines, start, end);
 
   if (timestampIndex === -1 || timestampIndex === start + 1) {
     throw new Error(`Malformed Tekion timeline event: ${rawType}`);
@@ -142,7 +161,7 @@ export function parseTimeline(
   let current = 0;
 
   while (current < lines.length) {
-    if (!isEventType(lines[current])) {
+    if (!isEventStart(lines, current)) {
       current += 1;
       continue;
     }
