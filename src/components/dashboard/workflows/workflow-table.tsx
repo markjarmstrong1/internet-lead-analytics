@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { TaskWorkflowReportItem } from "@/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report";
 import {
   matchesTaskWorkflowReportFilter,
@@ -56,25 +56,6 @@ export function WorkflowTable({
     [filter, workflowDetails, workflows],
   );
 
-  useEffect(() => {
-    if (
-      selectedTitle &&
-      filteredWorkflows.some(
-        (workflow) => workflow.row.taskTitle === selectedTitle,
-      )
-    ) {
-      return;
-    }
-
-    setSelectedTitle(
-      filteredWorkflows[0]?.row.taskTitle ?? null,
-    );
-  }, [filteredWorkflows, selectedTitle]);
-
-  const selectedWorkflow =
-    filteredWorkflows.find(
-      (workflow) => workflow.row.taskTitle === selectedTitle,
-    ) ?? null;
 
   return (
     <div>
@@ -103,7 +84,7 @@ export function WorkflowTable({
               <WorkflowRow
                 key={title}
                 workflow={workflow}
-                selected={title === selectedTitle}
+                selected={title === effectiveSelectedTitle}
                 onSelect={() => setSelectedTitle(title)}
               />
             );

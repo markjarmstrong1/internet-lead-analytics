@@ -1,7 +1,5 @@
 import { mapLeadRow } from "../csv/map-lead-row";
 import { mapTaskRow } from "../csv/map-task-row";
-import type { TekionLeadRecord } from "../csv/lead-record";
-import type { TekionTaskRecord } from "../csv/task-record";
 import { selectLeadMatch } from "../matching/select-lead-match";
 import type { TekionIngestionResult } from "./ingestion-result";
 import { mapLeadToSourceRecord } from "./map-lead-source-record";

@@ -5,7 +5,6 @@ import { useRef, useState } from "react";
 import { normalizeTimelineEvent } from "@/integrations/tekion/timeline/normalize-timeline-event";
 import { parseTimeline } from "@/integrations/tekion/timeline/parse-timeline";
 import { getImportSourceKey } from "./get-import-source-key";
-import type { TekionNormalizedTimelineEvent } from "@/integrations/tekion/timeline/normalized-timeline-event";
 import { ImportBatchSummary } from "./import-batch-summary";
 import { ImportCsvPreview } from "./import-csv-preview";
 import { ImportFilePreview } from "./import-file-preview";

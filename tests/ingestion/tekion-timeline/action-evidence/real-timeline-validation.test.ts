@@ -1,10 +1,7 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { summarizeActionEvidence } from "../../../../src/integrations/tekion/timeline/action-evidence/summarize-action-evidence";
 import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
-
-const DATA_DIR = join(process.cwd(), "data", "tekion");
 
 const FILES = [
   "ana_yu.txt",
