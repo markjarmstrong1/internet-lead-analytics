@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
   SupabaseTimelineImportRepository,
@@ -41,7 +42,7 @@ function createFakeClient(results: {
     error: { message: string } | null;
   };
 }) {
-  return {
+  const client = {
     from(table: string) {
       if (table === "timeline_records") {
         return createQuery(results.records);
@@ -57,7 +58,11 @@ function createFakeClient(results: {
     rpc: vi.fn().mockResolvedValue(
       results.rpcResult ?? { error: null },
     ),
-  } as never;
+  };
+
+  return client as unknown as SupabaseClient<never> & {
+    rpc: ReturnType<typeof vi.fn>;
+  };
 }
 
 const record: TimelineRecordPersistenceRow = {
