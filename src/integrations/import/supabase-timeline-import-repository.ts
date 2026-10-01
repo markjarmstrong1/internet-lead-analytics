@@ -1,15 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type {
-  PersistedTimelineEvent,
-  PersistedTimelineRecord,
-} from "./reconcile-timeline-import";
 import type { TimelineImportRepository } from "./timeline-import-repository";
 import type { TimelineImportSyncPlan } from "./build-timeline-import-sync-plan";
-import type {
-  TimelineEventPersistenceRow,
-  TimelineRecordPersistenceRow,
-} from "@/integrations/tekion/timeline/timeline-persistence-row";
 import type {
   PersistedSourceImport,
   SourceImportPersistenceRow,
@@ -117,87 +109,5 @@ export class SupabaseTimelineImportRepository
     }
   }
 
-  async insertRecord(
-    record: TimelineRecordPersistenceRow,
-  ): Promise<PersistedTimelineRecord> {
-    const { data, error } = await this.client
-      .from("timeline_records")
-      .insert(record)
-      .select("*")
-      .single();
 
-    if (error) {
-      throw new Error(
-        `Failed to insert timeline record: ${error.message}`,
-      );
-    }
-
-    return data;
-  }
-
-  async updateRecord(
-    id: string,
-    record: TimelineRecordPersistenceRow,
-  ): Promise<PersistedTimelineRecord> {
-    const { data, error } = await this.client
-      .from("timeline_records")
-      .update(record)
-      .eq("id", id)
-      .select("*")
-      .single();
-
-    if (error) {
-      throw new Error(
-        `Failed to update timeline record ${id}: ${error.message}`,
-      );
-    }
-
-    return data;
-  }
-
-  async insertEvent(
-    timelineRecordId: string,
-    event: TimelineEventPersistenceRow,
-  ): Promise<PersistedTimelineEvent> {
-    const { data, error } = await this.client
-      .from("timeline_events")
-      .insert({
-        ...event,
-        timeline_record_id: timelineRecordId,
-      })
-      .select("*")
-      .single();
-
-    if (error) {
-      throw new Error(
-        `Failed to insert timeline event: ${error.message}`,
-      );
-    }
-
-    return data;
-  }
-
-  async updateEvent(
-    id: string,
-    timelineRecordId: string,
-    event: TimelineEventPersistenceRow,
-  ): Promise<PersistedTimelineEvent> {
-    const { data, error } = await this.client
-      .from("timeline_events")
-      .update({
-        ...event,
-        timeline_record_id: timelineRecordId,
-      })
-      .eq("id", id)
-      .select("*")
-      .single();
-
-    if (error) {
-      throw new Error(
-        `Failed to update timeline event ${id}: ${error.message}`,
-      );
-    }
-
-    return data;
-  }
 }
