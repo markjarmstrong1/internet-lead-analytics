@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-const runTimelineImport = vi.fn();
+const { runTimelineImport } = vi.hoisted(() => ({
+  runTimelineImport: vi.fn(),
+}));
 
 vi.mock(
   "@/integrations/import/run-timeline-import",
