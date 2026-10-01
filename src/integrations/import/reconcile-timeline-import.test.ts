@@ -3,6 +3,7 @@ import {
   reconcileTimelineImport,
   type PersistedTimelineEvent,
   type PersistedTimelineRecord,
+  type TimelineImportEvent,
 } from "./reconcile-timeline-import";
 import type {
   TimelineEventPersistenceRow,
@@ -55,12 +56,25 @@ function createEvent(
   };
 }
 
+function createImportEvent(
+  recordIdentity: string,
+  event: TimelineEventPersistenceRow,
+): TimelineImportEvent {
+  return {
+    recordIdentity,
+    event,
+  };
+}
+
 describe("reconcileTimelineImport", () => {
   it("classifies a first import as new", () => {
+    const record = createRecord();
+    const recordIdentity = "tekion:timeline:fixture:fixtures/ana_yu.txt";
+
     const result = reconcileTimelineImport(
-      [createRecord()],
+      [record],
       [],
-      [createEvent()],
+      [createImportEvent(recordIdentity, createEvent())],
       [],
     );
 
@@ -76,6 +90,7 @@ describe("reconcileTimelineImport", () => {
   it("classifies an identical repeat import as unchanged", () => {
     const record = createRecord();
     const event = createEvent();
+    const recordIdentity = "tekion:timeline:fixture:fixtures/ana_yu.txt";
 
     const existingRecord: PersistedTimelineRecord = {
       ...record,
@@ -91,7 +106,7 @@ describe("reconcileTimelineImport", () => {
     const result = reconcileTimelineImport(
       [record],
       [existingRecord],
-      [event],
+      [createImportEvent(recordIdentity, event)],
       [existingEvent],
     );
 
@@ -127,6 +142,14 @@ describe("reconcileTimelineImport", () => {
   });
 
   it("classifies changed event data as updated", () => {
+    const record = createRecord();
+    const recordIdentity = "tekion:timeline:fixture:fixtures/ana_yu.txt";
+
+    const existingRecord: PersistedTimelineRecord = {
+      ...record,
+      id: "record-1",
+    };
+
     const existingEvent: PersistedTimelineEvent = {
       ...createEvent(),
       id: "event-1",
@@ -138,9 +161,9 @@ describe("reconcileTimelineImport", () => {
     });
 
     const result = reconcileTimelineImport(
-      [],
-      [],
-      [incomingEvent],
+      [record],
+      [existingRecord],
+      [createImportEvent(recordIdentity, incomingEvent)],
       [existingEvent],
     );
 
@@ -187,5 +210,123 @@ describe("reconcileTimelineImport", () => {
     );
 
     expect(result.records.items[0]?.status).toBe("updated");
+  });
+
+  it("scopes event identity to the owning timeline record", () => {
+    const firstRecord = createRecord({
+      fixture_source_key: "fixtures/first.txt",
+      source_file: "fixtures/first.txt",
+    });
+
+    const secondRecord = createRecord({
+      fixture_source_key: "fixtures/second.txt",
+      source_file: "fixtures/second.txt",
+    });
+
+    const firstIdentity =
+      "tekion:timeline:fixture:fixtures/first.txt";
+    const secondIdentity =
+      "tekion:timeline:fixture:fixtures/second.txt";
+
+    const sharedEventId = "tekion:event-shared";
+
+    const firstEvent = createEvent({
+      source_event_id: sharedEventId,
+      source_file: "fixtures/first.txt",
+      raw_data: {
+        sourceEventId: sharedEventId,
+        rawType: "Email Sent",
+        record: "first",
+      },
+    });
+
+    const secondEvent = createEvent({
+      source_event_id: sharedEventId,
+      source_file: "fixtures/second.txt",
+      raw_data: {
+        sourceEventId: sharedEventId,
+        rawType: "Email Sent",
+        record: "second",
+      },
+    });
+
+    const result = reconcileTimelineImport(
+      [firstRecord, secondRecord],
+      [],
+      [
+        createImportEvent(firstIdentity, firstEvent),
+        createImportEvent(secondIdentity, secondEvent),
+      ],
+      [],
+    );
+
+    expect(result.events.summary.total).toBe(2);
+    expect(result.events.summary.newCount).toBe(2);
+    expect(result.events.items).toHaveLength(2);
+    expect(result.events.items.every((item) => item.status === "new")).toBe(
+      true,
+    );
+  });
+
+  it("matches existing events only within the owning timeline record", () => {
+    const firstRecord = createRecord({
+      fixture_source_key: "fixtures/first.txt",
+      source_file: "fixtures/first.txt",
+    });
+
+    const secondRecord = createRecord({
+      fixture_source_key: "fixtures/second.txt",
+      source_file: "fixtures/second.txt",
+    });
+
+    const firstIdentity =
+      "tekion:timeline:fixture:fixtures/first.txt";
+    const secondIdentity =
+      "tekion:timeline:fixture:fixtures/second.txt";
+
+    const sharedEventId = "tekion:event-shared";
+
+    const firstEvent = createEvent({
+      source_event_id: sharedEventId,
+      source_file: "fixtures/first.txt",
+    });
+
+    const secondEvent = createEvent({
+      source_event_id: sharedEventId,
+      source_file: "fixtures/second.txt",
+    });
+
+    const existingFirstRecord: PersistedTimelineRecord = {
+      ...firstRecord,
+      id: "record-1",
+    };
+
+    const existingSecondRecord: PersistedTimelineRecord = {
+      ...secondRecord,
+      id: "record-2",
+    };
+
+    const existingFirstEvent: PersistedTimelineEvent = {
+      ...firstEvent,
+      id: "event-1",
+      timeline_record_id: "record-1",
+    };
+
+    const result = reconcileTimelineImport(
+      [firstRecord, secondRecord],
+      [existingFirstRecord, existingSecondRecord],
+      [
+        createImportEvent(firstIdentity, firstEvent),
+        createImportEvent(secondIdentity, secondEvent),
+      ],
+      [existingFirstEvent],
+    );
+
+    expect(result.events.summary.total).toBe(2);
+    expect(result.events.summary.unchangedCount).toBe(1);
+    expect(result.events.summary.newCount).toBe(1);
+
+    expect(result.events.items[0]?.status).toBe("unchanged");
+    expect(result.events.items[1]?.status).toBe("new");
   });
 });

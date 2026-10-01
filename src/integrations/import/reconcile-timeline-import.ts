@@ -1,9 +1,12 @@
 import {
   reconcileImportRecords,
+  type ImportReconciliationItem,
   type ImportReconciliationResult,
 } from "./import-reconciliation";
-import type { TimelineEventPersistenceRow } from "@/integrations/tekion/timeline/timeline-persistence-row";
-import type { TimelineRecordPersistenceRow } from "@/integrations/tekion/timeline/timeline-persistence-row";
+import type {
+  TimelineEventPersistenceRow,
+  TimelineRecordPersistenceRow,
+} from "@/integrations/tekion/timeline/timeline-persistence-row";
 
 export type PersistedTimelineRecord = TimelineRecordPersistenceRow & {
   id: string;
@@ -14,6 +17,11 @@ export type PersistedTimelineEvent = TimelineEventPersistenceRow & {
   timeline_record_id: string;
 };
 
+export type TimelineImportEvent = {
+  recordIdentity: string;
+  event: TimelineEventPersistenceRow;
+};
+
 export type TimelineImportReconciliation = {
   records: ImportReconciliationResult<TimelineRecordPersistenceRow>;
   events: ImportReconciliationResult<TimelineEventPersistenceRow>;
@@ -22,7 +30,7 @@ export type TimelineImportReconciliation = {
 export function reconcileTimelineImport(
   incomingRecords: TimelineRecordPersistenceRow[],
   existingRecords: PersistedTimelineRecord[],
-  incomingEvents: TimelineEventPersistenceRow[],
+  incomingEvents: TimelineImportEvent[],
   existingEvents: PersistedTimelineEvent[],
 ): TimelineImportReconciliation {
   const records = reconcileImportRecords(
@@ -34,18 +42,79 @@ export function reconcileTimelineImport(
     },
   );
 
-  const events = reconcileImportRecords(
-    incomingEvents,
-    existingEvents,
-    {
-      getIdentity: getTimelineEventPersistenceIdentity,
-      isEqual: areTimelineEventsEqual,
-    },
-  );
+  const recordIdentityById = new Map<string, string>();
+
+  for (const record of existingRecords) {
+    const identity = getTimelineRecordPersistenceIdentity(record);
+
+    if (identity) {
+      recordIdentityById.set(record.id, identity);
+    }
+  }
+
+  const existingEventsByRecordIdentity = new Map<
+    string,
+    PersistedTimelineEvent[]
+  >();
+
+  for (const event of existingEvents) {
+    const recordIdentity = recordIdentityById.get(event.timeline_record_id);
+
+    if (!recordIdentity) {
+      continue;
+    }
+
+    const events = existingEventsByRecordIdentity.get(recordIdentity) ?? [];
+    events.push(event);
+    existingEventsByRecordIdentity.set(recordIdentity, events);
+  }
+
+  const incomingEventsByRecordIdentity = new Map<
+    string,
+    TimelineEventPersistenceRow[]
+  >();
+
+  for (const item of incomingEvents) {
+    const events = incomingEventsByRecordIdentity.get(item.recordIdentity) ?? [];
+    events.push(item.event);
+    incomingEventsByRecordIdentity.set(item.recordIdentity, events);
+  }
+
+  const eventItems: ImportReconciliationItem<TimelineEventPersistenceRow>[] =
+    [];
+
+  for (const [recordIdentity, events] of incomingEventsByRecordIdentity) {
+    const result = reconcileImportRecords(
+      events,
+      existingEventsByRecordIdentity.get(recordIdentity) ?? [],
+      {
+        getIdentity: getTimelineEventPersistenceIdentity,
+        isEqual: areTimelineEventsEqual,
+      },
+    );
+
+    eventItems.push(...result.items);
+  }
 
   return {
     records,
-    events,
+    events: buildReconciliationResult(eventItems),
+  };
+}
+
+function buildReconciliationResult<T>(
+  items: ImportReconciliationItem<T>[],
+): ImportReconciliationResult<T> {
+  return {
+    items,
+    summary: {
+      total: items.length,
+      newCount: items.filter((item) => item.status === "new").length,
+      updatedCount: items.filter((item) => item.status === "updated").length,
+      unchangedCount: items.filter((item) => item.status === "unchanged")
+        .length,
+      invalidCount: items.filter((item) => item.status === "invalid").length,
+    },
   };
 }
 
