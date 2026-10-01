@@ -68,12 +68,14 @@ describe("Wave 5 real-data analytics", () => {
           timelineEvents: timeline.import.events,
         });
 
-        const evidence = buildTaskCompletionEvidence({
-          taskSourceRecordId: taskId,
-          task,
-          correlation,
-          timelineEvents: timeline.import.events,
-        });
+        const evidence = buildTaskCompletionEvidence(
+          {
+            taskSourceRecordId: taskId,
+            task,
+            correlation,
+          },
+          timeline.import.events,
+        );
 
         inputs.push({
           taskId,
