@@ -1,3 +1,4 @@
+import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
 import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
@@ -11,7 +12,6 @@ import { buildTaskCompletionEvidence } from "../../../../../src/integrations/tek
 import { buildTaskWorkflowCoverageProfile } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-coverage-profile";
 import { buildTaskWorkflowChannelProfile } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-channel-profile";
 import { buildTaskWorkflowReportRow } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report-row";
-import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
 
 const projectRoot = path.resolve(
   import.meta.dirname,

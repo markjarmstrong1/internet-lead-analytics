@@ -1,3 +1,4 @@
+import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -7,7 +8,6 @@ import { importTimelineFile } from "../../../../src/integrations/tekion/timeline
 import { buildTaskTimelineCorrelation } from "../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
 import { buildTaskCompletionEvidence } from "../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
 import {
-import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
   summarizeTaskCompletionEvidence,
 } from "../../../../src/integrations/tekion/timeline/task-evidence/task-evidence-summary";
 
