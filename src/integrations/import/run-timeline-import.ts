@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { ImportBatch } from "@/components/import/import-types";
+import type { ImportBatch } from "./import-batch";
 import { buildImportPersistencePlan } from "./build-import-persistence-plan";
 import { buildTimelineImportSyncPlan } from "./build-timeline-import-sync-plan";
 import { createServerTimelineImportRepository } from "./create-server-timeline-import-repository";

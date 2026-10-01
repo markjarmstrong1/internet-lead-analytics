@@ -1,4 +1,4 @@
-import type { ImportedTimelineFile } from "@/components/import/import-types";
+import type { ImportedTimelineFile } from "@/integrations/import/import-batch";
 import { timelineRecordFromFile } from "./timeline-record-from-file";
 import type {
   TimelineEventPersistenceRow,
