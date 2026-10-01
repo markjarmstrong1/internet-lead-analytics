@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { DashboardReportData } from "@/lib/dashboard/dashboard-report-data";
 import type { DashboardWorkflowDetailData } from "@/lib/dashboard/dashboard-workflow-detail-data";
 import { OverviewSection } from "./overview/overview-section";
@@ -24,9 +25,18 @@ export function DashboardShell({
             Internet Lead Analytics
           </h1>
 
-          <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-            Understand what happened, where evidence exists, and what the underlying timeline supports.
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <p className="max-w-2xl text-base leading-7 text-slate-600">
+              Understand what happened, where evidence exists, and what the underlying timeline supports.
+            </p>
+
+            <Link
+              href="/import"
+              className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              Import timeline
+            </Link>
+          </div>
         </header>
 
         <div className="space-y-10">
