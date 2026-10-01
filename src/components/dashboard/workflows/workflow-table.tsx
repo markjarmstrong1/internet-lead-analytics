@@ -15,38 +15,48 @@ export function WorkflowTable({
   workflows,
   workflowDetails,
 }: WorkflowTableProps) {
-  const [selectedTitle, setSelectedTitle] =
-    useState(workflows[0]?.row.taskTitle ?? "");
-
-  const selectedWorkflow = workflows.find(
-    (workflow) =>
-      workflow.row.taskTitle === selectedTitle,
+  const [selectedTitle, setSelectedTitle] = useState(
+    workflows[0]?.row.taskTitle ?? null,
   );
 
-  return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="grid grid-cols-[minmax(0,1fr)_100px_150px_170px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-        <span>Workflow</span>
-        <span>Tasks</span>
-        <span>Identity evidence</span>
-        <span>Qualifying outbound</span>
-      </div>
+  const selectedWorkflow =
+    workflows.find(
+      (workflow) => workflow.row.taskTitle === selectedTitle,
+    ) ?? null;
 
-      {workflows.map((workflow) => (
-        <WorkflowRow
-          key={workflow.row.taskTitle}
-          workflow={workflow}
-          selected={
-            workflow.row.taskTitle ===
-            selectedTitle
-          }
-          onSelect={() =>
-            setSelectedTitle(
-              workflow.row.taskTitle,
-            )
-          }
-        />
-      ))}
+  return (
+    <div>
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="grid grid-cols-[minmax(0,1fr)_120px_140px_160px] border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+          <span>Workflow</span>
+          <span>Tasks</span>
+          <span>Comparisons</span>
+          <span>Qualifying outbound</span>
+        </div>
+
+        <div>
+          {workflows.map((workflow) => {
+            const title = workflow.row.taskTitle;
+            const selected = title === selectedTitle;
+
+            return (
+              <button
+                key={title}
+                type="button"
+                onClick={() => setSelectedTitle(title)}
+                aria-pressed={selected}
+                className={`block w-full border-b border-slate-100 text-left transition last:border-b-0 ${
+                  selected
+                    ? "bg-slate-100 ring-2 ring-inset ring-slate-300"
+                    : "hover:bg-slate-50"
+                }`}
+              >
+                <WorkflowRow workflow={workflow} />
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {selectedWorkflow ? (
         <WorkflowDetailPanel

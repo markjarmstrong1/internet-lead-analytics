@@ -1,4 +1,5 @@
 import type { TaskWorkflowEvidenceDetail } from "@/integrations/tekion/timeline/task-evidence/reporting/task-workflow-evidence-detail";
+import { SummaryCard } from "../../overview/summary-card";
 
 type WorkflowDetailSummaryProps = {
   evidence: TaskWorkflowEvidenceDetail[];
@@ -7,7 +8,7 @@ type WorkflowDetailSummaryProps = {
 function count(
   evidence: TaskWorkflowEvidenceDetail[],
   predicate: (item: TaskWorkflowEvidenceDetail) => boolean,
-) {
+): number {
   return evidence.filter(predicate).length;
 }
 
@@ -26,48 +27,50 @@ export function WorkflowDetailSummary({
 
   const qualifyingOutbound = count(
     evidence,
-    (item) =>
-      item.communicationEvidenceStatus ===
-      "qualifying_outbound",
+    (item) => item.communicationEvidenceStatus === "qualifying_outbound",
   );
 
   const channelMismatch = count(
     evidence,
-    (item) =>
-      item.communicationEvidenceStatus ===
-      "outbound_channel_mismatch",
+    (item) => item.communicationEvidenceStatus === "outbound_channel_mismatch",
   );
 
-  const noCommunication = count(
+  const noCommunicationEvidence = count(
     evidence,
-    (item) =>
-      item.communicationEvidenceStatus ===
-      "no_communication_evidence",
+    (item) => item.communicationEvidenceStatus === "no_communication_evidence",
   );
-
-  const cards = [
-    ["Direct identity", directIdentity],
-    ["Unresolved identity", unresolvedIdentity],
-    ["Qualifying outbound", qualifyingOutbound],
-    ["Channel mismatch", channelMismatch],
-    ["No communication evidence", noCommunication],
-  ] as const;
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-      {cards.map(([label, value]) => (
-        <div
-          key={label}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-3"
-        >
-          <p className="text-xs font-medium text-slate-500">
-            {label}
-          </p>
-          <p className="mt-1 text-lg font-semibold tabular-nums text-slate-950">
-            {value.toLocaleString()}
-          </p>
-        </div>
-      ))}
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <SummaryCard
+        label="Direct identity"
+        value={directIdentity}
+        detail="Evidence comparisons with a direct identity match."
+      />
+
+      <SummaryCard
+        label="Unresolved identity"
+        value={unresolvedIdentity}
+        detail="Comparisons requiring identity review."
+      />
+
+      <SummaryCard
+        label="Qualifying outbound"
+        value={qualifyingOutbound}
+        detail="Comparisons with observed qualifying outbound evidence."
+      />
+
+      <SummaryCard
+        label="Channel mismatch"
+        value={channelMismatch}
+        detail="Outbound evidence outside the Task's allowed channels."
+      />
+
+      <SummaryCard
+        label="No communication"
+        value={noCommunicationEvidence}
+        detail="Completed comparisons without observed communication evidence."
+      />
     </div>
   );
 }
