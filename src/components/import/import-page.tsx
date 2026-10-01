@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { assignTimelineEventIdentities } from "@/integrations/tekion/timeline/assign-timeline-event-identities";
 import { normalizeTimelineEvent } from "@/integrations/tekion/timeline/normalize-timeline-event";
 import { parseTimeline } from "@/integrations/tekion/timeline/parse-timeline";
 import { getImportSourceKey } from "./get-import-source-key";
@@ -43,12 +44,13 @@ export function ImportPage() {
         if (lowerName.endsWith(".txt")) {
           const content = await file.text();
           const parsed = parseTimeline(content, file.name);
+          const normalized = parsed.map(normalizeTimelineEvent);
 
           timelineFiles.push({
             sourceKey: getImportSourceKey(file),
             fileName: file.name,
             relativePath: file.webkitRelativePath || file.name,
-            events: parsed.map(normalizeTimelineEvent),
+            events: assignTimelineEventIdentities(normalized),
           });
 
           continue;
