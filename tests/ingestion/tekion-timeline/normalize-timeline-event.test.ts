@@ -14,31 +14,47 @@ function event(rawType: string): TekionTimelineEvent {
 }
 
 describe("normalizeTimelineEvent", () => {
-  it("classifies communications", () => {
-    expect(normalizeTimelineEvent(event("Email Sent")).category).toBe(
-      "communication",
-    );
+  it("normalizes outbound email semantics", () => {
+    const result = normalizeTimelineEvent(event("Email Sent"));
 
-    expect(normalizeTimelineEvent(event("Text Received")).category).toBe(
-      "communication",
-    );
+    expect(result.category).toBe("communication");
+    expect(result.communicationChannel).toBe("email");
+    expect(result.communicationDirection).toBe("outbound");
+    expect(result.actorType).toBe("employee");
   });
 
-  it("classifies lifecycle events", () => {
-    expect(normalizeTimelineEvent(event("Stage Changed")).category).toBe(
-      "lifecycle",
-    );
+  it("normalizes inbound text semantics", () => {
+    const result = normalizeTimelineEvent(event("Text Received"));
+
+    expect(result.category).toBe("communication");
+    expect(result.communicationChannel).toBe("text");
+    expect(result.communicationDirection).toBe("inbound");
   });
 
-  it("classifies deal events", () => {
-    expect(normalizeTimelineEvent(event("Deal Created")).category).toBe(
-      "deal",
-    );
+  it("keeps non-communication events free of communication semantics", () => {
+    const result = normalizeTimelineEvent(event("Stage Changed"));
+
+    expect(result.category).toBe("lifecycle");
+    expect(result.communicationChannel).toBeUndefined();
+    expect(result.communicationDirection).toBeUndefined();
+    expect(result.actorType).toBe("employee");
   });
 
-  it("leaves unknown event types as other", () => {
-    expect(normalizeTimelineEvent(event("Unknown Event")).category).toBe(
-      "other",
-    );
+  it("preserves source evidence", () => {
+    const result = normalizeTimelineEvent(event("Email Sent"));
+
+    expect(result.sourceFile).toBe("sample.txt");
+    expect(result.rawType).toBe("Email Sent");
+    expect(result.occurredAt).toBe("2026-09-28T19:36:00.000Z");
+    expect(result.actor).toBe("Salesperson");
+    expect(result.details).toBe("Example");
+  });
+
+  it("leaves unknown events as other", () => {
+    const result = normalizeTimelineEvent(event("Unknown Event"));
+
+    expect(result.category).toBe("other");
+    expect(result.communicationChannel).toBeUndefined();
+    expect(result.communicationDirection).toBeUndefined();
   });
 });

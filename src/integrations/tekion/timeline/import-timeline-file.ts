@@ -1,10 +1,10 @@
 import { normalizeTimelineEvent } from "./normalize-timeline-event";
 import { parseTimeline } from "./parse-timeline";
-import type { TekionTimelineEvent } from "./timeline-event";
+import type { TekionNormalizedTimelineEvent } from "./normalized-timeline-event";
 
 export type TekionTimelineImport = {
   sourceFile: string;
-  events: TekionTimelineEvent[];
+  events: TekionNormalizedTimelineEvent[];
 };
 
 export function importTimelineFile(

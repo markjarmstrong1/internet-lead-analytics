@@ -11,7 +11,15 @@ export type TekionCommunicationDirection =
   | "outbound"
   | "unknown";
 
+export type TekionActorType =
+  | "employee"
+  | "customer"
+  | "system"
+  | "automation"
+  | "unknown";
+
 export type TekionNormalizedTimelineEvent = TekionTimelineEvent & {
   communicationChannel?: TekionCommunicationChannel;
   communicationDirection?: TekionCommunicationDirection;
+  actorType: TekionActorType;
 };

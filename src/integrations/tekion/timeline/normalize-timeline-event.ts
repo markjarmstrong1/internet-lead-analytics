@@ -1,3 +1,6 @@
+import { actorTypeForTimelineEvent } from "./actor-semantics";
+import { communicationSemanticsForType } from "./communication-semantics";
+import type { TekionNormalizedTimelineEvent } from "./normalized-timeline-event";
 import type {
   TekionTimelineEvent,
   TekionTimelineEventCategory,
@@ -86,9 +89,18 @@ function categoryForType(
 
 export function normalizeTimelineEvent(
   event: TekionTimelineEvent,
-): TekionTimelineEvent {
+): TekionNormalizedTimelineEvent {
+  const communication = communicationSemanticsForType(event.rawType);
+
   return {
     ...event,
     category: categoryForType(event.rawType),
+    actorType: actorTypeForTimelineEvent(event.actor),
+    ...(communication
+      ? {
+          communicationChannel: communication.channel,
+          communicationDirection: communication.direction,
+        }
+      : {}),
   };
 }
