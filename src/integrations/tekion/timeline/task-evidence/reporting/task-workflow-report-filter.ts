@@ -12,6 +12,15 @@ import type {
   TaskCompletionEvidence,
 } from "../task-completion-evidence";
 
+export type TaskWorkflowReportFilterEvidence = Pick<
+  TaskCompletionEvidence,
+  | "completionMode"
+  | "identityStatus"
+  | "communicationEvidenceStatus"
+  | "allowedChannels"
+  | "timelineSourceFile"
+>;
+
 export type TaskWorkflowReportFilter = {
   taskTitles?: string[];
   completionModes?: TekionTaskCompletionMode[];
@@ -45,7 +54,7 @@ function overlaps<T>(
 
 export function matchesTaskWorkflowReportFilter(
   taskTitle: string,
-  evidence: TaskCompletionEvidence,
+  evidence: TaskWorkflowReportFilterEvidence,
   filter: TaskWorkflowReportFilter,
 ): boolean {
   return (
