@@ -95,47 +95,6 @@ function createRepository(
 
     executeAtomicImport,
 
-    async insertRecord(
-      record,
-    ): Promise<PersistedTimelineRecord> {
-      return {
-        ...record,
-        id: "record-1",
-      };
-    },
-
-    async updateRecord(
-      id,
-      record,
-    ): Promise<PersistedTimelineRecord> {
-      return {
-        ...record,
-        id,
-      };
-    },
-
-    async insertEvent(
-      timelineRecordId,
-      event,
-    ): Promise<PersistedTimelineEvent> {
-      return {
-        ...event,
-        id: "event-1",
-        timeline_record_id: timelineRecordId,
-      };
-    },
-
-    async updateEvent(
-      id,
-      timelineRecordId,
-      event,
-    ): Promise<PersistedTimelineEvent> {
-      return {
-        ...event,
-        id,
-        timeline_record_id: timelineRecordId,
-      };
-    },
   };
 }
 
