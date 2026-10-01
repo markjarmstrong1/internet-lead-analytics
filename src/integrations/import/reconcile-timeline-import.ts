@@ -4,6 +4,10 @@ import {
   type ImportReconciliationResult,
 } from "./import-reconciliation";
 import {
+  areIsoTimestampsEqual,
+  areJsonValuesEqual,
+} from "./values-equal";
+import {
   getTimelineEventPersistenceIdentity,
   getTimelineRecordPersistenceIdentity,
 } from "./timeline-persistence-identity";
@@ -172,7 +176,10 @@ function areTimelineEventsEqual(
   return (
     incoming.source_event_id === existing.source_event_id &&
     incoming.source_file === existing.source_file &&
-    incoming.occurred_at === existing.occurred_at &&
+    areIsoTimestampsEqual(
+      incoming.occurred_at,
+      existing.occurred_at,
+    ) &&
     incoming.raw_type === existing.raw_type &&
     incoming.actor === existing.actor &&
     incoming.actor_type === existing.actor_type &&
@@ -180,8 +187,13 @@ function areTimelineEventsEqual(
     incoming.channel === existing.channel &&
     incoming.direction === existing.direction &&
     incoming.details === existing.details &&
-    JSON.stringify(incoming.metadata) ===
-      JSON.stringify(existing.metadata) &&
-    JSON.stringify(incoming.raw_data) === JSON.stringify(existing.raw_data)
+    areJsonValuesEqual(
+      incoming.metadata,
+      existing.metadata,
+    ) &&
+    areJsonValuesEqual(
+      incoming.raw_data,
+      existing.raw_data,
+    )
   );
 }
