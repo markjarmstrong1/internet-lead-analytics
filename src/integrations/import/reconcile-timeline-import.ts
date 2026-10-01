@@ -3,6 +3,10 @@ import {
   type ImportReconciliationItem,
   type ImportReconciliationResult,
 } from "./import-reconciliation";
+import {
+  getTimelineEventPersistenceIdentity,
+  getTimelineRecordPersistenceIdentity,
+} from "./timeline-persistence-identity";
 import type {
   TimelineEventPersistenceRow,
   TimelineRecordPersistenceRow,
@@ -22,9 +26,25 @@ export type TimelineImportEvent = {
   event: TimelineEventPersistenceRow;
 };
 
+export type TimelineEventReconciliationItem = {
+  status: ImportReconciliationItem<TimelineEventPersistenceRow>["status"];
+  recordIdentity: string;
+  incoming: TimelineEventPersistenceRow;
+  existing?: PersistedTimelineEvent;
+  reason?: string;
+};
+
+export type TimelineEventReconciliationResult = {
+  items: TimelineEventReconciliationItem[];
+  summary: ImportReconciliationResult<TimelineEventPersistenceRow>["summary"];
+};
+
 export type TimelineImportReconciliation = {
-  records: ImportReconciliationResult<TimelineRecordPersistenceRow>;
-  events: ImportReconciliationResult<TimelineEventPersistenceRow>;
+  records: ImportReconciliationResult<
+    TimelineRecordPersistenceRow,
+    PersistedTimelineRecord
+  >;
+  events: TimelineEventReconciliationResult;
 };
 
 export function reconcileTimelineImport(
@@ -80,8 +100,7 @@ export function reconcileTimelineImport(
     incomingEventsByRecordIdentity.set(item.recordIdentity, events);
   }
 
-  const eventItems: ImportReconciliationItem<TimelineEventPersistenceRow>[] =
-    [];
+  const eventItems: TimelineEventReconciliationItem[] = [];
 
   for (const [recordIdentity, events] of incomingEventsByRecordIdentity) {
     const result = reconcileImportRecords(
@@ -93,61 +112,37 @@ export function reconcileTimelineImport(
       },
     );
 
-    eventItems.push(...result.items);
+    eventItems.push(
+      ...result.items.map((item) => ({
+        status: item.status,
+        recordIdentity,
+        incoming: item.incoming,
+        existing: item.existing,
+        reason: item.reason,
+      })),
+    );
   }
 
   return {
     records,
-    events: buildReconciliationResult(eventItems),
-  };
-}
-
-function buildReconciliationResult<T>(
-  items: ImportReconciliationItem<T>[],
-): ImportReconciliationResult<T> {
-  return {
-    items,
-    summary: {
-      total: items.length,
-      newCount: items.filter((item) => item.status === "new").length,
-      updatedCount: items.filter((item) => item.status === "updated").length,
-      unchangedCount: items.filter((item) => item.status === "unchanged")
-        .length,
-      invalidCount: items.filter((item) => item.status === "invalid").length,
+    events: {
+      items: eventItems,
+      summary: summarizeEventItems(eventItems),
     },
   };
 }
 
-function getTimelineRecordPersistenceIdentity(
-  record: TimelineRecordPersistenceRow,
-): string | null {
-  if (record.external_record_id?.trim()) {
-    return [
-      record.source_system,
-      record.source_type,
-      "external",
-      record.external_record_id.trim(),
-    ].join(":");
-  }
-
-  if (record.fixture_source_key?.trim()) {
-    return [
-      record.source_system,
-      record.source_type,
-      "fixture",
-      record.fixture_source_key.trim(),
-    ].join(":");
-  }
-
-  return null;
-}
-
-function getTimelineEventPersistenceIdentity(
-  event: TimelineEventPersistenceRow,
-): string | null {
-  const sourceEventId = event.source_event_id.trim();
-
-  return sourceEventId || null;
+function summarizeEventItems(
+  items: TimelineEventReconciliationItem[],
+) {
+  return {
+    total: items.length,
+    newCount: items.filter((item) => item.status === "new").length,
+    updatedCount: items.filter((item) => item.status === "updated").length,
+    unchangedCount: items.filter((item) => item.status === "unchanged")
+      .length,
+    invalidCount: items.filter((item) => item.status === "invalid").length,
+  };
 }
 
 function areTimelineRecordsEqual(

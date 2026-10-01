@@ -4,10 +4,10 @@ export type ImportReconciliationStatus =
   | "unchanged"
   | "invalid";
 
-export type ImportReconciliationItem<T> = {
+export type ImportReconciliationItem<T, E = T> = {
   status: ImportReconciliationStatus;
   incoming: T;
-  existing?: T;
+  existing?: E;
   reason?: string;
 };
 
@@ -19,22 +19,34 @@ export type ImportReconciliationSummary = {
   invalidCount: number;
 };
 
-export type ImportReconciliationResult<T> = {
-  items: ImportReconciliationItem<T>[];
+export type ImportReconciliationResult<T, E = T> = {
+  items: ImportReconciliationItem<T, E>[];
   summary: ImportReconciliationSummary;
 };
 
-type ReconcileOptions<T> = {
-  getIdentity: (record: T) => string | null;
-  isEqual: (incoming: T, existing: T) => boolean;
+type ReconcileOptions<T, E> = {
+  getIdentity: (record: T | E) => string | null;
+  isEqual: (incoming: T, existing: E) => boolean;
 };
 
 export function reconcileImportRecords<T>(
   incomingRecords: T[],
   existingRecords: T[],
-  options: ReconcileOptions<T>,
-): ImportReconciliationResult<T> {
-  const existingByIdentity = new Map<string, T>();
+  options: ReconcileOptions<T, T>,
+): ImportReconciliationResult<T, T>;
+
+export function reconcileImportRecords<T, E>(
+  incomingRecords: T[],
+  existingRecords: E[],
+  options: ReconcileOptions<T, E>,
+): ImportReconciliationResult<T, E>;
+
+export function reconcileImportRecords<T, E>(
+  incomingRecords: T[],
+  existingRecords: E[],
+  options: ReconcileOptions<T, E>,
+): ImportReconciliationResult<T, E> {
+  const existingByIdentity = new Map<string, E>();
 
   for (const existing of existingRecords) {
     const identity = options.getIdentity(existing);
@@ -44,7 +56,7 @@ export function reconcileImportRecords<T>(
     }
   }
 
-  const items: ImportReconciliationItem<T>[] = [];
+  const items: ImportReconciliationItem<T, E>[] = [];
 
   for (const incoming of incomingRecords) {
     const identity = options.getIdentity(incoming);
@@ -85,15 +97,17 @@ export function reconcileImportRecords<T>(
   };
 }
 
-function summarizeImportReconciliation<T>(
-  items: ImportReconciliationItem<T>[],
+function summarizeImportReconciliation<T, E>(
+  items: ImportReconciliationItem<T, E>[],
 ): ImportReconciliationSummary {
   return {
     total: items.length,
     newCount: items.filter((item) => item.status === "new").length,
-    updatedCount: items.filter((item) => item.status === "updated").length,
+    updatedCount: items.filter((item) => item.status === "updated")
+      .length,
     unchangedCount: items.filter((item) => item.status === "unchanged")
       .length,
-    invalidCount: items.filter((item) => item.status === "invalid").length,
+    invalidCount: items.filter((item) => item.status === "invalid")
+      .length,
   };
 }
