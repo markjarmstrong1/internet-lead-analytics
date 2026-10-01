@@ -59,6 +59,9 @@ function categoryForType(
     case "Deal Updated":
       return "deal";
 
+    case "Price Change - Reduced":
+      return "pricing";
+
     case "Conversica Message":
     case "Conversica Lead Response":
     case "Sent Campaign Email":

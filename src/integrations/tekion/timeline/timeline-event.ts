@@ -6,6 +6,7 @@ export type TekionTimelineEventCategory =
   | "vehicle"
   | "trade"
   | "deal"
+  | "pricing"
   | "automation"
   | "note"
   | "visit"
