@@ -56,6 +56,19 @@ export function WorkflowTable({
     [filter, workflowDetails, workflows],
   );
 
+  const effectiveSelectedTitle =
+    selectedTitle &&
+    filteredWorkflows.some(
+      (workflow) => workflow.row.taskTitle === selectedTitle,
+    )
+      ? selectedTitle
+      : filteredWorkflows[0]?.row.taskTitle ?? null;
+
+  const selectedWorkflow =
+    filteredWorkflows.find(
+      (workflow) =>
+        workflow.row.taskTitle === effectiveSelectedTitle,
+    ) ?? null;
 
   return (
     <div>
