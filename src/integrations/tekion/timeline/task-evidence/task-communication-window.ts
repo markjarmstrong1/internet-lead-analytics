@@ -25,32 +25,47 @@ function parseBoundary(
     return undefined;
   }
 
+  if (!hasExplicitTime(trimmed)) {
+    const parsed = new Date(
+      `${trimmed} 00:00:00 UTC`,
+    );
+
+    if (Number.isNaN(parsed.getTime())) {
+      return undefined;
+    }
+
+    if (boundary === "start") {
+      return parsed.getTime();
+    }
+
+    return (
+      parsed.getTime() +
+      24 * 60 * 60 * 1000 -
+      1
+    );
+  }
+
   const parsed = new Date(trimmed);
 
   if (Number.isNaN(parsed.getTime())) {
     return undefined;
   }
 
-  if (hasExplicitTime(trimmed)) {
-    return parsed.getTime();
-  }
-
-  const date = new Date(parsed);
-
-  if (boundary === "start") {
-    date.setHours(0, 0, 0, 0);
-  } else {
-    date.setHours(23, 59, 59, 999);
-  }
-
-  return date.getTime();
+  return parsed.getTime();
 }
 
 export function buildTaskCommunicationWindow(
   task: TekionTaskRecord,
 ): TaskCommunicationWindow {
-  const start = parseBoundary(task.createdDate, "start");
-  const end = parseBoundary(task.dueDate, "end");
+  const start = parseBoundary(
+    task.createdDate,
+    "start",
+  );
+
+  const end = parseBoundary(
+    task.dueDate,
+    "end",
+  );
 
   if (start === undefined || end === undefined) {
     return {
@@ -83,9 +98,17 @@ export function isEventWithinTaskWindow(
     return false;
   }
 
-  const eventTime = new Date(occurredAt).getTime();
-  const startTime = new Date(window.startAt).getTime();
-  const endTime = new Date(window.endAt).getTime();
+  const eventTime = new Date(
+    occurredAt,
+  ).getTime();
+
+  const startTime = new Date(
+    window.startAt,
+  ).getTime();
+
+  const endTime = new Date(
+    window.endAt,
+  ).getTime();
 
   if (
     Number.isNaN(eventTime) ||
@@ -95,5 +118,8 @@ export function isEventWithinTaskWindow(
     return false;
   }
 
-  return eventTime >= startTime && eventTime <= endTime;
+  return (
+    eventTime >= startTime &&
+    eventTime <= endTime
+  );
 }

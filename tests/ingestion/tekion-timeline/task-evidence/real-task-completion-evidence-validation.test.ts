@@ -9,7 +9,7 @@ import { buildTaskCompletionEvidence } from "../../../../src/integrations/tekion
 
 const TASK_FILE = resolve(
   process.cwd(),
-  "data/tekion/tasks/_CRM_TASK_LIST_48e53783-3c5c-4c92-b5c0-3c9d89daaeff15226785944713350597.csv",
+  "data/tekion/tasks/_CRM_TASK_LIST_48e53783-3c35-4c92-b5c0-3c9d89daaeff15226785944713350597.csv",
 );
 
 const TIMELINE_DIRECTORY = resolve(
