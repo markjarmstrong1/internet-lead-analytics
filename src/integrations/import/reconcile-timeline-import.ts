@@ -53,7 +53,10 @@ export function reconcileTimelineImport(
   incomingEvents: TimelineImportEvent[],
   existingEvents: PersistedTimelineEvent[],
 ): TimelineImportReconciliation {
-  const records = reconcileImportRecords(
+  const records = reconcileImportRecords<
+    TimelineRecordPersistenceRow,
+    PersistedTimelineRecord
+  >(
     incomingRecords,
     existingRecords,
     {
@@ -103,7 +106,10 @@ export function reconcileTimelineImport(
   const eventItems: TimelineEventReconciliationItem[] = [];
 
   for (const [recordIdentity, events] of incomingEventsByRecordIdentity) {
-    const result = reconcileImportRecords(
+    const result = reconcileImportRecords<
+      TimelineEventPersistenceRow,
+      PersistedTimelineEvent
+    >(
       events,
       existingEventsByRecordIdentity.get(recordIdentity) ?? [],
       {
