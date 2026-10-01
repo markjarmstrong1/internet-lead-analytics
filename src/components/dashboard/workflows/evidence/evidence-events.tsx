@@ -45,7 +45,7 @@ export function EvidenceEvents({
               </p>
 
               <p className="mt-1 text-xs text-slate-500">
-                {event.timelineSourceFile}
+                {event.category}
               </p>
             </div>
 

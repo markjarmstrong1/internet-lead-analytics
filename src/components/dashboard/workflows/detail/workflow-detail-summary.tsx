@@ -44,31 +44,31 @@ export function WorkflowDetailSummary({
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       <SummaryCard
         label="Direct identity"
-        value={directIdentity}
+        value={String(directIdentity)}
         detail="Evidence comparisons with a direct identity match."
       />
 
       <SummaryCard
         label="Unresolved identity"
-        value={unresolvedIdentity}
+        value={String(unresolvedIdentity)}
         detail="Comparisons requiring identity review."
       />
 
       <SummaryCard
         label="Qualifying outbound"
-        value={qualifyingOutbound}
+        value={String(qualifyingOutbound)}
         detail="Comparisons with observed qualifying outbound evidence."
       />
 
       <SummaryCard
         label="Channel mismatch"
-        value={channelMismatch}
+        value={String(channelMismatch)}
         detail="Outbound evidence outside the Task's allowed channels."
       />
 
       <SummaryCard
         label="No communication"
-        value={noCommunicationEvidence}
+        value={String(noCommunicationEvidence)}
         detail="Completed comparisons without observed communication evidence."
       />
     </div>

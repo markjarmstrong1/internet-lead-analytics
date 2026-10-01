@@ -1,4 +1,4 @@
-import type { TaskCommunicationEvidenceStatus } from "@/integrations/tekion/timeline/task-evidence/completion/task-completion-evidence";
+import type { TaskCommunicationEvidenceStatus } from "@/integrations/tekion/timeline/task-evidence/task-completion-evidence";
 
 type EvidenceStatusProps = {
   status: TaskCommunicationEvidenceStatus;

@@ -37,22 +37,14 @@ export function WorkflowTable({
         <div>
           {workflows.map((workflow) => {
             const title = workflow.row.taskTitle;
-            const selected = title === selectedTitle;
 
             return (
-              <button
+              <WorkflowRow
                 key={title}
-                type="button"
-                onClick={() => setSelectedTitle(title)}
-                aria-pressed={selected}
-                className={`block w-full border-b border-slate-100 text-left transition last:border-b-0 ${
-                  selected
-                    ? "bg-slate-100 ring-2 ring-inset ring-slate-300"
-                    : "hover:bg-slate-50"
-                }`}
-              >
-                <WorkflowRow workflow={workflow} />
-              </button>
+                workflow={workflow}
+                selected={title === selectedTitle}
+                onSelect={() => setSelectedTitle(title)}
+              />
             );
           })}
         </div>
