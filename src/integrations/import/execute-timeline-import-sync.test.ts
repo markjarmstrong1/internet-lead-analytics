@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { executeTimelineImportSync } from "./execute-timeline-import-sync";
 import type { TimelineImportSyncPlan } from "./build-timeline-import-sync-plan";
 import type { TimelineImportRepository } from "./timeline-import-repository";
+import type {
+  PersistedSourceImport,
+  SourceImportPersistenceRow,
+} from "./source-import";
 import type {
   PersistedTimelineEvent,
   PersistedTimelineRecord,
@@ -47,7 +51,7 @@ function createEvent(
 }
 
 function createRepository(
-  calls: string[],
+  executeAtomicImport: TimelineImportRepository["executeAtomicImport"],
 ): TimelineImportRepository {
   return {
     async loadSnapshot() {
@@ -57,31 +61,63 @@ function createRepository(
       };
     },
 
-    async insertRecord(record) {
-      calls.push(
-        `insert-record:${record.fixture_source_key}`,
-      );
+    async createSourceImport(
+      sourceImport: SourceImportPersistenceRow,
+    ): Promise<PersistedSourceImport> {
+      return {
+        ...sourceImport,
+        id: "import-1",
+        imported_at: "2026-01-01T00:00:00.000Z",
+        error_message: null,
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+      };
+    },
 
+    async updateSourceImportStatus(
+      id,
+      status,
+      errorMessage = null,
+    ): Promise<PersistedSourceImport> {
+      return {
+        source_system: "tekion",
+        import_type: "timeline",
+        file_name: null,
+        status,
+        record_count: 1,
+        id,
+        imported_at: "2026-01-01T00:00:00.000Z",
+        error_message: errorMessage,
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+      };
+    },
+
+    executeAtomicImport,
+
+    async insertRecord(
+      record,
+    ): Promise<PersistedTimelineRecord> {
       return {
         ...record,
         id: "record-1",
       };
     },
 
-    async updateRecord(id, record) {
-      calls.push(`update-record:${id}`);
-
+    async updateRecord(
+      id,
+      record,
+    ): Promise<PersistedTimelineRecord> {
       return {
         ...record,
         id,
       };
     },
 
-    async insertEvent(timelineRecordId, event) {
-      calls.push(
-        `insert-event:${timelineRecordId}:${event.source_event_id}`,
-      );
-
+    async insertEvent(
+      timelineRecordId,
+      event,
+    ): Promise<PersistedTimelineEvent> {
       return {
         ...event,
         id: "event-1",
@@ -93,11 +129,7 @@ function createRepository(
       id,
       timelineRecordId,
       event,
-    ) {
-      calls.push(
-        `update-event:${id}:${timelineRecordId}:${event.source_event_id}`,
-      );
-
+    ): Promise<PersistedTimelineEvent> {
       return {
         ...event,
         id,
@@ -108,8 +140,10 @@ function createRepository(
 }
 
 describe("executeTimelineImportSync", () => {
-  it("persists records before their events", async () => {
-    const calls: string[] = [];
+  it("delegates the complete plan to the atomic repository operation", async () => {
+    const executeAtomicImport = vi.fn<
+      TimelineImportRepository["executeAtomicImport"]
+    >();
 
     const plan: TimelineImportSyncPlan = {
       records: [
@@ -117,182 +151,134 @@ describe("executeTimelineImportSync", () => {
           status: "new",
           incoming: createRecord(),
         },
-      ],
-      events: [
-        {
-          status: "new",
-          recordIdentity:
-            "tekion:timeline:fixture:fixtures/ana_yu.txt",
-          incoming: createEvent(),
-        },
-      ],
-    };
-
-    const result = await executeTimelineImportSync(
-      plan,
-      createRepository(calls),
-    );
-
-    expect(calls).toEqual([
-      "insert-record:fixtures/ana_yu.txt",
-      "insert-event:record-1:tekion:event-1",
-    ]);
-
-    expect(result).toEqual({
-      records: {
-        total: 1,
-        newCount: 1,
-        updatedCount: 0,
-        unchangedCount: 0,
-        invalidCount: 0,
-      },
-      events: {
-        total: 1,
-        newCount: 1,
-        updatedCount: 0,
-        unchangedCount: 0,
-        invalidCount: 0,
-      },
-    });
-  });
-
-  it("does not write unchanged records or events", async () => {
-    const calls: string[] = [];
-
-    const plan: TimelineImportSyncPlan = {
-      records: [
         {
           status: "unchanged",
-          incoming: createRecord(),
-          existing: {
-            ...createRecord(),
-            id: "record-1",
-          } satisfies PersistedTimelineRecord,
-        },
-      ],
-      events: [
-        {
-          status: "unchanged",
-          recordIdentity:
-            "tekion:timeline:fixture:fixtures/ana_yu.txt",
-          incoming: createEvent(),
-          existing: {
-            ...createEvent(),
-            id: "event-1",
-            timeline_record_id: "record-1",
-          } satisfies PersistedTimelineEvent,
-        },
-      ],
-    };
-
-    await executeTimelineImportSync(
-      plan,
-      createRepository(calls),
-    );
-
-    expect(calls).toEqual([]);
-  });
-
-  it("updates an event without updating an unchanged parent", async () => {
-    const calls: string[] = [];
-
-    const plan: TimelineImportSyncPlan = {
-      records: [
-        {
-          status: "unchanged",
-          incoming: createRecord(),
-          existing: {
-            ...createRecord(),
-            id: "record-1",
-          } satisfies PersistedTimelineRecord,
-        },
-      ],
-      events: [
-        {
-          status: "updated",
-          recordIdentity:
-            "tekion:timeline:fixture:fixtures/ana_yu.txt",
-          incoming: createEvent({
-            details: "Updated",
+          incoming: createRecord({
+            fixture_source_key: "fixtures/jim_wilson.txt",
           }),
           existing: {
-            ...createEvent(),
-            id: "event-1",
-            timeline_record_id: "record-1",
-          } satisfies PersistedTimelineEvent,
+            ...createRecord({
+              fixture_source_key: "fixtures/jim_wilson.txt",
+            }),
+            id: "record-2",
+          } satisfies PersistedTimelineRecord,
         },
-      ],
-    };
-
-    await executeTimelineImportSync(
-      plan,
-      createRepository(calls),
-    );
-
-    expect(calls).toEqual([
-      "update-event:event-1:record-1:tekion:event-1",
-    ]);
-  });
-
-  it("updates a changed record", async () => {
-    const calls: string[] = [];
-
-    const plan: TimelineImportSyncPlan = {
-      records: [
         {
           status: "updated",
           incoming: createRecord({
+            fixture_source_key: "fixtures/jeffery_becker.txt",
             raw_data: {
               changed: true,
             },
           }),
           existing: {
-            ...createRecord(),
-            id: "record-1",
+            ...createRecord({
+              fixture_source_key: "fixtures/jeffery_becker.txt",
+            }),
+            id: "record-3",
           } satisfies PersistedTimelineRecord,
         },
+        {
+          status: "invalid",
+          incoming: createRecord({
+            fixture_source_key: "fixtures/invalid.txt",
+          }),
+        },
       ],
-      events: [],
-    };
-
-    await executeTimelineImportSync(
-      plan,
-      createRepository(calls),
-    );
-
-    expect(calls).toEqual([
-      "update-record:record-1",
-    ]);
-  });
-
-  it("fails closed when an event has no persisted record", async () => {
-    const plan: TimelineImportSyncPlan = {
-      records: [],
       events: [
         {
           status: "new",
           recordIdentity:
-            "tekion:timeline:fixture:missing.txt",
+            "tekion:timeline:fixture:fixtures/ana_yu.txt",
           incoming: createEvent(),
+        },
+        {
+          status: "unchanged",
+          recordIdentity:
+            "tekion:timeline:fixture:fixtures/jim_wilson.txt",
+          incoming: createEvent({
+            source_event_id: "tekion:event-2",
+          }),
+          existing: {
+            ...createEvent({
+              source_event_id: "tekion:event-2",
+            }),
+            id: "event-2",
+            timeline_record_id: "record-2",
+          } satisfies PersistedTimelineEvent,
+        },
+        {
+          status: "updated",
+          recordIdentity:
+            "tekion:timeline:fixture:fixtures/jeffery_becker.txt",
+          incoming: createEvent({
+            source_event_id: "tekion:event-3",
+            details: "Updated",
+          }),
+          existing: {
+            ...createEvent({
+              source_event_id: "tekion:event-3",
+            }),
+            id: "event-3",
+            timeline_record_id: "record-3",
+          } satisfies PersistedTimelineEvent,
+        },
+        {
+          status: "invalid",
+          recordIdentity:
+            "tekion:timeline:fixture:fixtures/invalid.txt",
+          incoming: createEvent({
+            source_event_id: "tekion:event-invalid",
+          }),
         },
       ],
     };
 
-    await expect(
-      executeTimelineImportSync(
-        plan,
-        createRepository([]),
-      ),
-    ).rejects.toThrow(
-      "Cannot execute timeline event tekion:event-1 without a persisted timeline record.",
+    const repository = createRepository(
+      executeAtomicImport,
     );
+
+    const result = await executeTimelineImportSync(
+      plan,
+      repository,
+      "import-123",
+    );
+
+    expect(executeAtomicImport).toHaveBeenCalledTimes(1);
+    expect(executeAtomicImport).toHaveBeenCalledWith(
+      "import-123",
+      plan,
+    );
+
+    expect(result).toEqual({
+      records: {
+        total: 4,
+        newCount: 1,
+        updatedCount: 1,
+        unchangedCount: 1,
+        invalidCount: 1,
+      },
+      events: {
+        total: 4,
+        newCount: 1,
+        updatedCount: 1,
+        unchangedCount: 1,
+        invalidCount: 1,
+      },
+    });
   });
 
-  it("fails closed when an update has no existing record", async () => {
+  it("propagates an atomic persistence failure", async () => {
+    const executeAtomicImport = vi.fn<
+      TimelineImportRepository["executeAtomicImport"]
+    >().mockRejectedValue(
+      new Error("atomic import failed"),
+    );
+
     const plan: TimelineImportSyncPlan = {
       records: [
         {
-          status: "updated",
+          status: "new",
           incoming: createRecord(),
         },
       ],
@@ -302,10 +288,14 @@ describe("executeTimelineImportSync", () => {
     await expect(
       executeTimelineImportSync(
         plan,
-        createRepository([]),
+        createRepository(executeAtomicImport),
+        "import-123",
       ),
-    ).rejects.toThrow(
-      "Cannot execute updated timeline record without an existing record.",
+    ).rejects.toThrow("atomic import failed");
+
+    expect(executeAtomicImport).toHaveBeenCalledWith(
+      "import-123",
+      plan,
     );
   });
 });
