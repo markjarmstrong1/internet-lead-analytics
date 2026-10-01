@@ -25,6 +25,7 @@ function task(
     manuallyClosedBy: "",
     manuallyClosedTime: "",
     leadStatus: "",
+    customStage: "",
     taskSource: "",
     campaignName: "",
     campaignObjective: "",
