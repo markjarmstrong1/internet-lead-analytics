@@ -1,15 +1,15 @@
 import type {
   TekionTaskActionChannel,
-} from "../../csv/task-action-semantics";
+} from "../../../csv/task-action-semantics";
 import type {
   TekionTaskCompletionMode,
-} from "../../csv/task-completion-semantics";
+} from "../../../csv/task-completion-semantics";
 import type {
   TimelineIdentityEvidenceStatus,
-} from "../correlation/timeline-identity-evidence";
+} from "../../correlation/timeline-identity-evidence";
 import type {
   TekionNormalizedTimelineEvent,
-} from "../normalized-timeline-event";
+} from "../../normalized-timeline-event";
 import type {
   TaskCommunicationEvidenceStatus,
   TaskCompletionEvidence,

@@ -17,9 +17,11 @@ describe("sourceEventId", () => {
   it("changes when source evidence changes", () => {
     const original = sourceEventId(...evidence);
     const changed = sourceEventId(
-      ...evidence.map((value, index) =>
-        index === 1 ? "Text Sent" : value,
-      ) as typeof evidence,
+      evidence[0],
+      "Text Sent",
+      evidence[2],
+      evidence[3],
+      evidence[4],
     );
 
     expect(changed).not.toBe(original);

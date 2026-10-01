@@ -1,4 +1,5 @@
 import type { TaskWorkflowReportItem } from "@/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report";
+import { presentTaskWorkflowReportMetric } from "@/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report-presentation";
 
 type WorkflowRowProps = {
   workflow: TaskWorkflowReportItem;
@@ -16,15 +17,23 @@ export function WorkflowRow({
     metrics,
   } = workflow;
 
-  const identity = metrics.find(
+  const identityMetric = metrics.find(
     (metric) =>
       metric.key === "identity_evidence_coverage",
   );
 
-  const communication = metrics.find(
+  const identity = identityMetric
+    ? presentTaskWorkflowReportMetric(identityMetric)
+    : undefined;
+
+  const communicationMetric = metrics.find(
     (metric) =>
       metric.key === "qualifying_outbound_evidence_rate",
   );
+
+  const communication = communicationMetric
+    ? presentTaskWorkflowReportMetric(communicationMetric)
+    : undefined;
 
   return (
     <button

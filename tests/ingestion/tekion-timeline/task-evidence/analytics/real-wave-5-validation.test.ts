@@ -70,7 +70,6 @@ describe("Wave 5 real-data analytics", () => {
 
         const evidence = buildTaskCompletionEvidence(
           {
-            taskSourceRecordId: taskId,
             task,
             correlation,
           },

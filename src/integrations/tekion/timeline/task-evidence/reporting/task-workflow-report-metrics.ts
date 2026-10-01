@@ -1,4 +1,5 @@
-import type { TekionTaskWorkflowReportRow } from "./task-workflow-report-row";
+import type { TaskWorkflowReportRow } from "./task-workflow-report-row";
+export type { TaskWorkflowReportRow as TekionTaskWorkflowReportRow } from "./task-workflow-report-row";
 import type {
   TekionTaskWorkflowReportMetricKey,
 } from "./task-workflow-report-metric-definitions";
@@ -22,7 +23,7 @@ function ratio(
 }
 
 export function calculateTaskWorkflowReportMetrics(
-  row: TekionTaskWorkflowReportRow,
+  row: TaskWorkflowReportRow,
 ): TekionReportMetric[] {
   const evaluatedCommunicationComparisons =
     row.qualifyingOutboundComparisonCount +

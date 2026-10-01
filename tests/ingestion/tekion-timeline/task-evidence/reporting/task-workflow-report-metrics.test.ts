@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { calculateTaskWorkflowReportMetrics } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report-metrics";
-import type { TekionTaskWorkflowReportRow } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report-row";
+import type { TaskWorkflowReportRow } from "../../../../../src/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report-row";
 
-const row: TekionTaskWorkflowReportRow = {
+const row: TaskWorkflowReportRow = {
   taskTitle: "Example Workflow",
   taskCount: 10,
   comparisonCount: 20,
@@ -46,7 +46,7 @@ describe("calculateTaskWorkflowReportMetrics", () => {
   });
 
   it("uses undefined when a metric has no valid denominator", () => {
-    const emptyRow: TekionTaskWorkflowReportRow = {
+    const emptyRow: TaskWorkflowReportRow = {
       ...row,
       comparisonCount: 0,
       qualifyingOutboundComparisonCount: 0,
