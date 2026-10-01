@@ -2,12 +2,12 @@ import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { parseCsv } from "../../../../../../src/integrations/tekion/csv/parse-csv";
-import { mapTaskRow } from "../../../../../../src/integrations/tekion/csv/map-task-row";
-import { importTimelineFile } from "../../../../../../src/integrations/tekion/timeline/import-timeline-file";
-import { buildTaskTimelineCorrelation } from "../../../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
-import { buildTaskCompletionEvidence } from "../../../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
-import { analyzeTaskWorkflows } from "../../../../../../src/integrations/tekion/timeline/task-evidence/analytics/task-workflow-analysis";
+import { parseCsv } from "../../../../../src/integrations/tekion/csv/parse-csv";
+import { mapTaskRow } from "../../../../../src/integrations/tekion/csv/map-task-row";
+import { importTimelineFile } from "../../../../../src/integrations/tekion/timeline/import-timeline-file";
+import { buildTaskTimelineCorrelation } from "../../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
+import { buildTaskCompletionEvidence } from "../../../../../src/integrations/tekion/timeline/task-evidence/build-task-completion-evidence";
+import { analyzeTaskWorkflows } from "../../../../../src/integrations/tekion/timeline/task-evidence/analytics/task-workflow-analysis";
 
 const TASK_FILE = resolve(
   process.cwd(),
