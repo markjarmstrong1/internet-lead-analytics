@@ -1,12 +1,15 @@
 import type { TaskWorkflowReportItem } from "@/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report";
+import type { DashboardWorkflowDetailData } from "@/lib/dashboard/dashboard-workflow-detail-data";
 import { WorkflowTable } from "./workflow-table";
 
 type WorkflowSectionProps = {
   workflows: TaskWorkflowReportItem[];
+  workflowDetails: Record<string, DashboardWorkflowDetailData>;
 };
 
 export function WorkflowSection({
   workflows,
+  workflowDetails,
 }: WorkflowSectionProps) {
   return (
     <section aria-labelledby="workflow-heading">
@@ -23,7 +26,10 @@ export function WorkflowSection({
         </p>
       </div>
 
-      <WorkflowTable workflows={workflows} />
+      <WorkflowTable
+        workflows={workflows}
+        workflowDetails={workflowDetails}
+      />
     </section>
   );
 }

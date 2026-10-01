@@ -1,13 +1,16 @@
 import type { DashboardReportData } from "@/lib/dashboard/dashboard-report-data";
+import type { DashboardWorkflowDetailData } from "@/lib/dashboard/dashboard-workflow-detail-data";
 import { OverviewSection } from "./overview/overview-section";
 import { WorkflowSection } from "./workflows/workflow-section";
 
 type DashboardShellProps = {
   data: DashboardReportData;
+  workflowDetails: Record<string, DashboardWorkflowDetailData>;
 };
 
 export function DashboardShell({
   data,
+  workflowDetails,
 }: DashboardShellProps) {
   return (
     <main className="min-h-screen bg-slate-50">
@@ -35,6 +38,7 @@ export function DashboardShell({
 
           <WorkflowSection
             workflows={data.report.workflows}
+            workflowDetails={workflowDetails}
           />
         </div>
       </div>

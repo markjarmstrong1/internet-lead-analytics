@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import type { TaskWorkflowReportItem } from "@/integrations/tekion/timeline/task-evidence/reporting/task-workflow-report";
+import type { DashboardWorkflowDetailData } from "@/lib/dashboard/dashboard-workflow-detail-data";
+import { WorkflowDetailPanel } from "./detail/workflow-detail-panel";
 import { WorkflowRow } from "./workflow-row";
 
 type WorkflowTableProps = {
   workflows: TaskWorkflowReportItem[];
+  workflowDetails: Record<string, DashboardWorkflowDetailData>;
 };
 
 export function WorkflowTable({
   workflows,
+  workflowDetails,
 }: WorkflowTableProps) {
   const [selectedTitle, setSelectedTitle] =
     useState(workflows[0]?.row.taskTitle ?? "");
@@ -45,19 +49,14 @@ export function WorkflowTable({
       ))}
 
       {selectedWorkflow ? (
-        <div className="border-t border-slate-200 bg-slate-50 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Selected workflow
-          </p>
-
-          <p className="mt-1 font-semibold text-slate-950">
-            {selectedWorkflow.row.taskTitle}
-          </p>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Evidence detail will become the next investigation layer.
-          </p>
-        </div>
+        <WorkflowDetailPanel
+          workflow={selectedWorkflow}
+          evidence={
+            workflowDetails[
+              selectedWorkflow.row.taskTitle
+            ]?.evidence ?? []
+          }
+        />
       ) : null}
     </div>
   );
