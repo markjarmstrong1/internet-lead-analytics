@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { normalizeTimelineEvent } from "@/integrations/tekion/timeline/normalize-timeline-event";
 import { parseTimeline } from "@/integrations/tekion/timeline/parse-timeline";
+import { getImportSourceKey } from "./get-import-source-key";
 import type { TekionNormalizedTimelineEvent } from "@/integrations/tekion/timeline/normalized-timeline-event";
 import { ImportBatchSummary } from "./import-batch-summary";
 import { ImportCsvPreview } from "./import-csv-preview";
@@ -44,7 +45,9 @@ export function ImportPage() {
           const parsed = parseTimeline(content, file.name);
 
           timelineFiles.push({
+            sourceKey: getImportSourceKey(file),
             fileName: file.name,
+            relativePath: file.webkitRelativePath || file.name,
             events: parsed.map(normalizeTimelineEvent),
           });
 
@@ -56,7 +59,9 @@ export function ImportPage() {
           const parsed = parseImportCsv(content);
 
           csvFiles.push({
+            sourceKey: getImportSourceKey(file),
             fileName: file.name,
+            relativePath: file.webkitRelativePath || file.name,
             headers: parsed.headers,
             rows: parsed.rows,
           });
@@ -69,9 +74,29 @@ export function ImportPage() {
         );
       }
 
-      setBatch({
-        timelineFiles,
-        csvFiles,
+      setBatch((current) => {
+        const existingTimelineKeys = new Set(
+          current.timelineFiles.map((file) => file.sourceKey),
+        );
+
+        const existingCsvKeys = new Set(
+          current.csvFiles.map((file) => file.sourceKey),
+        );
+
+        return {
+          timelineFiles: [
+            ...current.timelineFiles,
+            ...timelineFiles.filter(
+              (file) => !existingTimelineKeys.has(file.sourceKey),
+            ),
+          ],
+          csvFiles: [
+            ...current.csvFiles,
+            ...csvFiles.filter(
+              (file) => !existingCsvKeys.has(file.sourceKey),
+            ),
+          ],
+        };
       });
     } catch (caught) {
       setBatch({
@@ -167,6 +192,20 @@ export function ImportPage() {
           {batch.timelineFiles.length > 0 ||
           batch.csvFiles.length > 0 ? (
             <>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setBatch({
+                      timelineFiles: [],
+                      csvFiles: [],
+                    })
+                  }
+                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Clear import
+                </button>
+              </div>
               <ImportBatchSummary batch={batch} />
 
               <ImportFilePreview batch={batch} />
