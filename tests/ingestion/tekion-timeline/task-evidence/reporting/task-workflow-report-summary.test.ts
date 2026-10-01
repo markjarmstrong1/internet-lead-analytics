@@ -60,8 +60,8 @@ describe("buildTaskWorkflowReportSummary", () => {
     )).toEqual({
       key: "qualifying_outbound_evidence_rate",
       numerator: 3,
-      denominator: 6,
-      rate: 0.5,
+      denominator: 7,
+      rate: 3 / 7,
     });
   });
 
