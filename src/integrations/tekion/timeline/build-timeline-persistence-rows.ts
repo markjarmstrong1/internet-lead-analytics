@@ -18,6 +18,7 @@ export function buildTimelinePersistenceBatch(
   return {
     record: {
       source_system: record.sourceSystem,
+      lead_id: null,
       source_type: record.sourceType,
       external_record_id: record.externalRecordId ?? null,
       fixture_source_key: record.fixtureSourceKey ?? null,

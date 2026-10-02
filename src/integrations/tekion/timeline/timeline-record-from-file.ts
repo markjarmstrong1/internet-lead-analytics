@@ -7,6 +7,7 @@ export function timelineRecordFromFile(
   return {
     sourceSystem: "tekion",
     sourceType: "timeline",
+    externalRecordId: undefined,
     fixtureSourceKey: file.sourceKey,
     sourceFile: file.relativePath,
   };

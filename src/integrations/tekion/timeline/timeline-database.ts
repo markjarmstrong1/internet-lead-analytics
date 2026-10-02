@@ -10,10 +10,22 @@ import type {
   TimelineEventPersistenceRow,
   TimelineRecordPersistenceRow,
 } from "./timeline-persistence-row";
+import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
 
 export type TimelineDatabase = {
   public: {
     Tables: {
+      leads: {
+        Row: LeadPersistenceRow & {
+          id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: LeadPersistenceRow & Record<string, unknown>;
+        Update: Partial<LeadPersistenceRow> & Record<string, unknown>;
+        Relationships: [];
+      };
+
       source_imports: {
         Row: PersistedSourceImport;
         Insert: SourceImportPersistenceRow &

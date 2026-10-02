@@ -43,6 +43,7 @@ function createExistingRecord(): PersistedTimelineRecord {
   return {
     id: "record-1",
     source_system: "tekion",
+    lead_id: null,
     source_type: "timeline",
     external_record_id: null,
     fixture_source_key: "fixtures/ana_yu.txt",

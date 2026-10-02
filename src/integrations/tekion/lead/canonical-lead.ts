@@ -1,0 +1,25 @@
+export type CanonicalLead = {
+  sourceSystem: "tekion";
+  sourceType: "lead";
+  externalRecordId: string;
+  contactName: string;
+  creationTime: string;
+  source: string;
+  vehicleInterest: string;
+  sourceTypeDetailed: string;
+  leadSourceGroup: string;
+  email: string;
+  mobilePhone: string;
+  homePhone: string;
+  workPhone: string;
+  vehicleYear: string;
+  vehicleMake: string;
+  vehicleModel: string;
+  status: string;
+  stage: string;
+  department: string;
+  dealership: string;
+  dealStatus: string;
+  soldDate: string;
+  closedTime: string;
+};

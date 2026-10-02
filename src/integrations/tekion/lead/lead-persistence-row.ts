@@ -1,0 +1,26 @@
+export type LeadPersistenceRow = {
+  source_system: "tekion";
+  source_type: "lead";
+  external_record_id: string;
+  contact_name: string;
+  creation_time: string | null;
+  source: string;
+  vehicle_interest: string;
+  source_type_detailed: string;
+  lead_source_group: string;
+  email: string;
+  mobile_phone: string;
+  home_phone: string;
+  work_phone: string;
+  vehicle_year: string;
+  vehicle_make: string;
+  vehicle_model: string;
+  status: string;
+  stage: string;
+  department: string;
+  dealership: string;
+  deal_status: string;
+  sold_date: string | null;
+  closed_time: string | null;
+  raw_data: Record<string, unknown>;
+};

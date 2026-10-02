@@ -1,5 +1,6 @@
 export type TimelineRecordPersistenceRow = {
   source_system: "tekion";
+  lead_id: string | null;
   source_type: "timeline";
   external_record_id: string | null;
   fixture_source_key: string | null;
