@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import mammoth from "mammoth";
 import { assignTimelineEventIdentities } from "@/integrations/tekion/timeline/assign-timeline-event-identities";
 import { normalizeTimelineEvent } from "@/integrations/tekion/timeline/normalize-timeline-event";
 import { parseTimeline } from "@/integrations/tekion/timeline/parse-timeline";
@@ -41,8 +42,23 @@ export function ImportPage() {
       for (const file of files) {
         const lowerName = file.name.toLowerCase();
 
-        if (lowerName.endsWith(".txt")) {
-          const content = await file.text();
+        if (
+          lowerName.endsWith(".txt") ||
+          lowerName.endsWith(".docx")
+        ) {
+          let content: string;
+
+          if (lowerName.endsWith(".docx")) {
+            const buffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({
+              arrayBuffer: buffer,
+            });
+
+            content = result.value;
+          } else {
+            content = await file.text();
+          }
+
           const parsed = parseTimeline(content, file.name);
           const normalized = parsed.map(normalizeTimelineEvent);
 
@@ -72,7 +88,7 @@ export function ImportPage() {
 
       if (timelineFiles.length === 0 && csvFiles.length === 0) {
         throw new Error(
-          "No supported files were found. Select .txt timeline files or .csv files.",
+          "No supported files were found. Select .txt or .docx timeline files, or .csv files.",
         );
       }
 
@@ -158,18 +174,18 @@ export function ImportPage() {
           <section className="grid gap-6 lg:grid-cols-3">
             <UploadCard
               title="Timeline files"
-              description="Select one or many .txt timeline files."
+              description="Select one or many .txt or .docx timeline files."
               buttonLabel="Choose timeline files"
-              accept=".txt,text/plain"
+              accept=".txt,.docx,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               multiple
               onChange={handleFileSelection}
             />
 
             <UploadCard
               title="Timeline folder"
-              description="Select a folder containing existing and new .txt files."
+              description="Select a folder containing existing and new .txt or .docx files."
               buttonLabel="Choose folder"
-              accept=".txt,text/plain"
+              accept=".txt,.docx,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               inputRef={directoryInputRef}
               directory
               onChange={handleFileSelection}
