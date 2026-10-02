@@ -220,7 +220,7 @@ describe("executeTimelineImportSync", () => {
         newCount: 1,
         updatedCount: 1,
         unchangedCount: 1,
-          invalidCount: 1,
+        invalidCount: 1,
       },
       events: {
         total: 4,
@@ -228,6 +228,14 @@ describe("executeTimelineImportSync", () => {
         updatedCount: 1,
         unchangedCount: 1,
         invalidCount: 1,
+      },
+      leads: {
+        total: 0,
+        persisted: 0,
+      },
+      sourceRecords: {
+        total: 0,
+        persisted: 0,
       },
     });
   });
