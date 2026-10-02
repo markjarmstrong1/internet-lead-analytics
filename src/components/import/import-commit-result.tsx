@@ -15,16 +15,38 @@ export function ImportCommitResult({
         </p>
 
         <h2 className="mt-2 text-xl font-semibold text-emerald-950">
-          Canonical timeline data is synchronized
+          Tekion data is synchronized
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-emerald-800">
-          The import was reconciled against the existing canonical timeline
-          data and the required record and event changes were persisted.
+          Canonical leads, raw source observations, and timeline evidence
+          from this import were persisted successfully.
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <CommitSummary
+          label="Leads"
+          summary={{
+            total: result.leads.total,
+            newCount: result.leads.total,
+            updatedCount: 0,
+            unchangedCount: 0,
+            invalidCount: 0,
+          }}
+        />
+
+        <CommitSummary
+          label="Source records"
+          summary={{
+            total: result.sourceRecords.total,
+            newCount: result.sourceRecords.total,
+            updatedCount: 0,
+            unchangedCount: 0,
+            invalidCount: 0,
+          }}
+        />
+
         <CommitSummary
           label="Timeline records"
           summary={result.records}
