@@ -11,7 +11,7 @@ export function LeadDetailPage({ leadId }: LeadDetailPageProps) {
   return (
     <div className="mx-auto max-w-[1600px] space-y-8 px-6 py-8 lg:px-8">
       <Link
-        href="/leads"
+        href="/leads/list"
         className="text-sm font-medium text-slate-500 hover:text-slate-950"
       >
         ← Back to Leads
@@ -23,98 +23,62 @@ export function LeadDetailPage({ leadId }: LeadDetailPageProps) {
         description={`Lead reference: ${leadId}`}
       />
 
-      <SectionPanel
-        title="Customer / lead"
-        description="A compact identity block for the lead."
-      >
-        <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Customer
-            </p>
-            <p className="mt-1 text-sm font-medium">Lead placeholder</p>
+      <div className="grid items-stretch gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
+        <SectionPanel
+          title="Customer / lead"
+          description="Core identity and lead information."
+        >
+          <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            {[
+              ["Customer", "Lead placeholder"],
+              ["Phone", "—"],
+              ["Email", "—"],
+              ["Lead source", "—"],
+              ["Created", "—"],
+              ["Status", "—"],
+              ["Salesperson", "—"],
+              ["BDC representative", "—"],
+              ["Vehicle", "—"],
+              ["Stock number", "—"],
+              ["VIN", "—"],
+              ["Trade-in", "—"],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  {label}
+                </p>
+                <p className="mt-1 text-sm font-medium">{value}</p>
+              </div>
+            ))}
           </div>
+        </SectionPanel>
 
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Phone
-            </p>
-            <p className="mt-1 text-sm">—</p>
+        <SectionPanel
+          title="Methods used"
+          description="The outreach methods, tactics, templates, and strings observed for this lead."
+        >
+          <div className="space-y-3">
+            {[
+              "Method / tactic placeholder",
+              "Method / tactic placeholder",
+              "Method / tactic placeholder",
+              "Method / tactic placeholder",
+            ].map((method, index) => (
+              <div
+                key={`${method}-${index}`}
+                className="rounded-lg border border-slate-200 p-4"
+              >
+                <p className="text-sm font-medium">{method}</p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Action → purpose → tactic → template → message
+                </p>
+              </div>
+            ))}
           </div>
+        </SectionPanel>
+      </div>
 
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Email
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Lead source
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Created
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Status
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Salesperson
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              BDC representative
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Vehicle
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Stock number
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              VIN
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Trade-in
-            </p>
-            <p className="mt-1 text-sm">—</p>
-          </div>
-        </div>
-      </SectionPanel>
-
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
+      <div className="grid items-stretch gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
         <SectionPanel
           title="Timeline"
           description="The chronological evidence record for this lead."
@@ -177,55 +141,32 @@ export function LeadDetailPage({ leadId }: LeadDetailPageProps) {
           </div>
         </SectionPanel>
 
-        <div className="space-y-6">
-          <SectionPanel
-            title="Tactics used"
-            description="The methods, tactics, templates, and strings observed for this lead."
-          >
-            <div className="space-y-3">
-              {[
-                "Tactic placeholder",
-                "Tactic placeholder",
-                "Tactic placeholder",
-              ].map((tactic, index) => (
-                <div
-                  key={`${tactic}-${index}`}
-                  className="rounded-lg border border-slate-200 p-4"
-                >
-                  <p className="text-sm font-medium">{tactic}</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Action → purpose → tactic → message
-                  </p>
-                </div>
-              ))}
-            </div>
-          </SectionPanel>
+        <SectionPanel
+          title="Lead analytics"
+          description="Calculated and observed information about this lead."
+        >
+          <div className="space-y-3">
+            <StatPlaceholder label="First outbound → response" />
+            <StatPlaceholder label="Response time" />
+            <StatPlaceholder label="Outbound actions" />
+            <StatPlaceholder label="Inbound responses" />
+            <StatPlaceholder label="Tasks completed" />
+            <StatPlaceholder label="Tasks missed" />
+            <StatPlaceholder label="Appointment" />
+            <StatPlaceholder label="Sale" />
 
-          <SectionPanel
-            title="Lead analysis"
-            description="Calculated and observed information about this lead."
-          >
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-              <StatPlaceholder label="First outbound → response" />
-              <StatPlaceholder label="Response time" />
-              <StatPlaceholder label="Outbound actions" />
-              <StatPlaceholder label="Inbound responses" />
-              <StatPlaceholder label="Tasks completed" />
-              <StatPlaceholder label="Tasks missed" />
-              <StatPlaceholder label="Appointment" />
-              <StatPlaceholder label="Sale" />
-            </div>
-          </SectionPanel>
+            <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Exceptions / evidence
+              </p>
 
-          <SectionPanel
-            title="Exceptions / evidence"
-            description="Missing evidence, limitations, and traceability."
-          >
-            <div className="min-h-32 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-400">
-              Evidence and exception details will appear here.
+              <p className="mt-2 text-sm text-slate-500">
+                Missing evidence, limitations, and traceability will appear
+                here.
+              </p>
             </div>
-          </SectionPanel>
-        </div>
+          </div>
+        </SectionPanel>
       </div>
     </div>
   );

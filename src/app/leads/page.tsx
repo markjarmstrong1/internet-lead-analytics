@@ -1,10 +1,5 @@
-import { AppShell } from "@/components/app/app-shell";
-import { LeadsPage } from "@/components/leads/leads-page";
+import { redirect } from "next/navigation";
 
 export default function LeadsRoute() {
-  return (
-    <AppShell>
-      <LeadsPage />
-    </AppShell>
-  );
+  redirect("/leads/list");
 }
