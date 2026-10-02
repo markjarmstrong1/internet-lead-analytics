@@ -1,5 +1,10 @@
+import { AppShell } from "@/components/app/app-shell";
 import { ImportPage } from "@/components/import/import-page";
 
 export default function ImportRoute() {
-  return <ImportPage />;
+  return (
+    <AppShell>
+      <ImportPage />
+    </AppShell>
+  );
 }
