@@ -236,15 +236,19 @@ describe("SupabaseTimelineImportRepository", () => {
       repository.executeAtomicImport(
         "import-1",
         plan,
+        [],
+        [],
       ),
     ).resolves.toBeUndefined();
 
     expect(client.rpc).toHaveBeenCalledWith(
-      "apply_timeline_import",
+      "apply_tekion_import_batch",
       {
         import_id: "import-1",
-        record_operations: plan.records,
-        event_operations: plan.events,
+        lead_rows: [],
+        source_record_rows: [],
+        timeline_record_operations: plan.records,
+        timeline_event_operations: plan.events,
       },
     );
   });
@@ -270,9 +274,11 @@ describe("SupabaseTimelineImportRepository", () => {
       repository.executeAtomicImport(
         "import-1",
         plan,
+        [],
+        [],
       ),
     ).rejects.toThrow(
-      "Failed to persist timeline import import-1: transaction failed",
+      "Failed to persist Tekion import import-1: transaction failed",
     );
   });
 

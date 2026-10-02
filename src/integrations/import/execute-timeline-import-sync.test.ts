@@ -202,12 +202,16 @@ describe("executeTimelineImportSync", () => {
       plan,
       repository,
       "import-123",
+      [],
+      [],
     );
 
     expect(executeAtomicImport).toHaveBeenCalledTimes(1);
     expect(executeAtomicImport).toHaveBeenCalledWith(
       "import-123",
       plan,
+      [],
+      [],
     );
 
     expect(result).toEqual({
@@ -216,7 +220,7 @@ describe("executeTimelineImportSync", () => {
         newCount: 1,
         updatedCount: 1,
         unchangedCount: 1,
-        invalidCount: 1,
+          invalidCount: 1,
       },
       events: {
         total: 4,
@@ -250,12 +254,16 @@ describe("executeTimelineImportSync", () => {
         plan,
         createRepository(executeAtomicImport),
         "import-123",
+        [],
+        [],
       ),
     ).rejects.toThrow("atomic import failed");
 
     expect(executeAtomicImport).toHaveBeenCalledWith(
       "import-123",
       plan,
+      [],
+      [],
     );
   });
 });

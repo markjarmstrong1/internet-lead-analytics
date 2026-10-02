@@ -90,18 +90,18 @@ export type TimelineDatabase = {
       [_ in never]: never;
     };
 
-   Functions: {
-  apply_tekion_import_batch: {
-    Args: {
-      import_id: string;
-      lead_rows: Record<string, unknown>[];
-      source_record_rows: Record<string, unknown>[];
-      timeline_record_operations: Record<string, unknown>[];
-      timeline_event_operations: Record<string, unknown>[];
+    Functions: {
+      apply_tekion_import_batch: {
+        Args: {
+          import_id: string;
+          lead_rows: Record<string, unknown>[];
+          source_record_rows: Record<string, unknown>[];
+          timeline_record_operations: Record<string, unknown>[];
+          timeline_event_operations: Record<string, unknown>[];
+        };
+        Returns: null;
+      };
     };
-    Returns: null;
-  };
-};
 
     Enums: {
       [_ in never]: never;

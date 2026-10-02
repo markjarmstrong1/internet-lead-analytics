@@ -7,6 +7,8 @@ import type {
   SourceImportPersistenceRow,
   SourceImportStatus,
 } from "./source-import";
+import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
+import type { SourceRecordPersistenceRow } from "./source-record-persistence-row";
 import type { TimelineDatabase } from "@/integrations/tekion/timeline/timeline-database";
 
 export class SupabaseTimelineImportRepository
@@ -90,11 +92,11 @@ export class SupabaseTimelineImportRepository
   }
 
   async executeAtomicImport(
-  importId: string,
-  plan: TimelineImportSyncPlan,
-  leads: LeadPersistenceRow[],
-  sourceRecords: SourceRecordPersistenceRow[],
-): Promise<void> {
+    importId: string,
+    plan: TimelineImportSyncPlan,
+    leads: LeadPersistenceRow[],
+    sourceRecords: SourceRecordPersistenceRow[],
+  ): Promise<void> {
   const { error } = await this.client.rpc(
     "apply_tekion_import_batch",
     {
@@ -111,7 +113,5 @@ export class SupabaseTimelineImportRepository
       `Failed to persist Tekion import ${importId}: ${error.message}`,
     );
   }
-}
-
-
+  }
 }
