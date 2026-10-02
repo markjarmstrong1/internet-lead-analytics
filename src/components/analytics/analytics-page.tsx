@@ -5,6 +5,7 @@ import { EvidenceLegend } from "@/components/app/evidence-legend";
 import { AnalysisAnswer } from "@/components/analytics/analysis-answer";
 import { AnalysisBreakdown } from "@/components/analytics/analysis-breakdown";
 import { AnalysisLimitation } from "@/components/analytics/analysis-limitation";
+import { AnalysisMethod } from "@/components/analytics/analysis-method";
 
 type AnalyticsPageProps = {
   metric: ReportableMetric;
@@ -40,25 +41,29 @@ export function AnalyticsPage({
       <EvidenceLegend />
 
       <SectionPanel
-        title="Analysis categories"
-        description="Select the type of question you want to investigate."
+        title="Analysis areas"
+        description="Available areas for investigation as analytical definitions are added."
       >
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => (
-            <button
+            <div
               key={category}
-              type="button"
-              className="rounded-lg border border-slate-200 p-4 text-left text-sm font-medium hover:border-slate-400 hover:bg-slate-50"
+              className="rounded-lg border border-slate-200 bg-white p-4"
             >
-              {category}
-            </button>
+              <p className="text-sm font-medium text-slate-700">
+                {category}
+              </p>
+              <p className="mt-1 text-xs text-slate-400">
+                Analysis available as a defined metric is added.
+              </p>
+            </div>
           ))}
         </div>
       </SectionPanel>
 
       <SectionPanel
         title="Selected analysis"
-        description="The selected metric or analysis will occupy the main workspace."
+        description="The selected metric or analysis occupies the main workspace."
       >
         <AnalysisAnswer
           title={metric.title}
@@ -70,6 +75,32 @@ export function AnalyticsPage({
           classification={metric.classification}
           evidenceState="calculated"
         />
+
+        <div className="mt-6">
+          <AnalysisMethod
+            items={[
+              {
+                label: "Population",
+                value:
+                  "Timeline records containing a qualifying outbound employee communication.",
+              },
+              {
+                label: "Exposure",
+                value:
+                  "The first outbound employee communication with a recognized channel.",
+              },
+              {
+                label: "Outcome",
+                value:
+                  "The first inbound communication observed after the exposure.",
+              },
+              {
+                label: "Window",
+                value: `${metric.windowHours} hours after the exposure.`,
+              },
+            ]}
+          />
+        </div>
 
         <div className="mt-6">
           <AnalysisBreakdown rows={metric.breakdowns} />
