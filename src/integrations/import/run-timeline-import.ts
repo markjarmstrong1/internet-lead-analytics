@@ -9,8 +9,6 @@ import { executeTimelineImportSync } from "./execute-timeline-import-sync";
 export async function runTimelineImport(
   batch: ImportBatch,
 ) {
-  const persistencePlan = buildImportPersistencePlan(batch);
-
   const repository =
     createServerTimelineImportRepository();
 
@@ -30,37 +28,51 @@ export async function runTimelineImport(
           : null,
       status: "processing",
       record_count:
-        persistencePlan.leads.length +
-        persistencePlan.sourceRecords.length +
-        persistencePlan.timelineBatches.length,
+        batch.timelineFiles.length +
+        batch.csvFiles.length,
     });
 
   try {
-    const existing = await repository.loadSnapshot();
+    const existing =
+      await repository.loadSnapshot();
 
-    const syncPlan = buildTimelineImportSyncPlan(
-      persistencePlan,
-      existing,
-    );
+    const persistencePlan =
+      buildImportPersistencePlan(
+        batch,
+        existing.leads,
+      );
 
-    const result = await executeTimelineImportSync(
-      syncPlan,
-      repository,
-      sourceImport.id,
-      persistencePlan.leads,
-      persistencePlan.sourceRecords,
-    );
+    const syncPlan =
+      buildTimelineImportSyncPlan(
+        persistencePlan,
+        existing,
+      );
+
+    const result =
+      await executeTimelineImportSync(
+        syncPlan,
+        repository,
+        sourceImport.id,
+        persistencePlan.leads,
+        persistencePlan.sourceRecords,
+      );
 
     return {
       ...result,
+
       leads: {
         total: persistencePlan.leads.length,
-        persisted: persistencePlan.leads.length,
+        persisted:
+          persistencePlan.leads.length,
       },
+
       sourceRecords: {
-        total: persistencePlan.sourceRecords.length,
-        persisted: persistencePlan.sourceRecords.length,
+        total:
+          persistencePlan.sourceRecords.length,
+        persisted:
+          persistencePlan.sourceRecords.length,
       },
+
       import: {
         id: sourceImport.id,
         status: "completed" as const,

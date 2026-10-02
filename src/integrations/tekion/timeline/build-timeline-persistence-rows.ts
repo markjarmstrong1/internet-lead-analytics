@@ -1,7 +1,9 @@
 import type { ImportedTimelineFile } from "@/integrations/import/import-batch";
 import { timelineRecordFromFile } from "./timeline-record-from-file";
-import { resolveTimelineLead } from "@/integrations/tekion/lead/resolve-timeline-lead";
-import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
+import {
+  resolveTimelineLead,
+  type TimelineLeadIdentity,
+} from "@/integrations/tekion/lead/resolve-timeline-lead";
 import type {
   TimelineEventPersistenceRow,
   TimelineRecordPersistenceRow,
@@ -14,34 +16,33 @@ export type TimelinePersistenceBatch = {
 
 export function buildTimelinePersistenceBatch(
   file: ImportedTimelineFile,
-  leads: Array<LeadPersistenceRow & { id?: string }>,
+  leads: TimelineLeadIdentity[],
 ): TimelinePersistenceBatch {
   const record = timelineRecordFromFile(file);
 
   const resolution = resolveTimelineLead(
     file.relativePath || file.fileName,
-    leads.filter((lead): lead is LeadPersistenceRow & { id: string } =>
-      typeof lead.id === "string",
-    ),
+    leads,
   );
 
   return {
     record: {
       source_system: record.sourceSystem,
-      lead_id: resolution.leadId,
+      lead_id: null,
+      resolved_lead_external_record_id:
+        resolution.externalRecordId,
       source_type: record.sourceType,
-      external_record_id: record.externalRecordId ?? null,
-      fixture_source_key: record.fixtureSourceKey ?? null,
-      source_file: record.sourceFile ?? null,
+      external_record_id:
+        record.externalRecordId ?? null,
+      fixture_source_key:
+        record.fixtureSourceKey ?? null,
+      source_file:
+        record.sourceFile ?? null,
       raw_data: {
         sourceKey: file.sourceKey,
         fileName: file.fileName,
         relativePath: file.relativePath,
         eventCount: file.events.length,
-        leadResolution: {
-          status: resolution.status,
-          leadId: resolution.leadId,
-        },
       },
     },
 
@@ -56,6 +57,7 @@ export function buildTimelinePersistenceBatch(
       channel: event.communicationChannel ?? null,
       direction: event.communicationDirection ?? null,
       details: event.details,
+
       metadata: {
         communicationChannel:
           event.communicationChannel ?? null,
@@ -63,6 +65,7 @@ export function buildTimelinePersistenceBatch(
           event.communicationDirection ?? null,
         actorType: event.actorType,
       },
+
       raw_data: {
         sourceEventId: event.sourceEventId,
         sourceFile: event.sourceFile,

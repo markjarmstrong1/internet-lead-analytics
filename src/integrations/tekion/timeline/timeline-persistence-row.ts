@@ -6,6 +6,15 @@ export type TimelineRecordPersistenceRow = {
   fixture_source_key: string | null;
   source_file: string | null;
   raw_data: Record<string, unknown>;
+
+  /**
+   * Derived during import.
+   *
+   * This is not a database column. The atomic RPC uses it to
+   * resolve the canonical public.leads.id after lead rows have
+   * been inserted/upserted.
+   */
+  resolved_lead_external_record_id?: string | null;
 };
 
 export type TimelineEventPersistenceRow = {

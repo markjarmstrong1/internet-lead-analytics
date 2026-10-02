@@ -1,12 +1,12 @@
 import type { LeadPersistenceRow } from "./lead-persistence-row";
 
-type LeadIdentity = {
-  id: string;
+export type TimelineLeadIdentity = {
+  externalRecordId: string;
   contactName: string;
 };
 
 export type TimelineLeadResolution = {
-  leadId: string | null;
+  externalRecordId: string | null;
   status: "matched" | "ambiguous" | "unresolved";
 };
 
@@ -42,28 +42,45 @@ function namesMatch(
   }
 
   /*
-   * Some Tekion contact names contain a middle name that is absent
-   * from the timeline filename.
+   * Tekion can contain a middle name that is absent from the
+   * timeline filename.
    *
    * Example:
    *   William Glasgow
    *   William NEWTON Glasgow
    *
-   * Require every timeline token to occur in the canonical lead name.
-   * This avoids arbitrary fuzzy matching.
+   * Every filename token must occur in the canonical lead name.
+   * This is intentionally deterministic rather than fuzzy.
    */
   return timelineTokens.every((token) =>
     leadTokens.includes(token),
   );
 }
 
+function toLeadIdentity(
+  lead: TimelineLeadIdentity | LeadPersistenceRow,
+): TimelineLeadIdentity | null {
+  if ("externalRecordId" in lead) {
+    return lead.externalRecordId
+      ? lead
+      : null;
+  }
+
+  return lead.external_record_id
+    ? {
+        externalRecordId: lead.external_record_id,
+        contactName: lead.contact_name,
+      }
+    : null;
+}
+
 export function resolveTimelineLead(
   timelineSourceFile: string | null | undefined,
-  leads: Array<LeadIdentity | LeadPersistenceRow>,
+  leads: Array<TimelineLeadIdentity | LeadPersistenceRow>,
 ): TimelineLeadResolution {
   if (!timelineSourceFile) {
     return {
-      leadId: null,
+      externalRecordId: null,
       status: "unresolved",
     };
   }
@@ -77,31 +94,38 @@ export function resolveTimelineLead(
 
   if (!fileName) {
     return {
-      leadId: null,
+      externalRecordId: null,
       status: "unresolved",
     };
   }
 
-  const matches = leads.filter((lead) =>
+  const identities = leads
+    .map(toLeadIdentity)
+    .filter(
+      (lead): lead is TimelineLeadIdentity =>
+        lead !== null,
+    );
+
+  const matches = identities.filter((lead) =>
     namesMatch(fileName, lead.contactName),
   );
 
   if (matches.length === 1) {
     return {
-      leadId: matches[0].id,
+      externalRecordId: matches[0].externalRecordId,
       status: "matched",
     };
   }
 
   if (matches.length > 1) {
     return {
-      leadId: null,
+      externalRecordId: null,
       status: "ambiguous",
     };
   }
 
   return {
-    leadId: null,
+    externalRecordId: null,
     status: "unresolved",
   };
 }

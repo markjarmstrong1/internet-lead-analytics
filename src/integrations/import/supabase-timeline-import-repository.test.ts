@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@Supabase/supabase-js";
 
 import {
   SupabaseTimelineImportRepository,
@@ -37,6 +37,7 @@ function createQuery<T>(result: QueryResult<T>) {
 function createFakeClient(results: {
   records: QueryResult<unknown>;
   events: QueryResult<unknown>;
+  leads: QueryResult<unknown>;
   sourceImports: QueryResult<unknown>;
   rpcResult?: {
     error: { message: string } | null;
@@ -50,6 +51,10 @@ function createFakeClient(results: {
 
       if (table === "timeline_events") {
         return createQuery(results.events);
+      }
+
+      if (table === "leads") {
+        return createQuery(results.leads);
       }
 
       return createQuery(results.sourceImports);
@@ -134,6 +139,10 @@ describe("SupabaseTimelineImportRepository", () => {
           data: [persistedEvent],
           error: null,
         },
+        leads: {
+          data: [],
+          error: null,
+        },
         sourceImports: {
           data: [],
           error: null,
@@ -144,6 +153,7 @@ describe("SupabaseTimelineImportRepository", () => {
     await expect(repository.loadSnapshot()).resolves.toEqual({
       records: [persistedRecord],
       events: [persistedEvent],
+      leads: [],
     });
   });
 
@@ -165,8 +175,18 @@ describe("SupabaseTimelineImportRepository", () => {
 
     const repository = new SupabaseTimelineImportRepository(
       createFakeClient({
-        records: { data: [], error: null },
-        events: { data: [], error: null },
+        records: {
+          data: [],
+          error: null,
+        },
+        events: {
+          data: [],
+          error: null,
+        },
+        leads: {
+          data: [],
+          error: null,
+        },
         sourceImports: {
           data: persistedImport,
           error: null,
@@ -201,8 +221,18 @@ describe("SupabaseTimelineImportRepository", () => {
 
     const repository = new SupabaseTimelineImportRepository(
       createFakeClient({
-        records: { data: [], error: null },
-        events: { data: [], error: null },
+        records: {
+          data: [],
+          error: null,
+        },
+        events: {
+          data: [],
+          error: null,
+        },
+        leads: {
+          data: [],
+          error: null,
+        },
         sourceImports: {
           data: persistedImport,
           error: null,
@@ -221,8 +251,18 @@ describe("SupabaseTimelineImportRepository", () => {
 
   it("executes the complete import through the database RPC", async () => {
     const client = createFakeClient({
-      records: { data: [], error: null },
-      events: { data: [], error: null },
+      records: {
+        data: [],
+        error: null,
+      },
+      events: {
+        data: [],
+        error: null,
+      },
+      leads: {
+        data: [],
+        error: null,
+      },
       sourceImports: {
         data: [],
         error: null,
@@ -256,8 +296,18 @@ describe("SupabaseTimelineImportRepository", () => {
   it("surfaces RPC persistence errors", async () => {
     const repository = new SupabaseTimelineImportRepository(
       createFakeClient({
-        records: { data: [], error: null },
-        events: { data: [], error: null },
+        records: {
+          data: [],
+          error: null,
+        },
+        events: {
+          data: [],
+          error: null,
+        },
+        leads: {
+          data: [],
+          error: null,
+        },
         sourceImports: {
           data: [],
           error: null,
@@ -292,6 +342,10 @@ describe("SupabaseTimelineImportRepository", () => {
           },
         },
         events: {
+          data: [],
+          error: null,
+        },
+        leads: {
           data: [],
           error: null,
         },

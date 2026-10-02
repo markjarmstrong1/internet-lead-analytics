@@ -2,25 +2,27 @@ import type {
   PersistedTimelineEvent,
   PersistedTimelineRecord,
 } from "./reconcile-timeline-import";
+
 import type { TimelineImportSyncPlan } from "./build-timeline-import-sync-plan";
+
 import type {
   PersistedSourceImport,
   SourceImportPersistenceRow,
   SourceImportStatus,
 } from "./source-import";
+
 import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
 import type { SourceRecordPersistenceRow } from "./source-record-persistence-row";
 
-export type PersistedLead = LeadPersistenceRow & {
-  id: string;
-  created_at: string;
-  updated_at: string;
+export type TimelineLeadIdentitySnapshot = {
+  externalRecordId: string;
+  contactName: string;
 };
 
 export type TimelineImportSnapshot = {
   records: PersistedTimelineRecord[];
   events: PersistedTimelineEvent[];
-  leads: PersistedLead[];
+  leads: TimelineLeadIdentitySnapshot[];
 };
 
 export interface TimelineImportRepository {
