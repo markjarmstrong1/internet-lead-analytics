@@ -23,13 +23,12 @@ export function LeadDetailPage({ leadId }: LeadDetailPageProps) {
         description={`Lead reference: ${leadId}`}
       />
 
-      <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
         <SectionPanel
           title="Customer / lead"
-          description="Core identity and lead information."
           compact
         >
-          <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+          <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
             {[
               ["Customer", "Lead placeholder"],
               ["Phone", "—"],
@@ -56,10 +55,9 @@ export function LeadDetailPage({ leadId }: LeadDetailPageProps) {
 
         <SectionPanel
           title="Methods used"
-          description="The outreach methods, tactics, templates, and strings observed for this lead."
           compact
         >
-          <div className="space-y-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             {[
               "Method / tactic placeholder",
               "Method / tactic placeholder",
@@ -68,7 +66,7 @@ export function LeadDetailPage({ leadId }: LeadDetailPageProps) {
             ].map((method, index) => (
               <div
                 key={`${method}-${index}`}
-                className="rounded-lg border border-slate-200 p-3"
+                className="rounded-lg border border-slate-200 p-2.5"
               >
                 <p className="text-sm font-medium">{method}</p>
                 <p className="mt-1 text-xs text-slate-400">

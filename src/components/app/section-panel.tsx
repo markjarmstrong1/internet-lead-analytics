@@ -18,7 +18,7 @@ export function SectionPanel({
       <div
         className={
           compact
-            ? "border-b border-slate-200 px-4 py-3"
+            ? "border-b border-slate-200 px-4 py-2.5"
             : "border-b border-slate-200 px-5 py-4"
         }
       >
@@ -29,7 +29,7 @@ export function SectionPanel({
         ) : null}
       </div>
 
-      <div className={compact ? "p-4" : "p-5"}>{children}</div>
+      <div className={compact ? "p-3" : "p-5"}>{children}</div>
     </section>
   );
 }
