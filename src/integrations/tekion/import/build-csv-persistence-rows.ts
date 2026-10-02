@@ -1,68 +1,42 @@
 import type { ImportedCsvFile } from "@/integrations/import/import-batch";
+import type { SourceRecordPersistenceRow } from "@/integrations/import/source-record-persistence-row";
 import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
 import { mapLeadRow } from "@/integrations/tekion/csv/map-lead-row";
 import { mapTaskRow } from "@/integrations/tekion/csv/map-task-row";
 import { createTaskRecordId } from "./create-task-record-id";
-import type { SourceRecordPersistenceRow } from "@/integrations/import/source-record-persistence-row";
 import {
   getTekionCsvType,
   importedCsvRecords,
 } from "@/integrations/tekion/csv/imported-csv-records";
 
-function parseNullableTimestamp(
-  value: string,
-  fieldName: string,
-  fileName: string,
-  rowNumber: number,
-): string | null {
+function parseNullableTimestamp(value: string, fieldName: string, fileName: string, rowNumber: number): string | null {
   const cleaned = value.trim();
-
-  if (!cleaned) {
-    return null;
-  }
-
+  if (!cleaned) return null;
   const parsed = new Date(cleaned);
-
   if (Number.isNaN(parsed.getTime())) {
-    throw new Error(
-      `Invalid ${fieldName} on ${fileName}, row ${rowNumber}: ${value}`,
-    );
+    throw new Error(`Invalid ${fieldName} on ${fileName}, row ${rowNumber}: ${value}`);
   }
-
   return parsed.toISOString();
 }
 
-export function buildLeadPersistenceRows(
-  files: ImportedCsvFile[],
-): LeadPersistenceRow[] {
+export function buildLeadPersistenceRows(files: ImportedCsvFile[]): LeadPersistenceRow[] {
   const rows: LeadPersistenceRow[] = [];
 
   for (const file of files) {
-    if (getTekionCsvType(file) !== "lead") {
-      continue;
-    }
+    if (getTekionCsvType(file) !== "lead") continue;
 
-    const records = importedCsvRecords(file);
-
-    records.forEach((rawData, index) => {
+    importedCsvRecords(file).forEach((rawData, index) => {
       const rowNumber = index + 2;
       const lead = mapLeadRow(rawData);
 
-      if (!lead.leadId) {
-        continue;
-      }
+      if (!lead.leadId) return;
 
       rows.push({
         source_system: "tekion",
         source_type: "lead",
         external_record_id: lead.leadId,
         contact_name: lead.contactName,
-        creation_time: parseNullableTimestamp(
-          lead.creationTime,
-          "Creation Time",
-          file.fileName,
-          rowNumber,
-        ),
+        creation_time: parseNullableTimestamp(lead.creationTime, "Creation Time", file.fileName, rowNumber),
         source: lead.source,
         vehicle_interest: lead.vehicleInterest,
         source_type_detailed: lead.sourceTypeDetailed,
@@ -79,18 +53,8 @@ export function buildLeadPersistenceRows(
         department: lead.department,
         dealership: lead.dealership,
         deal_status: lead.dealStatus,
-        sold_date: parseNullableTimestamp(
-          lead.soldDate,
-          "Sold Date",
-          file.fileName,
-          rowNumber,
-        ),
-        closed_time: parseNullableTimestamp(
-          lead.closedTime,
-          "Closed Time",
-          file.fileName,
-          rowNumber,
-        ),
+        sold_date: parseNullableTimestamp(lead.soldDate, "Sold Date", file.fileName, rowNumber),
+        closed_time: parseNullableTimestamp(lead.closedTime, "Closed Time", file.fileName, rowNumber),
         raw_data: {
           sourceKey: file.sourceKey,
           fileName: file.fileName,
@@ -105,36 +69,53 @@ export function buildLeadPersistenceRows(
   return rows;
 }
 
-export function buildTaskSourceRecordRows(
-  files: ImportedCsvFile[],
-): SourceRecordPersistenceRow[] {
+export function buildSourceRecordRows(files: ImportedCsvFile[]): SourceRecordPersistenceRow[] {
   const rows: SourceRecordPersistenceRow[] = [];
 
   for (const file of files) {
-    if (getTekionCsvType(file) !== "task") {
-      continue;
-    }
+    const csvType = getTekionCsvType(file);
 
-    const records = importedCsvRecords(file);
+    if (csvType !== "task" && csvType !== "lead") continue;
 
-    records.forEach((rawData, index) => {
+    importedCsvRecords(file).forEach((rawData, index) => {
       const rowNumber = index + 2;
-      const task = mapTaskRow(rawData);
 
-      if (!task.taskTitle && !task.action && !task.associatedWith) {
+      if (csvType === "task") {
+        const task = mapTaskRow(rawData);
+
+        if (!task.taskTitle && !task.action && !task.associatedWith) return;
+
+        rows.push({
+          source_system: "tekion",
+          source_type: "task",
+          source_record_id: createTaskRecordId(task),
+          raw_data: {
+            sourceKey: file.sourceKey,
+            fileName: file.fileName,
+            relativePath: file.relativePath,
+            rowNumber,
+            row: rawData,
+          },
+        });
+
         return;
       }
 
+      const lead = mapLeadRow(rawData);
+
+      if (lead.leadId) return;
+
       rows.push({
         source_system: "tekion",
-        source_type: "task",
-        source_record_id: createTaskRecordId(task),
+        source_type: "lead",
+        source_record_id: `lead:${file.sourceKey}:row:${rowNumber}`,
         raw_data: {
           sourceKey: file.sourceKey,
           fileName: file.fileName,
           relativePath: file.relativePath,
           rowNumber,
           row: rawData,
+          observationStatus: "missing_authoritative_lead_id",
         },
       });
     });

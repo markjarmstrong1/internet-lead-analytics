@@ -1,7 +1,7 @@
 import type { ImportBatch } from "./import-batch";
 import {
   buildLeadPersistenceRows,
-  buildTaskSourceRecordRows,
+  buildSourceRecordRows,
 } from "@/integrations/tekion/import/build-csv-persistence-rows";
 import {
   buildTimelinePersistenceBatch,
@@ -16,14 +16,10 @@ export type ImportPersistencePlan = {
   sourceRecords: SourceRecordPersistenceRow[];
 };
 
-export function buildImportPersistencePlan(
-  batch: ImportBatch,
-): ImportPersistencePlan {
+export function buildImportPersistencePlan(batch: ImportBatch): ImportPersistencePlan {
   return {
-    timelineBatches: batch.timelineFiles.map(
-      buildTimelinePersistenceBatch,
-    ),
+    timelineBatches: batch.timelineFiles.map(buildTimelinePersistenceBatch),
     leads: buildLeadPersistenceRows(batch.csvFiles),
-    sourceRecords: buildTaskSourceRecordRows(batch.csvFiles),
+    sourceRecords: buildSourceRecordRows(batch.csvFiles),
   };
 }
