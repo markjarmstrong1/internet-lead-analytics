@@ -4,6 +4,7 @@ import { SectionPanel } from "@/components/app/section-panel";
 import { EvidenceLegend } from "@/components/app/evidence-legend";
 import { AnalysisAnswer } from "@/components/analytics/analysis-answer";
 import { AnalysisBreakdown } from "@/components/analytics/analysis-breakdown";
+import { AnalysisEvidenceTable } from "@/components/analytics/analysis-evidence-table";
 import { AnalysisLimitation } from "@/components/analytics/analysis-limitation";
 import { AnalysisMethod } from "@/components/analytics/analysis-method";
 
@@ -157,10 +158,14 @@ export function AnalyticsPage({
           </div>
         </div>
 
+        <div className="mt-5">
+          <AnalysisEvidenceTable evidence={metric.evidence} />
+        </div>
+
         <div className="mt-5 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
-          Detailed source evidence will become available here when the
-          evidence read path exposes the underlying normalized and raw event
-          records.
+          These are normalized evidence links used by the metric. Raw source
+          event details will be exposed separately when the evidence read path
+          is added.
         </div>
       </SectionPanel>
     </div>
