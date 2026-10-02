@@ -49,9 +49,7 @@ export function buildLeadPersistenceRows(
       const lead = mapLeadRow(rawData);
 
       if (!lead.leadId) {
-        throw new Error(
-          `Lead CSV ${file.fileName}, row ${rowNumber} is missing Lead ID.`,
-        );
+        continue;
       }
 
       rows.push({
