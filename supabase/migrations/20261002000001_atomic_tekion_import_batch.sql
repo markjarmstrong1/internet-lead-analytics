@@ -1,5 +1,5 @@
 create or replace function public.apply_tekion_import_batch(
-  import_id uuid,
+  p_import_id uuid,
   lead_rows jsonb,
   source_record_rows jsonb,
   timeline_record_operations jsonb,
@@ -18,16 +18,16 @@ declare
   persisted_record_id uuid;
   event_record_id uuid;
 begin
-  if import_id is null then
+  if p_import_id is null then
     raise exception 'Tekion import id is required.';
   end if;
 
   if not exists (
     select 1
     from public.source_imports
-    where id = apply_tekion_import_batch.import_id
+    where id = p_import_id
   ) then
-    raise exception 'Tekion import % does not exist.', import_id;
+    raise exception 'Tekion import % does not exist.', p_import_id;
   end if;
 
   /*
@@ -153,7 +153,7 @@ begin
       processed_at
     )
     values (
-      apply_tekion_import_batch.import_id,
+      p_import_id,
       coalesce(item ->> 'source_system', 'tekion'),
       coalesce(item ->> 'source_type', 'unknown'),
       trim(item ->> 'source_record_id'),
@@ -238,7 +238,7 @@ begin
         nullif(trim(incoming ->> 'external_record_id'), ''),
         nullif(trim(incoming ->> 'fixture_source_key'), ''),
         incoming ->> 'source_file',
-        apply_tekion_import_batch.import_id,
+        p_import_id,
         coalesce(incoming -> 'raw_data', '{}'::jsonb),
         nullif(incoming ->> 'lead_id', '')::uuid
       )
@@ -262,7 +262,7 @@ begin
         fixture_source_key =
           nullif(trim(incoming ->> 'fixture_source_key'), ''),
         source_file = incoming ->> 'source_file',
-        import_id = apply_tekion_import_batch.import_id,
+        import_id = p_import_id,
         raw_data =
           coalesce(incoming -> 'raw_data', '{}'::jsonb),
 
@@ -432,7 +432,7 @@ begin
     status = 'completed',
     error_message = null,
     updated_at = now()
-  where id = apply_tekion_import_batch.import_id;
+  where id = p_import_id;
 end;
 $$;
 

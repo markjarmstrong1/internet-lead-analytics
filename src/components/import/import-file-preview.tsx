@@ -26,7 +26,7 @@ export function ImportFilePreview({
       <div className="divide-y divide-slate-100">
         {batch.timelineFiles.map((file) => (
           <div
-            key={`timeline-${file.fileName}`}
+            key={`timeline-${file.sourceKey}`}
             className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
           >
             <div>
