@@ -90,24 +90,28 @@ export class SupabaseTimelineImportRepository
   }
 
   async executeAtomicImport(
-    importId: string,
-    plan: TimelineImportSyncPlan,
-  ): Promise<void> {
-    const { error } = await this.client.rpc(
-      "apply_timeline_import",
-      {
-        import_id: importId,
-        record_operations: plan.records,
-        event_operations: plan.events,
-      },
-    );
+  importId: string,
+  plan: TimelineImportSyncPlan,
+  leads: LeadPersistenceRow[],
+  sourceRecords: SourceRecordPersistenceRow[],
+): Promise<void> {
+  const { error } = await this.client.rpc(
+    "apply_tekion_import_batch",
+    {
+      import_id: importId,
+      lead_rows: leads,
+      source_record_rows: sourceRecords,
+      timeline_record_operations: plan.records,
+      timeline_event_operations: plan.events,
+    },
+  );
 
-    if (error) {
-      throw new Error(
-        `Failed to persist timeline import ${importId}: ${error.message}`,
-      );
-    }
+  if (error) {
+    throw new Error(
+      `Failed to persist Tekion import ${importId}: ${error.message}`,
+    );
   }
+}
 
 
 }

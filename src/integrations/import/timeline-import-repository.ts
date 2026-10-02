@@ -8,6 +8,8 @@ import type {
   SourceImportPersistenceRow,
   SourceImportStatus,
 } from "./source-import";
+import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
+import type { SourceRecordPersistenceRow } from "./source-record-persistence-row";
 
 export type TimelineImportSnapshot = {
   records: PersistedTimelineRecord[];
@@ -30,7 +32,7 @@ export interface TimelineImportRepository {
   executeAtomicImport(
     importId: string,
     plan: TimelineImportSyncPlan,
+    leads: LeadPersistenceRow[],
+    sourceRecords: SourceRecordPersistenceRow[],
   ): Promise<void>;
-
-
 }

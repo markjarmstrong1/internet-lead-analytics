@@ -17,13 +17,22 @@ export async function runTimelineImport(
   const sourceImport =
     await repository.createSourceImport({
       source_system: "tekion",
-      import_type: "timeline",
+      import_type: "tekion_batch",
       file_name:
-        batch.timelineFiles.length === 1
-          ? batch.timelineFiles[0]?.fileName ?? null
+        [
+          ...batch.timelineFiles,
+          ...batch.csvFiles,
+        ].length === 1
+          ? [
+              ...batch.timelineFiles,
+              ...batch.csvFiles,
+            ][0]?.fileName ?? null
           : null,
       status: "processing",
-      record_count: persistencePlan.timelineBatches.length,
+      record_count:
+        persistencePlan.leads.length +
+        persistencePlan.sourceRecords.length +
+        persistencePlan.timelineBatches.length,
     });
 
   try {
@@ -38,10 +47,20 @@ export async function runTimelineImport(
       syncPlan,
       repository,
       sourceImport.id,
+      persistencePlan.leads,
+      persistencePlan.sourceRecords,
     );
 
     return {
       ...result,
+      leads: {
+        total: persistencePlan.leads.length,
+        persisted: persistencePlan.leads.length,
+      },
+      sourceRecords: {
+        total: persistencePlan.sourceRecords.length,
+        persisted: persistencePlan.sourceRecords.length,
+      },
       import: {
         id: sourceImport.id,
         status: "completed" as const,
@@ -51,7 +70,7 @@ export async function runTimelineImport(
     const message =
       caught instanceof Error
         ? caught.message
-        : "The timeline import could not be completed.";
+        : "The Tekion import could not be completed.";
 
     try {
       await repository.updateSourceImportStatus(

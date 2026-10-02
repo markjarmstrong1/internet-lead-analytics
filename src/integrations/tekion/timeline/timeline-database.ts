@@ -11,6 +11,7 @@ import type {
   TimelineRecordPersistenceRow,
 } from "./timeline-persistence-row";
 import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
+import type { SourceRecordPersistenceRow } from "@/integrations/import/source-record-persistence-row";
 
 export type TimelineDatabase = {
   public: {
@@ -52,7 +53,19 @@ export type TimelineDatabase = {
           Record<string, unknown>;
         Relationships: [];
       };
-
+      source_records: {
+        Row: SourceRecordPersistenceRow & {
+          id: string;
+          import_id: string | null;
+          processed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: SourceRecordPersistenceRow & Record<string, unknown>;
+        Update: Partial<SourceRecordPersistenceRow> &
+          Record<string, unknown>;
+        Relationships: [];
+      };
       timeline_events: {
         Row: PersistedTimelineEvent &
           Record<string, unknown> & {
@@ -77,16 +90,18 @@ export type TimelineDatabase = {
       [_ in never]: never;
     };
 
-    Functions: {
-      apply_timeline_import: {
-        Args: {
-          import_id: string;
-          record_operations: Record<string, unknown>[];
-          event_operations: Record<string, unknown>[];
-        };
-        Returns: null;
-      };
+   Functions: {
+  apply_tekion_import_batch: {
+    Args: {
+      import_id: string;
+      lead_rows: Record<string, unknown>[];
+      source_record_rows: Record<string, unknown>[];
+      timeline_record_operations: Record<string, unknown>[];
+      timeline_event_operations: Record<string, unknown>[];
     };
+    Returns: null;
+  };
+};
 
     Enums: {
       [_ in never]: never;

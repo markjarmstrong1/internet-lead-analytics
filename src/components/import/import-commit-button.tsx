@@ -18,10 +18,12 @@ export function ImportCommitButton({
   const [result, setResult] =
     useState<TimelineImportExecutionResult | null>(null);
 
-  const hasTimelineData = batch.timelineFiles.length > 0;
+  const hasImportData =
+    batch.timelineFiles.length > 0 ||
+    batch.csvFiles.length > 0;
 
   async function commitImport() {
-    if (!hasTimelineData || isSubmitting) {
+    if (!hasImportData || isSubmitting) {
       return;
     }
 
@@ -37,7 +39,7 @@ export function ImportCommitButton({
         },
         body: JSON.stringify({
           timelineFiles: batch.timelineFiles,
-          csvFiles: [],
+          csvFiles: batch.csvFiles,
         }),
       });
 
@@ -50,7 +52,7 @@ export function ImportCommitButton({
       if (!response.ok || !payload.ok || !payload.result) {
         throw new Error(
           payload.error ??
-            "The timeline import could not be completed.",
+            "The Tekion import could not be completed.",
         );
       }
 
@@ -59,7 +61,7 @@ export function ImportCommitButton({
       setError(
         caught instanceof Error
           ? caught.message
-          : "The timeline import could not be completed.",
+          : "The Tekion import could not be completed.",
       );
     } finally {
       setIsSubmitting(false);
@@ -76,31 +78,32 @@ export function ImportCommitButton({
             </p>
 
             <h2 className="mt-2 text-xl font-semibold text-slate-950">
-              Synchronize timeline data
+              Synchronize Tekion data
             </h2>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-              Review the source files above, then reconcile the timeline
-              records and events against the canonical database.
+              Persist canonical leads, raw task observations, and
+              timeline evidence from the files above.
             </p>
           </div>
 
           <button
             type="button"
-            disabled={!hasTimelineData || isSubmitting}
+            disabled={!hasImportData || isSubmitting}
             onClick={() => void commitImport()}
             className="shrink-0 rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting
               ? "Committing..."
-              : "Commit timeline data"}
+              : "Commit Tekion data"}
           </button>
         </div>
 
         {batch.csvFiles.length > 0 ? (
-          <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            CSV files are currently preview-only. They will not be persisted
-            by this commit.
+          <p className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            CSV files will now be persisted. Lead CSV rows become
+            canonical leads; task CSV rows are preserved as raw source
+            observations.
           </p>
         ) : null}
 
