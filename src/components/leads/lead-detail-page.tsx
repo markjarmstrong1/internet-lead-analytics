@@ -23,7 +23,7 @@ export function LeadDetailPage({ leadId }: LeadDetailPageProps) {
         description={`Lead reference: ${leadId}`}
       />
 
-      <div className="grid items-stretch gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
+      <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
         <SectionPanel
           title="Customer / lead"
           description="Core identity and lead information."
