@@ -1,7 +1,9 @@
 import { PageHeader } from "@/components/app/page-header";
 import { SectionPanel } from "@/components/app/section-panel";
-import { StatPlaceholder } from "@/components/app/stat-placeholder";
 import { EvidenceLegend } from "@/components/app/evidence-legend";
+import { AnalysisAnswer } from "@/components/analytics/analysis-answer";
+import { AnalysisBreakdown } from "@/components/analytics/analysis-breakdown";
+import { AnalysisLimitation } from "@/components/analytics/analysis-limitation";
 
 const categories = [
   "Action performance",
@@ -12,6 +14,37 @@ const categories = [
   "Sales",
   "Trends",
   "Other analysis",
+];
+
+const breakdownRows = [
+  {
+    key: "email",
+    label: "Email",
+    numerator: 0,
+    denominator: 0,
+    rate: null,
+  },
+  {
+    key: "text",
+    label: "Text",
+    numerator: 0,
+    denominator: 0,
+    rate: null,
+  },
+  {
+    key: "phone",
+    label: "Phone",
+    numerator: 0,
+    denominator: 0,
+    rate: null,
+  },
+  {
+    key: "voicemail",
+    label: "Voicemail",
+    numerator: 0,
+    denominator: 0,
+    rate: null,
+  },
 ];
 
 export function AnalyticsPage() {
@@ -46,24 +79,27 @@ export function AnalyticsPage() {
         title="Selected analysis"
         description="The selected metric or analysis will occupy the main workspace."
       >
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatPlaceholder label="Primary metric" />
-          <StatPlaceholder label="Denominator" />
-          <StatPlaceholder label="Numerator" />
-          <StatPlaceholder label="Classification" />
+        <AnalysisAnswer
+          title="Inbound communication response rate"
+          description="Responses observed after the first qualifying outbound employee communication."
+          value="—"
+          numerator="—"
+          denominator="—"
+          windowLabel="24-hour response window"
+          classification="descriptive"
+          evidenceState="unknown"
+        />
+
+        <div className="mt-6">
+          <AnalysisBreakdown rows={breakdownRows} />
         </div>
 
-        <div className="mt-6 grid min-h-80 place-items-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-400">
-          Chart / analytical visualization
-        </div>
-      </SectionPanel>
-
-      <SectionPanel
-        title="Breakdown"
-        description="Break the analysis down by channel, source, method, lead, or other supported dimension."
-      >
-        <div className="min-h-48 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-400">
-          Analytical breakdown table
+        <div className="mt-6">
+          <AnalysisLimitation>
+            This is an observational descriptive metric. It identifies
+            communication responses in the available evidence but does not
+            establish that the outbound communication caused the response.
+          </AnalysisLimitation>
         </div>
       </SectionPanel>
 
