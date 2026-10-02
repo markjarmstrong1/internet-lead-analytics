@@ -11,9 +11,16 @@ import type {
 import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
 import type { SourceRecordPersistenceRow } from "./source-record-persistence-row";
 
+export type PersistedLead = LeadPersistenceRow & {
+  id: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type TimelineImportSnapshot = {
   records: PersistedTimelineRecord[];
   events: PersistedTimelineEvent[];
+  leads: PersistedLead[];
 };
 
 export interface TimelineImportRepository {

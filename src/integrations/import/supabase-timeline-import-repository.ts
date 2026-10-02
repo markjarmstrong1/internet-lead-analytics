@@ -18,8 +18,9 @@ export class SupabaseTimelineImportRepository
     private readonly client: SupabaseClient<TimelineDatabase>,
   ) {}
 
-  async loadSnapshot() {
-    const [recordsResult, eventsResult] = await Promise.all([
+async loadSnapshot() {
+  const [recordsResult, eventsResult, leadsResult] =
+    await Promise.all([
       this.client
         .from("timeline_records")
         .select("*")
@@ -29,25 +30,37 @@ export class SupabaseTimelineImportRepository
         .from("timeline_events")
         .select("*")
         .order("occurred_at", { ascending: true }),
+
+      this.client
+        .from("leads")
+        .select("*")
+        .order("created_at", { ascending: true }),
     ]);
 
-    if (recordsResult.error) {
-      throw new Error(
-        `Failed to load timeline records: ${recordsResult.error.message}`,
-      );
-    }
-
-    if (eventsResult.error) {
-      throw new Error(
-        `Failed to load timeline events: ${eventsResult.error.message}`,
-      );
-    }
-
-    return {
-      records: recordsResult.data,
-      events: eventsResult.data,
-    };
+  if (recordsResult.error) {
+    throw new Error(
+      `Failed to load timeline records: ${recordsResult.error.message}`,
+    );
   }
+
+  if (eventsResult.error) {
+    throw new Error(
+      `Failed to load timeline events: ${eventsResult.error.message}`,
+    );
+  }
+
+  if (leadsResult.error) {
+    throw new Error(
+      `Failed to load leads: ${leadsResult.error.message}`,
+    );
+  }
+
+  return {
+    records: recordsResult.data,
+    events: eventsResult.data,
+    leads: leadsResult.data,
+  };
+}
 
   async createSourceImport(
     sourceImport: SourceImportPersistenceRow,

@@ -9,6 +9,7 @@ import {
 } from "@/integrations/tekion/timeline/build-timeline-persistence-rows";
 import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persistence-row";
 import type { SourceRecordPersistenceRow } from "./source-record-persistence-row";
+import type { PersistedLead } from "./timeline-import-repository";
 
 export type ImportPersistencePlan = {
   timelineBatches: TimelinePersistenceBatch[];
@@ -16,10 +17,28 @@ export type ImportPersistencePlan = {
   sourceRecords: SourceRecordPersistenceRow[];
 };
 
-export function buildImportPersistencePlan(batch: ImportBatch): ImportPersistencePlan {
+export function buildImportPersistencePlan(
+  batch: ImportBatch,
+  existingLeads: PersistedLead[] = [],
+): ImportPersistencePlan {
+  const leads = buildLeadPersistenceRows(batch.csvFiles);
+
+  const leadIdentities = [
+    ...existingLeads,
+    ...leads.map((lead) => ({
+      ...lead,
+      id: "",
+    })),
+  ];
+
   return {
-    timelineBatches: batch.timelineFiles.map(buildTimelinePersistenceBatch),
-    leads: buildLeadPersistenceRows(batch.csvFiles),
+    timelineBatches: batch.timelineFiles.map((file) =>
+      buildTimelinePersistenceBatch(
+        file,
+        leadIdentities,
+      ),
+    ),
+    leads,
     sourceRecords: buildSourceRecordRows(batch.csvFiles),
   };
 }
