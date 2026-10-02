@@ -100,7 +100,7 @@ export class SupabaseTimelineImportRepository
   const { error } = await this.client.rpc(
     "apply_tekion_import_batch",
     {
-      import_id: importId,
+      p_import_id: importId,
       lead_rows: leads,
       source_record_rows: sourceRecords,
       timeline_record_operations: plan.records,
