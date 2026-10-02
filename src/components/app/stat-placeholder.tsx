@@ -1,3 +1,6 @@
+import { EvidenceState } from "./evidence-state";
+import { MetricCard } from "./metric-card";
+
 type StatPlaceholderProps = {
   label: string;
   value?: string;
@@ -10,14 +13,11 @@ export function StatPlaceholder({
   detail = "Data will populate here.",
 }: StatPlaceholderProps) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-5">
-      <p className="text-sm font-medium text-slate-500">{label}</p>
-
-      <p className="mt-3 text-3xl font-semibold tracking-tight">
-        {value}
-      </p>
-
-      <p className="mt-2 text-xs text-slate-400">{detail}</p>
-    </article>
+    <MetricCard
+      label={label}
+      value={value}
+      detail={detail}
+      state={<EvidenceState kind="unknown" />}
+    />
   );
 }
