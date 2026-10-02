@@ -22,6 +22,4 @@ export function AnalyticsPage() {
         title="Analytics"
         description="Access calculations, comparisons, performance analysis, and the evidence behind them."
       />
-      <EvidenceLegend />
-
-      <SectionPanel>
+      <EvidenceLegend 
