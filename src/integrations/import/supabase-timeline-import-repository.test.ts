@@ -244,7 +244,7 @@ describe("SupabaseTimelineImportRepository", () => {
     expect(client.rpc).toHaveBeenCalledWith(
       "apply_tekion_import_batch",
       {
-        import_id: "import-1",
+        p_import_id: "import-1",
         lead_rows: [],
         source_record_rows: [],
         timeline_record_operations: plan.records,

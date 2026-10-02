@@ -93,7 +93,7 @@ export type TimelineDatabase = {
     Functions: {
       apply_tekion_import_batch: {
         Args: {
-          import_id: string;
+          p_import_id: string;
           lead_rows: Record<string, unknown>[];
           source_record_rows: Record<string, unknown>[];
           timeline_record_operations: Record<string, unknown>[];
