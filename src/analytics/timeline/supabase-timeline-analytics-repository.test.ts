@@ -58,11 +58,15 @@ describe("SupabaseTimelineAnalyticsRepository", () => {
       {
         timelineRecordId: "record-1",
         sourceEventId: "tekion:event-1",
+        sourceFile: "ana_yu.txt",
         occurredAt: "2026-01-01T10:00:00.000Z",
-        category: "communication",
+        rawType: "Text Sent",
+        actor: "Mark Armstrong",
         actorType: "employee",
+        category: "communication",
         channel: "text",
         direction: "outbound",
+        details: "Hello",
       },
     ]);
   });
@@ -96,11 +100,15 @@ describe("SupabaseTimelineAnalyticsRepository", () => {
       {
         timelineRecordId: "record-1",
         sourceEventId: "tekion:event-1",
+        sourceFile: "ana_yu.txt",
         occurredAt: "2026-01-01T10:00:00.000Z",
-        category: "note",
+        rawType: "Note",
+        actor: "Mark Armstrong",
         actorType: "employee",
+        category: "note",
         channel: null,
         direction: null,
+        details: "Note",
       },
     ]);
   });

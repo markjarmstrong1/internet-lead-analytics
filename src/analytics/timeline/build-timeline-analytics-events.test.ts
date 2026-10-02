@@ -37,11 +37,15 @@ describe("buildTimelineAnalyticsEvents", () => {
       {
         timelineRecordId: "record-1",
         sourceEventId: "outbound-1",
+        sourceFile: "lead.txt",
         occurredAt: "2026-01-01T10:00:00.000Z",
-        category: "communication",
+        rawType: "Text Sent",
+        actor: "Mark Armstrong",
         actorType: "employee",
+        category: "communication",
         channel: "text",
         direction: "outbound",
+        details: "Hello",
       },
     ]);
   });
@@ -58,11 +62,15 @@ describe("buildTimelineAnalyticsEvents", () => {
       {
         timelineRecordId: "record-1",
         sourceEventId: "event-1",
+        sourceFile: "lead.txt",
         occurredAt: "2026-01-01T10:00:00.000Z",
-        category: "communication",
+        rawType: "Text Sent",
+        actor: "Mark Armstrong",
         actorType: "employee",
+        category: "communication",
         channel: null,
         direction: null,
+        details: "Hello",
       },
     ]);
   });

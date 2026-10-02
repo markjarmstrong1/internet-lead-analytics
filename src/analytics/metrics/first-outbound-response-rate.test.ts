@@ -9,11 +9,15 @@ function event(
   return {
     timelineRecordId: "lead-1",
     sourceEventId: "event-1",
+    sourceFile: "lead.txt",
     occurredAt: "2026-01-01T10:00:00.000Z",
-    category: "communication",
+    rawType: "Text Sent",
+    actor: "Mark Armstrong",
     actorType: "employee",
+    category: "communication",
     channel: "text",
     direction: "outbound",
+    details: "Hello",
     ...overrides,
   };
 }
@@ -39,8 +43,16 @@ describe("calculateFirstOutboundResponseRate", () => {
       {
         timelineRecordId: "lead-1",
         exposureEventId: "outbound-1",
-        outcomeEventId: "inbound-1",
+        exposureSourceFile: "lead.txt",
+        exposureRawType: "Text Sent",
+        exposureActor: "Mark Armstrong",
+        exposureDetails: "Hello",
         exposureAt: "2026-01-01T10:00:00.000Z",
+        outcomeEventId: "inbound-1",
+        outcomeSourceFile: "lead.txt",
+        outcomeRawType: "Text Sent",
+        outcomeActor: "Mark Armstrong",
+        outcomeDetails: "Hello",
         outcomeAt: "2026-01-01T12:00:00.000Z",
       },
     ]);
