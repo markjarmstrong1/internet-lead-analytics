@@ -18,12 +18,8 @@ function formatTimestamp(value: string | null) {
   return date.toLocaleString();
 }
 
-function formatEventId(value: string | null) {
-  if (!value) {
-    return "No response event";
-  }
-
-  return value;
+function formatSource(value: string | null) {
+  return value ?? "Unknown source";
 }
 
 export function AnalysisEvidenceTable({
@@ -36,7 +32,8 @@ export function AnalysisEvidenceTable({
           Metric evidence
         </p>
         <p className="mt-1 text-xs text-slate-500">
-          Each row shows the normalized evidence used to calculate the metric.
+          Each row shows the normalized evidence and preserved source
+          provenance used by the metric.
         </p>
       </div>
 
@@ -46,14 +43,14 @@ export function AnalysisEvidenceTable({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-sm">
+          <table className="w-full min-w-[1100px] text-sm">
             <thead className="bg-slate-50 text-left text-xs font-medium text-slate-500">
               <tr>
                 <th className="px-5 py-3">Timeline record</th>
-                <th className="px-5 py-3">Exposure event</th>
-                <th className="px-5 py-3">Exposure time</th>
-                <th className="px-5 py-3">Outcome event</th>
-                <th className="px-5 py-3">Outcome time</th>
+                <th className="px-5 py-3">Exposure</th>
+                <th className="px-5 py-3">Exposure source</th>
+                <th className="px-5 py-3">Outcome</th>
+                <th className="px-5 py-3">Outcome source</th>
               </tr>
             </thead>
 
@@ -61,35 +58,74 @@ export function AnalysisEvidenceTable({
               {evidence.map((item) => (
                 <tr key={item.exposureEventId}>
                   <td className="px-5 py-4 align-top">
-                    <span className="font-mono text-xs text-slate-600">
+                    <p className="font-mono text-xs text-slate-600">
                       {item.timelineRecordId}
-                    </span>
+                    </p>
                   </td>
 
-                  <td className="px-5 py-4 align-top">
-                    <span className="font-mono text-xs text-slate-600">
+                  <td className="min-w-[300px] px-5 py-4 align-top">
+                    <p className="font-medium text-slate-700">
+                      {item.exposureRawType}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {item.exposureActor}
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-slate-500">
+                      {item.exposureDetails || "No event details preserved."}
+                    </p>
+                    <p className="mt-2 whitespace-nowrap text-xs text-slate-400">
+                      {formatTimestamp(item.exposureAt)}
+                    </p>
+                  </td>
+
+                  <td className="min-w-[180px] px-5 py-4 align-top">
+                    <p className="text-xs text-slate-600">
+                      {formatSource(item.exposureSourceFile)}
+                    </p>
+                    <p className="mt-1 font-mono text-[11px] text-slate-400">
                       {item.exposureEventId}
-                    </span>
+                    </p>
                   </td>
 
-                  <td className="whitespace-nowrap px-5 py-4 align-top text-xs text-slate-500">
-                    {formatTimestamp(item.exposureAt)}
+                  <td className="min-w-[300px] px-5 py-4 align-top">
+                    {item.outcomeEventId ? (
+                      <>
+                        <p className="font-medium text-slate-700">
+                          {item.outcomeRawType}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {item.outcomeActor}
+                        </p>
+                        <p className="mt-2 text-xs leading-5 text-slate-500">
+                          {item.outcomeDetails ||
+                            "No event details preserved."}
+                        </p>
+                        <p className="mt-2 whitespace-nowrap text-xs text-slate-400">
+                          {formatTimestamp(item.outcomeAt)}
+                        </p>
+                      </>
+                    ) : (
+                      <span className="text-xs text-slate-400">
+                        No response event
+                      </span>
+                    )}
                   </td>
 
-                  <td className="px-5 py-4 align-top">
-                    <span
-                      className={
-                        item.outcomeEventId
-                          ? "font-mono text-xs text-slate-600"
-                          : "text-xs text-slate-400"
-                      }
-                    >
-                      {formatEventId(item.outcomeEventId)}
-                    </span>
-                  </td>
-
-                  <td className="whitespace-nowrap px-5 py-4 align-top text-xs text-slate-500">
-                    {formatTimestamp(item.outcomeAt)}
+                  <td className="min-w-[180px] px-5 py-4 align-top">
+                    {item.outcomeEventId ? (
+                      <>
+                        <p className="text-xs text-slate-600">
+                          {formatSource(item.outcomeSourceFile)}
+                        </p>
+                        <p className="mt-1 font-mono text-[11px] text-slate-400">
+                          {item.outcomeEventId}
+                        </p>
+                      </>
+                    ) : (
+                      <span className="text-xs text-slate-400">
+                        —
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}

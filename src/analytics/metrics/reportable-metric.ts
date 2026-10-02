@@ -13,9 +13,19 @@ export type ReportableMetricBreakdown = {
 
 export type ReportableMetricEvidence = {
   timelineRecordId: string;
+
   exposureEventId: string;
-  outcomeEventId: string | null;
+  exposureSourceFile: string | null;
+  exposureRawType: string;
+  exposureActor: string;
+  exposureDetails: string;
   exposureAt: string;
+
+  outcomeEventId: string | null;
+  outcomeSourceFile: string | null;
+  outcomeRawType: string | null;
+  outcomeActor: string | null;
+  outcomeDetails: string | null;
   outcomeAt: string | null;
 };
 

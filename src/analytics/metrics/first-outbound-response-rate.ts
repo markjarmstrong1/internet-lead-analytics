@@ -40,9 +40,19 @@ export function calculateFirstOutboundResponseRate(
 
     evidence.push({
       timelineRecordId: exposure.timelineRecordId,
+
       exposureEventId: exposure.sourceEventId,
-      outcomeEventId: response?.sourceEventId ?? null,
+      exposureSourceFile: exposure.sourceFile,
+      exposureRawType: exposure.rawType,
+      exposureActor: exposure.actor,
+      exposureDetails: exposure.details,
       exposureAt: exposure.occurredAt,
+
+      outcomeEventId: response?.sourceEventId ?? null,
+      outcomeSourceFile: response?.sourceFile ?? null,
+      outcomeRawType: response?.rawType ?? null,
+      outcomeActor: response?.actor ?? null,
+      outcomeDetails: response?.details ?? null,
       outcomeAt: response?.occurredAt ?? null,
     });
   }

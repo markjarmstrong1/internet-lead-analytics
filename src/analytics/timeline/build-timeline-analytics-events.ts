@@ -24,18 +24,25 @@ export function buildTimelineAnalyticsEvents(
   return events.map((event) => ({
     timelineRecordId: event.timeline_record_id,
     sourceEventId: event.source_event_id,
+    sourceFile: event.source_file,
     occurredAt: event.occurred_at,
-    category: event.category,
+    rawType: event.raw_type,
+    actor: event.actor,
     actorType: event.actor_type,
+    category: event.category,
     channel: normalizeChannel(event.channel),
     direction: normalizeDirection(event.direction),
+    details: event.details,
   }));
 }
 
 function normalizeChannel(
   channel: string | null,
 ): TimelineAnalyticsCommunicationChannel | null {
-  if (!channel || !CHANNELS.has(channel as TimelineAnalyticsCommunicationChannel)) {
+  if (
+    !channel ||
+    !CHANNELS.has(channel as TimelineAnalyticsCommunicationChannel)
+  ) {
     return null;
   }
 

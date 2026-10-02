@@ -12,9 +12,13 @@ export type TimelineAnalyticsCommunicationDirection =
 export type TimelineAnalyticsEvent = {
   timelineRecordId: string;
   sourceEventId: string;
+  sourceFile: string | null;
   occurredAt: string;
-  category: string;
+  rawType: string;
+  actor: string;
   actorType: string;
+  category: string;
   channel: TimelineAnalyticsCommunicationChannel | null;
   direction: TimelineAnalyticsCommunicationDirection | null;
+  details: string;
 };
