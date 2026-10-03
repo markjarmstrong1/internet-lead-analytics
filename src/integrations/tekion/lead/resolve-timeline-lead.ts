@@ -1,4 +1,5 @@
 import type { LeadPersistenceRow } from "./lead-persistence-row";
+import { getTimelineLeadAlias } from "./timeline-lead-aliases";
 
 export type TimelineLeadIdentity = {
   externalRecordId: string;
@@ -79,6 +80,43 @@ export function resolveTimelineLead(
   leads: Array<TimelineLeadIdentity | LeadPersistenceRow>,
 ): TimelineLeadResolution {
   if (!timelineSourceFile) {
+    return {
+      externalRecordId: null,
+      status: "unresolved",
+    };
+  }
+
+  const aliasExternalRecordId =
+    getTimelineLeadAlias(timelineSourceFile);
+
+  if (aliasExternalRecordId) {
+    const aliasMatches = leads.filter((lead) => {
+      const identity = toLeadIdentity(lead);
+
+      return (
+        identity?.externalRecordId ===
+        aliasExternalRecordId
+      );
+    });
+
+    if (aliasMatches.length === 1) {
+      return {
+        externalRecordId: aliasExternalRecordId,
+        status: "matched",
+      };
+    }
+
+    if (aliasMatches.length > 1) {
+      return {
+        externalRecordId: null,
+        status: "ambiguous",
+      };
+    }
+
+    /*
+     * The source alias is known, but the canonical lead is not
+     * present in the current lead snapshot. Do not invent a link.
+     */
     return {
       externalRecordId: null,
       status: "unresolved",
