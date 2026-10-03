@@ -525,67 +525,6 @@ begin
     where tr.lead_id is null
       and tr.source_file is not null
   loop
-    timeline_name := lower(
-      trim(
-        regexp_replace(
-          regexp_replace(
-            regexp_replace(
-              regexp_replace(
-                regexp_replace(
-                  regexp_replace(
-                    regexp_replace(
-                      regexp_replace(
-                        regexp_replace(
-                          regexp_replace(
-                            split_part(
-                              regexp_replace(
-                                timeline_row.source_file,
-                                '^.*/',
-                                ''
-                              ),
-                              '.',
-                              1
-                            ),
-                            '_(docx|txt)$',
-                            '',
-                            'i'
-                          ),
-                          '_',
-                          ' ',
-                          'g'
-                        ),
-                        '[^a-zA-Z0-9]+',
-                        ' ',
-                        'g'
-                      ),
-                      '[[:space:]]+',
-                      ' ',
-                      'g'
-                    ),
-                    '^ +',
-                    '',
-                    'g'
-                  ),
-                  ' +$',
-                  '',
-                  'g'
-                ),
-                '[[:space:]]+',
-                ' ',
-                'g'
-              ),
-              '^ +',
-              '',
-              'g'
-            ),
-            ' +$',
-            '',
-            'g'
-          )
-        )
-      )
-    );
-
     /*
      * The extension removal above is intentionally followed by a
      * general normalization pass so both .txt and .docx filenames
@@ -641,7 +580,7 @@ begin
     );
 
     select
-      min(l.id),
+      (array_agg(l.id))[1],
       count(*)
     into
       candidate_id,
