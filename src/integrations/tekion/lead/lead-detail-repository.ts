@@ -1,5 +1,7 @@
 import "server-only";
 
+import { unstable_noStore as noStore } from "next/cache";
+
 import { createServerSupabaseClient } from "@/lib/supabase/server-client";
 
 export type LeadDetail = {
@@ -65,12 +67,9 @@ export type LeadDetailResult = {
 export async function getLeadDetail(
   leadId: string,
 ): Promise<LeadDetailResult | null> {
-  const supabase =
-    createServerSupabaseClient() as ReturnType<
-      typeof createServerSupabaseClient
-    > & {
-      from: ReturnType<typeof createServerSupabaseClient>["from"];
-    };
+  noStore();
+
+  const supabase = createServerSupabaseClient();
 
   const { data: lead, error: leadError } = await supabase
     .from("leads")
@@ -88,36 +87,64 @@ export async function getLeadDetail(
     return null;
   }
 
-  const { data: records, error: recordsError } = await supabase
-    .from("timeline_records")
-    .select("*")
-    .eq("lead_id", leadId)
-    .order("created_at", { ascending: true });
+  const { data: timelineRecords, error: timelineRecordsError } =
+    await supabase
+      .from("timeline_records")
+      .select(
+        [
+          "id",
+          "external_record_id",
+          "source_file",
+          "fixture_source_key",
+        ].join(", "),
+      )
+      .eq("lead_id", lead.id)
+      .order("created_at", { ascending: true });
 
-  if (recordsError) {
+  if (timelineRecordsError) {
     throw new Error(
-      `Failed to load timeline records for lead ${leadId}: ${recordsError.message}`,
+      `Failed to load timeline records for lead ${lead.id}: ${timelineRecordsError.message}`,
     );
   }
 
-  const recordIds = (records ?? []).map((record) => record.id);
-
-  if (recordIds.length === 0) {
+  if (!timelineRecords || timelineRecords.length === 0) {
     return {
       lead,
       timeline: [],
     };
   }
 
-  const { data: events, error: eventsError } = await supabase
-    .from("timeline_events")
-    .select("*")
-    .in("timeline_record_id", recordIds)
-    .order("occurred_at", { ascending: false });
+  const recordIds = timelineRecords.map(
+    (record) => record.id,
+  );
 
-  if (eventsError) {
+  const { data: timelineEvents, error: timelineEventsError } =
+    await supabase
+      .from("timeline_events")
+      .select(
+        [
+          "id",
+          "timeline_record_id",
+          "source_event_id",
+          "source_file",
+          "occurred_at",
+          "raw_type",
+          "actor",
+          "actor_type",
+          "category",
+          "channel",
+          "direction",
+          "details",
+          "metadata",
+          "raw_data",
+        ].join(", "),
+      )
+      .in("timeline_record_id", recordIds)
+      .order("occurred_at", { ascending: false });
+
+  if (timelineEventsError) {
     throw new Error(
-      `Failed to load timeline events for lead ${leadId}: ${eventsError.message}`,
+      `Failed to load timeline events for lead ${lead.id}: ${timelineEventsError.message}`,
     );
   }
 
@@ -126,22 +153,28 @@ export async function getLeadDetail(
     LeadTimelineEvent[]
   >();
 
-  for (const event of events ?? []) {
+  for (const event of timelineEvents ?? []) {
     const existing =
       eventsByRecord.get(event.timeline_record_id) ?? [];
 
     existing.push(event);
-    eventsByRecord.set(event.timeline_record_id, existing);
+    eventsByRecord.set(
+      event.timeline_record_id,
+      existing,
+    );
   }
 
   return {
     lead,
-    timeline: (records ?? []).map((record) => ({
+    timeline: timelineRecords.map((record) => ({
       id: record.id,
-      external_record_id: record.external_record_id,
+      external_record_id:
+        record.external_record_id,
       source_file: record.source_file,
-      fixture_source_key: record.fixture_source_key,
-      events: eventsByRecord.get(record.id) ?? [],
+      fixture_source_key:
+        record.fixture_source_key,
+      events:
+        eventsByRecord.get(record.id) ?? [],
     })),
   };
 }

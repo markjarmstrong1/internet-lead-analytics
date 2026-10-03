@@ -1,6 +1,9 @@
 import { AppShell } from "@/components/app/app-shell";
 import { LeadDetailPage } from "@/components/leads/lead-detail-page";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type LeadRouteProps = {
   params: Promise<{
     leadId: string;

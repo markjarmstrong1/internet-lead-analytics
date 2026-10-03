@@ -60,8 +60,13 @@ export async function LeadDetailPage({
 
   const { lead, timeline } = result;
 
-  const events = timeline
+    const events = timeline
     .flatMap((record) => record.events)
+    .filter(
+      (event) =>
+        Boolean(event.id) &&
+        Boolean(event.occurred_at),
+    )
     .sort(
       (a, b) =>
         new Date(b.occurred_at).getTime() -
@@ -177,7 +182,7 @@ export async function LeadDetailPage({
             <div className="space-y-3">
               {events.map((event) => (
                 <div
-                  key={event.id}
+                  key={`${event.timeline_record_id}:${event.source_event_id}`}
                   className="rounded-lg border border-slate-200 p-4"
                 >
                   <div className="flex flex-wrap justify-between gap-3">
