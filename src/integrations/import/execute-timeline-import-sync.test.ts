@@ -59,6 +59,7 @@ function createRepository(
       return {
         records: [],
         events: [],
+        leads: [],
       };
     },
 
