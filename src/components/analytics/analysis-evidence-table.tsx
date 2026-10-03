@@ -56,7 +56,7 @@ export function AnalysisEvidenceTable({
 
             <tbody className="divide-y divide-slate-100">
               {evidence.map((item) => (
-                <tr key={item.exposureEventId}>
+                <tr key={`${item.timelineRecordId}:${item.exposureEventId}`}>
                   <td className="px-5 py-4 align-top">
                     <p className="font-mono text-xs text-slate-600">
                       {item.timelineRecordId}
