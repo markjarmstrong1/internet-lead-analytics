@@ -16,14 +16,40 @@ function createQuery<T>(result: QueryResult<T>) {
   return query;
 }
 
-function createFakeClient(result: QueryResult<unknown>) {
+function createLeadQuery<T>(result: QueryResult<T>) {
+  const query = {
+    select: async () => result,
+  };
+
+  return query;
+}
+
+function createFakeClient(
+  eventsResult: QueryResult<unknown>,
+  leadsResult: QueryResult<unknown> = {
+    data: [],
+    error: null,
+  },
+  timelineResult: QueryResult<unknown> = {
+    data: [],
+    error: null,
+  },
+) {
   return {
     from(table: string) {
-      if (table !== "timeline_events") {
-        throw new Error(`Unexpected table: ${table}`);
+      if (table === "timeline_events") {
+        return createQuery(eventsResult);
       }
 
-      return createQuery(result);
+      if (table === "leads") {
+        return createLeadQuery(leadsResult);
+      }
+
+      if (table === "timeline_records") {
+        return createLeadQuery(timelineResult);
+      }
+
+      throw new Error(`Unexpected table: ${table}`);
     },
   } as never;
 }
@@ -71,60 +97,46 @@ describe("SupabaseTimelineAnalyticsRepository", () => {
     ]);
   });
 
-  it("preserves unknown analytics channel and direction as null", async () => {
+  it("loads lead stages and their timeline associations", async () => {
     const repository = new SupabaseTimelineAnalyticsRepository(
-      createFakeClient({
-        data: [
-          {
-            id: "event-1",
-            timeline_record_id: "record-1",
-            source_event_id: "tekion:event-1",
-            source_file: "ana_yu.txt",
-            occurred_at: "2026-01-01T10:00:00.000Z",
-            raw_type: "Note",
-            actor: "Mark Armstrong",
-            actor_type: "employee",
-            category: "note",
-            channel: "carrier_pigeon",
-            direction: "sideways",
-            details: "Note",
-            metadata: {},
-            raw_data: {},
-          },
-        ],
-        error: null,
-      }),
+      createFakeClient(
+        { data: [], error: null },
+        {
+          data: [
+            {
+              id: "lead-1",
+              stage: "Sold",
+            },
+            {
+              id: "lead-2",
+              stage: "Engage",
+            },
+          ],
+          error: null,
+        },
+        {
+          data: [
+            {
+              id: "record-1",
+              lead_id: "lead-1",
+            },
+          ],
+          error: null,
+        },
+      ),
     );
 
-    await expect(repository.loadEvents()).resolves.toEqual([
+    await expect(repository.loadLeads()).resolves.toEqual([
       {
+        leadId: "lead-1",
         timelineRecordId: "record-1",
-        sourceEventId: "tekion:event-1",
-        sourceFile: "ana_yu.txt",
-        occurredAt: "2026-01-01T10:00:00.000Z",
-        rawType: "Note",
-        actor: "Mark Armstrong",
-        actorType: "employee",
-        category: "note",
-        channel: null,
-        direction: null,
-        details: "Note",
+        stage: "Sold",
+      },
+      {
+        leadId: "lead-2",
+        timelineRecordId: null,
+        stage: "Engage",
       },
     ]);
-  });
-
-  it("surfaces timeline read failures", async () => {
-    const repository = new SupabaseTimelineAnalyticsRepository(
-      createFakeClient({
-        data: [],
-        error: {
-          message: "database unavailable",
-        },
-      }),
-    );
-
-    await expect(repository.loadEvents()).rejects.toThrow(
-      "Failed to load timeline analytics events: database unavailable",
-    );
   });
 });

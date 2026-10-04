@@ -1,4 +1,5 @@
 import type { ReportableMetric } from "@/analytics/metrics/reportable-metric";
+import type { ResponseSpeedOutcomesMetric } from "@/analytics/metrics/response-speed-outcomes";
 import { PageHeader } from "@/components/app/page-header";
 import { SectionPanel } from "@/components/app/section-panel";
 import { EvidenceLegend } from "@/components/app/evidence-legend";
@@ -7,9 +8,11 @@ import { AnalysisBreakdown } from "@/components/analytics/analysis-breakdown";
 import { AnalysisEvidenceTable } from "@/components/analytics/analysis-evidence-table";
 import { AnalysisLimitation } from "@/components/analytics/analysis-limitation";
 import { AnalysisMethod } from "@/components/analytics/analysis-method";
+import { ResponseSpeedOutcomes } from "@/components/analytics/response-speed-outcomes";
 
 type AnalyticsPageProps = {
   metric: ReportableMetric;
+  responseSpeedOutcomes: ResponseSpeedOutcomesMetric;
 };
 
 const categories = [
@@ -25,6 +28,7 @@ const categories = [
 
 export function AnalyticsPage({
   metric,
+  responseSpeedOutcomes,
 }: AnalyticsPageProps) {
   const rate =
     metric.rate === null
@@ -40,6 +44,10 @@ export function AnalyticsPage({
       />
 
       <EvidenceLegend />
+
+      <ResponseSpeedOutcomes
+        metric={responseSpeedOutcomes}
+      />
 
       <SectionPanel
         title="Analysis areas"
