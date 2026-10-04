@@ -1,9 +1,10 @@
 import "server-only";
 
-import type { TimelineAnalyticsEvent } from "@/analytics/timeline/timeline-analytics-event";
 import type { TimelineDatabase } from "@/integrations/tekion/timeline/timeline-database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { buildTimelineAnalyticsEvents } from "@/analytics/timeline/build-timeline-analytics-events";
+
+import { buildAnalyticsEvents } from "./build-analytics-events";
+import type { AnalyticsEvent } from "./analytics-types";
 
 export type AnalyticsLead = {
   leadId: string;
@@ -20,7 +21,7 @@ export type AnalyticsLead = {
 
 export type AnalyticsDataset = {
   leads: AnalyticsLead[];
-  events: TimelineAnalyticsEvent[];
+  events: AnalyticsEvent[];
 };
 
 export interface AnalyticsRepository {
@@ -100,7 +101,7 @@ export class SupabaseAnalyticsRepository
 
     return {
       leads,
-      events: buildTimelineAnalyticsEvents(
+      events: buildAnalyticsEvents(
         eventsResult.data ?? [],
       ),
     };

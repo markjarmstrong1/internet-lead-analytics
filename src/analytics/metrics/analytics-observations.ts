@@ -1,5 +1,8 @@
-import type { TimelineAnalyticsEvent } from "@/analytics/timeline/timeline-analytics-event";
-import type { AnalyticsLead, AnalyticsDataset } from "@/analytics/data/analytics-repository";
+import type {
+  AnalyticsDataset,
+  AnalyticsLead,
+} from "@/analytics/data/analytics-repository";
+import type { AnalyticsEvent } from "@/analytics/data/analytics-types";
 
 const RESPONSE_WINDOW_MINUTES = 24 * 60;
 
@@ -14,9 +17,9 @@ export type ResponseSpeedBucketKey =
 
 export type LeadObservation = {
   lead: AnalyticsLead;
-  events: TimelineAnalyticsEvent[];
-  firstOutbound: TimelineAnalyticsEvent | null;
-  firstInbound: TimelineAnalyticsEvent | null;
+  events: AnalyticsEvent[];
+  firstOutbound: AnalyticsEvent | null;
+  firstInbound: AnalyticsEvent | null;
   responseMinutes: number | null;
   respondedWithin24h: boolean;
   outboundCount: number;
@@ -92,8 +95,8 @@ export function buildLeadObservations(
 }
 
 export function findFirstOutboundEmployeeCommunication(
-  events: TimelineAnalyticsEvent[],
-): TimelineAnalyticsEvent | null {
+  events: AnalyticsEvent[],
+): AnalyticsEvent | null {
   return (
     events.find(
       isEmployeeOutboundCommunication,
@@ -102,7 +105,7 @@ export function findFirstOutboundEmployeeCommunication(
 }
 
 export function isEmployeeOutboundCommunication(
-  event: TimelineAnalyticsEvent,
+  event: AnalyticsEvent,
 ): boolean {
   return (
     event.category === "communication" &&
@@ -113,9 +116,9 @@ export function isEmployeeOutboundCommunication(
 }
 
 export function findFirstInboundCommunication(
-  events: TimelineAnalyticsEvent[],
+  events: AnalyticsEvent[],
   exposureAt: string,
-): TimelineAnalyticsEvent | null {
+): AnalyticsEvent | null {
   const exposureTime = Date.parse(exposureAt);
 
   return (
@@ -176,7 +179,7 @@ export function responseSpeedBucket(
 }
 
 export function hasAppointmentEvidence(
-  events: TimelineAnalyticsEvent[],
+  events: AnalyticsEvent[],
 ): boolean {
   return events.some((event) => {
     if (!isAppointmentStageEvidence(event)) {
@@ -192,7 +195,7 @@ export function hasAppointmentEvidence(
 }
 
 export function isAppointmentStageEvidence(
-  event: TimelineAnalyticsEvent,
+  event: AnalyticsEvent,
 ): boolean {
   if (event.rawType !== "Stage Changed") {
     return false;
@@ -207,7 +210,7 @@ export function isAppointmentStageEvidence(
 }
 
 function isDeletedAppointmentEvidence(
-  event: TimelineAnalyticsEvent,
+  event: AnalyticsEvent,
 ): boolean {
   return event.details
     .toLowerCase()
@@ -248,11 +251,11 @@ export function median(
 }
 
 function groupEventsByRecord(
-  events: TimelineAnalyticsEvent[],
-): Map<string, TimelineAnalyticsEvent[]> {
+  events: AnalyticsEvent[],
+): Map<string, AnalyticsEvent[]> {
   const grouped = new Map<
     string,
-    TimelineAnalyticsEvent[]
+    AnalyticsEvent[]
   >();
 
   for (const event of events) {

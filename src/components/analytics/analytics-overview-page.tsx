@@ -3,7 +3,6 @@ import { MetricCard } from "@/components/app/metric-card";
 import { SectionPanel } from "@/components/app/section-panel";
 
 import type { OverviewAnalysis } from "@/analytics/metrics/overview";
-import type { EngagementAnalysis } from "@/analytics/metrics/engagement";
 
 function formatPercent(
   value: number | null,
@@ -29,10 +28,8 @@ function formatMinutes(
 
 export function AnalyticsOverviewPage({
   overview,
-  engagement,
 }: {
   overview: OverviewAnalysis;
-  engagement: EngagementAnalysis;
 }) {
   return (
     <>
