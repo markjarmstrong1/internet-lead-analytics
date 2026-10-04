@@ -1,21 +1,25 @@
-import { getFirstOutboundResponseRate } from "@/analytics/metrics/get-first-outbound-response-rate";
-import { getResponseSpeedOutcomes } from "@/analytics/metrics/get-response-speed-outcomes";
-import { AppShell } from "@/components/app/app-shell";
-import { AnalyticsPage } from "@/components/analytics/analytics-page";
+import { AnalyticsLayout } from "@/components/analytics/analytics-layout";
+import { AnalyticsOverviewPage } from "@/components/analytics/analytics-overview-page";
+import { createServerAnalyticsRepository } from "@/analytics/data/create-server-analytics-repository";
+import { buildOverviewAnalysis } from "@/analytics/metrics/overview";
+import { buildEngagementAnalysis } from "@/analytics/metrics/engagement";
+
+export const dynamic = "force-dynamic";
 
 export default async function AnalyticsRoute() {
-  const [metric, responseSpeedOutcomes] =
-    await Promise.all([
-      getFirstOutboundResponseRate(),
-      getResponseSpeedOutcomes(),
-    ]);
+  const dataset =
+    await createServerAnalyticsRepository().load();
 
   return (
-    <AppShell>
-      <AnalyticsPage
-        metric={metric}
-        responseSpeedOutcomes={responseSpeedOutcomes}
+    <AnalyticsLayout
+      active="/analytics"
+      title="Overview"
+      description="Are we getting value from the Internet leads we pay for?"
+    >
+      <AnalyticsOverviewPage
+        overview={buildOverviewAnalysis(dataset)}
+        engagement={buildEngagementAnalysis(dataset)}
       />
-    </AppShell>
+    </AnalyticsLayout>
   );
 }

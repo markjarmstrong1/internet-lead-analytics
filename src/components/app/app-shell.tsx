@@ -17,7 +17,9 @@ type AppShellProps = {
   children: ReactNode;
 };
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({
+  children,
+}: AppShellProps) {
   const pathname = usePathname();
 
   return (
@@ -49,7 +51,9 @@ export function AppShell({ children }: AppShellProps) {
                 item.href === "/"
                   ? pathname === "/"
                   : pathname === item.href ||
-                    pathname.startsWith(`${item.href}/`);
+                    pathname.startsWith(
+                      `${item.href}/`,
+                    );
 
               return (
                 <Link
