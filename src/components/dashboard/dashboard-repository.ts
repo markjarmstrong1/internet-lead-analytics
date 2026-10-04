@@ -139,15 +139,29 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 
   const now = Date.now();
 
-  const upcomingAppointments = appointmentRows.filter(
-    (appointment) => new Date(appointment.scheduled_at).getTime() >= now,
-  ).length;
+  const appointmentCreatedLeads = leadRows.filter(
+    (lead) => lead.stage?.toLowerCase() === "appt. created",
+  );
 
-  const totalAppointmentsBooked = appointmentRows.length;
+  const upcomingAppointments =
+    appointmentRows.length > 0
+      ? appointmentRows.filter(
+          (appointment) =>
+            new Date(appointment.scheduled_at).getTime() >= now,
+        ).length
+      : appointmentCreatedLeads.length;
 
-  const totalAppointmentsShown = appointmentRows.filter(
-    (appointment) => appointment.showed_at !== null,
-  ).length;
+  const totalAppointmentsBooked =
+    appointmentRows.length > 0
+      ? appointmentRows.length
+      : appointmentCreatedLeads.length;
+
+  const totalAppointmentsShown =
+    appointmentRows.length > 0
+      ? appointmentRows.filter(
+          (appointment) => appointment.showed_at !== null,
+        ).length
+      : 0;
 
   const timelineLeadIds = new Set<string>();
   const communicationLeadIds = new Set<string>();
