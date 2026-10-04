@@ -55,7 +55,7 @@ export async function LeadDetailPage({
   );
 
   return (
-    <div className="mx-auto max-w-[1600px] space-y-8 px-6 py-8 lg:px-8">
+    <div className="mx-auto max-w-[1600px] space-y-6 px-6 py-8 lg:px-8">
       <Link
         href="/leads/list"
         className="text-sm font-medium text-slate-500 hover:text-slate-950"
@@ -65,10 +65,7 @@ export async function LeadDetailPage({
 
       <PageHeader
         eyebrow="Lead detail"
-        title={
-          result.lead.contact_name ||
-          "Unnamed lead"
-        }
+        title={result.lead.contact_name || "Unnamed lead"}
         description={`Canonical lead ${result.lead.external_record_id}`}
       />
 
@@ -77,9 +74,14 @@ export async function LeadDetailPage({
         model={model}
       />
 
-      <LeadDetailTimeline
-        events={model.events}
-      />
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
+        <LeadDetailTimeline events={model.events} />
+
+        <LeadDetailSummary.Analytics
+          lead={result.lead}
+          model={model}
+        />
+      </div>
     </div>
   );
 }
