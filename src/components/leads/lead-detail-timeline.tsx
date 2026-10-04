@@ -175,7 +175,7 @@ function cleanEventDetails(
   details: string,
 ): string {
   return details
-    .replace(/\.\.\.Reply\s*/gi, "")
+    .replace(/\s+Reply\s*$/i, "")
     .trim();
 }
 
