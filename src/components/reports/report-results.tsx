@@ -1,3 +1,5 @@
+"use client";
+
 import { metricDefinition } from "@/reports/report-catalog";
 import type {
   ReportMetricKey,
@@ -12,8 +14,78 @@ export function ReportResults({
   const metrics =
     result.definition.metrics;
 
+  function downloadCsv() {
+    const headers = [
+      result.definition.groupBy === "none"
+        ? "Report"
+        : "Group",
+      ...metrics.map(
+        (metric) =>
+          metricDefinition(metric)?.label ??
+          metric,
+      ),
+    ];
+
+    const rows = result.rows.map((row) => [
+      row.label,
+      ...metrics.map((metric) =>
+        formatMetric(
+          metric,
+          row.values[metric] ?? null,
+        ),
+      ),
+    ]);
+
+    const csv = [
+      headers,
+      ...rows,
+    ]
+      .map((row) =>
+        row.map(csvCell).join(","),
+      )
+      .join("\n");
+
+    const blob = new Blob(
+      [csv],
+      { type: "text/csv;charset=utf-8" },
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `${safeFilename(
+      result.definition.name,
+    )}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-500">
+          {result.rows.length.toLocaleString()}{" "}
+          {result.rows.length === 1
+            ? "row"
+            : "rows"}{" "}
+          · {result.populationCount.toLocaleString()}{" "}
+          leads in the report population
+        </p>
+
+        <button
+          type="button"
+          onClick={downloadCsv}
+          disabled={result.rows.length === 0}
+          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Export CSV
+        </button>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Report population"
@@ -34,16 +106,9 @@ export function ReportResults({
               }
               value={formatMetric(
                 metric,
-                result.rows.length === 1
-                  ? result.rows[0].values[
-                      metric
-                    ] ?? null
-                  : aggregateSummary(
-                      result,
-                      metric,
-                    ),
+                result.summary[metric] ?? null,
               )}
-              detail="Report-level summary"
+              detail="Overall report result"
             />
           ))}
       </div>
@@ -79,7 +144,7 @@ export function ReportResults({
               (row) => (
                 <tr
                   key={row.key}
-                  className="border-b border-slate-100 last:border-b-0"
+                  className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
                 >
                   <td className="px-4 py-3 font-medium">
                     {row.label}
@@ -108,9 +173,15 @@ export function ReportResults({
               <tr>
                 <td
                   colSpan={metrics.length + 1}
-                  className="px-4 py-10 text-center text-sm text-slate-500"
+                  className="px-4 py-12 text-center"
                 >
-                  No leads match this report definition.
+                  <p className="text-sm font-medium text-slate-700">
+                    No leads match this report.
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Try widening the date range or
+                    removing one or more filters.
+                  </p>
                 </td>
               </tr>
             ) : null}
@@ -142,37 +213,6 @@ function SummaryCard({
         {detail}
       </p>
     </article>
-  );
-}
-
-function aggregateSummary(
-  result: ReportResult,
-  metric: ReportMetricKey,
-): number | null {
-  if (
-    metric === "responseRate" ||
-    metric ===
-      "responseWithin24hRate" ||
-    metric ===
-      "medianResponseMinutes"
-  ) {
-    return null;
-  }
-
-  const values = result.rows
-    .map(
-      (row) =>
-        row.values[metric] ?? null,
-    )
-    .filter(
-      (value): value is number =>
-        value !== null,
-    );
-
-  return values.reduce(
-    (total, value) =>
-      total + value,
-    0,
   );
 }
 
@@ -215,4 +255,21 @@ function formatCount(
       maximumFractionDigits: 1,
     },
   ).format(value);
+}
+
+function csvCell(
+  value: string,
+): string {
+  return `"${value.replaceAll('"', '""')}"`;
+}
+
+function safeFilename(
+  value: string,
+): string {
+  const cleaned = value
+    .trim()
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return cleaned || "report";
 }

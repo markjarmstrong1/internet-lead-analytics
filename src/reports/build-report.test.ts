@@ -218,6 +218,79 @@ describe("buildReport", () => {
     expect(result.populationCount).toBe(1);
   });
 
+  it("calculates an overall summary independently of row grouping", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("lead-1"),
+          lead("lead-2", {
+            source: "Source B",
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "outbound-1",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "inbound-1",
+            occurredAt:
+              "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        groupBy: "source",
+        metrics: [
+          "leads",
+          "contacted",
+          "responded",
+          "responseRate",
+        ],
+      }),
+    );
+
+    expect(result.summary).toEqual({
+      leads: 2,
+      contacted: 1,
+      responded: 1,
+      responseRate: 1,
+    });
+  });
+
+  it("matches unknown-value filters consistently", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("known"),
+          lead("unknown", {
+            source: "",
+          }),
+        ],
+        [],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          sources: ["Unknown"],
+          sourceGroups: [],
+          stages: [],
+          statuses: [],
+        },
+        groupBy: "none",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(
+      result.rows[0]?.values.leads,
+    ).toBe(1);
+  });
+
   it("supports outcome-date population", () => {
     const result = buildReport(
       dataset(

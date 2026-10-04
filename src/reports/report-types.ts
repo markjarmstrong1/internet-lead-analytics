@@ -61,11 +61,16 @@ export type ReportMetricValue = number | null;
 export type ReportRow = {
   key: string;
   label: string;
-  values: Partial<Record<ReportMetricKey, ReportMetricValue>>;
+  values: Partial<
+    Record<ReportMetricKey, ReportMetricValue>
+  >;
 };
 
 export type ReportResult = {
   definition: ReportDefinition;
   populationCount: number;
+  summary: Partial<
+    Record<ReportMetricKey, ReportMetricValue>
+  >;
   rows: ReportRow[];
 };

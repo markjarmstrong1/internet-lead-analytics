@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 import {
   REPORT_DATE_BASES,
@@ -22,11 +25,68 @@ type ReportBuilderProps = {
   };
 };
 
+type FilterKey = keyof ReportDefinition["filters"];
+
 export function ReportBuilder({
   definition,
   savedReport,
   options,
 }: ReportBuilderProps) {
+  const [draft, setDraft] =
+    useState<ReportDefinition>(definition);
+
+  const selectedBasis =
+    REPORT_DATE_BASES.find(
+      (basis) =>
+        basis.key === draft.dateRange.basis,
+    );
+
+  function updateFilter(
+    key: FilterKey,
+    value: string,
+    checked: boolean,
+  ) {
+    setDraft((current) => {
+      const existing =
+        current.filters[key];
+
+      const next = checked
+        ? [...existing, value]
+        : existing.filter(
+            (item) => item !== value,
+          );
+
+      return {
+        ...current,
+        filters: {
+          ...current.filters,
+          [key]: next,
+        },
+      };
+    });
+  }
+
+  function toggleMetric(
+    value: ReportDefinition["metrics"][number],
+    checked: boolean,
+  ) {
+    setDraft((current) => {
+      const metrics = checked
+        ? [...current.metrics, value]
+        : current.metrics.filter(
+            (metric) => metric !== value,
+          );
+
+      return {
+        ...current,
+        metrics:
+          metrics.length > 0
+            ? metrics
+            : current.metrics,
+      };
+    });
+  }
+
   return (
     <div className="space-y-6">
       <form
@@ -36,24 +96,39 @@ export function ReportBuilder({
         <div className="grid gap-5 lg:grid-cols-3">
           <Field
             label="Report name"
-            description="The name used when this report is saved."
+            description="Used when the report is saved."
           >
             <input
               name="name"
-              defaultValue={definition.name}
+              value={draft.name}
+              onChange={(event) =>
+                setDraft({
+                  ...draft,
+                  name: event.target.value,
+                })
+              }
               maxLength={120}
               className={inputClass}
             />
           </Field>
 
           <Field
-            label="Date basis"
-            description="Determines which date controls the report population."
+            label="Population date"
+            description="Controls which leads are included in the report."
           >
             <select
               name="dateBasis"
-              defaultValue={
-                definition.dateRange.basis
+              value={draft.dateRange.basis}
+              onChange={(event) =>
+                setDraft({
+                  ...draft,
+                  dateRange: {
+                    ...draft.dateRange,
+                    basis:
+                      event.target
+                        .value as ReportDefinition["dateRange"]["basis"],
+                  },
+                })
               }
               className={inputClass}
             >
@@ -68,16 +143,28 @@ export function ReportBuilder({
                 ),
               )}
             </select>
+
+            {selectedBasis ? (
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                {selectedBasis.description}
+              </p>
+            ) : null}
           </Field>
 
           <Field
             label="Group rows by"
-            description="Choose how the generated report is broken into rows."
+            description="Choose how the report is broken into comparable rows."
           >
             <select
               name="groupBy"
-              defaultValue={
-                definition.groupBy
+              value={draft.groupBy}
+              onChange={(event) =>
+                setDraft({
+                  ...draft,
+                  groupBy:
+                    event.target
+                      .value as ReportDefinition["groupBy"],
+                })
               }
               className={inputClass}
             >
@@ -98,14 +185,24 @@ export function ReportBuilder({
         <div className="grid gap-5 md:grid-cols-2">
           <Field
             label="Start date"
-            description="Leave blank to include the beginning of the available population."
+            description="Inclusive. Leave blank for the earliest available date."
           >
             <input
               type="date"
               name="start"
-              defaultValue={
-                definition.dateRange.start ??
-                ""
+              value={
+                draft.dateRange.start ?? ""
+              }
+              onChange={(event) =>
+                setDraft({
+                  ...draft,
+                  dateRange: {
+                    ...draft.dateRange,
+                    start:
+                      event.target.value ||
+                      null,
+                  },
+                })
               }
               className={inputClass}
             />
@@ -113,37 +210,60 @@ export function ReportBuilder({
 
           <Field
             label="End date"
-            description="The selected end date is inclusive."
+            description="Inclusive. Leave blank for the latest available date."
           >
             <input
               type="date"
               name="end"
-              defaultValue={
-                definition.dateRange.end ??
-                ""
+              value={
+                draft.dateRange.end ?? ""
+              }
+              onChange={(event) =>
+                setDraft({
+                  ...draft,
+                  dateRange: {
+                    ...draft.dateRange,
+                    end:
+                      event.target.value ||
+                      null,
+                  },
+                })
               }
               className={inputClass}
             />
           </Field>
         </div>
 
-        <FilterSelect
-          name="source"
-          label="Lead sources"
-          options={options.sources}
-          selected={
-            definition.filters.sources
-          }
-        />
+        <div className="grid gap-4 md:grid-cols-2">
+          <FilterSelect
+            name="source"
+            label="Lead sources"
+            options={options.sources}
+            selected={
+              draft.filters.sources
+            }
+            onToggle={(value, checked) =>
+              updateFilter(
+                "sources",
+                value,
+                checked,
+              )
+            }
+          />
 
-        <div className="grid gap-5 md:grid-cols-3">
           <FilterSelect
             name="sourceGroup"
             label="Source groups"
             options={options.sourceGroups}
             selected={
-              definition.filters
-                .sourceGroups
+              draft.filters.sourceGroups
+            }
+            onToggle={(value, checked) =>
+              updateFilter(
+                "sourceGroups",
+                value,
+                checked,
+              )
             }
           />
 
@@ -152,7 +272,14 @@ export function ReportBuilder({
             label="Stages"
             options={options.stages}
             selected={
-              definition.filters.stages
+              draft.filters.stages
+            }
+            onToggle={(value, checked) =>
+              updateFilter(
+                "stages",
+                value,
+                checked,
+              )
             }
           />
 
@@ -161,7 +288,14 @@ export function ReportBuilder({
             label="Statuses"
             options={options.statuses}
             selected={
-              definition.filters.statuses
+              draft.filters.statuses
+            }
+            onToggle={(value, checked) =>
+              updateFilter(
+                "statuses",
+                value,
+                checked,
+              )
             }
           />
         </div>
@@ -171,9 +305,10 @@ export function ReportBuilder({
             <p className="text-sm font-semibold">
               Metrics
             </p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs leading-5 text-slate-500">
               Select the measures that should appear
-              in the generated report.
+              in the generated report. At least one
+              metric must remain selected.
             </p>
           </div>
 
@@ -181,7 +316,7 @@ export function ReportBuilder({
             {REPORT_METRICS.map(
               (metric) => {
                 const selected =
-                  definition.metrics.includes(
+                  draft.metrics.includes(
                     metric.key,
                   );
 
@@ -189,18 +324,22 @@ export function ReportBuilder({
                   <label
                     key={metric.key}
                     className={[
-                      "flex cursor-pointer gap-3 rounded-lg border p-3",
+                      "flex cursor-pointer gap-3 rounded-xl border p-4 transition",
                       selected
                         ? "border-slate-950 bg-slate-50"
-                        : "border-slate-200 bg-white",
+                        : "border-slate-200 bg-white hover:border-slate-400",
                     ].join(" ")}
                   >
                     <input
                       type="checkbox"
                       name="metric"
                       value={metric.key}
-                      defaultChecked={
-                        selected
+                      checked={selected}
+                      onChange={(event) =>
+                        toggleMetric(
+                          metric.key,
+                          event.target.checked,
+                        )
                       }
                       className="mt-1"
                     />
@@ -223,23 +362,28 @@ export function ReportBuilder({
         <div className="flex flex-wrap items-center gap-3 border-t border-slate-200 pt-5">
           <button
             type="submit"
-            className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
           >
             Generate report
           </button>
 
           <Link
             href="/reports"
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium hover:bg-slate-50"
           >
             Start over
           </Link>
+
+          <span className="text-xs text-slate-400">
+            Generation updates the URL so the report can
+            be bookmarked or shared.
+          </span>
         </div>
       </form>
 
       <form
         action={saveReportAction}
-        className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4"
+        className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4"
       >
         <div>
           <p className="text-sm font-semibold">
@@ -247,18 +391,16 @@ export function ReportBuilder({
               ? "Saved report"
               : "Save this report"}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Save the current configuration so it can
-            be reopened later.
+          <p className="mt-1 max-w-xl text-xs leading-5 text-slate-500">
+            Save the exact configuration currently shown
+            above. You do not need to generate again first.
           </p>
         </div>
 
         <input
           type="hidden"
           name="definition"
-          value={JSON.stringify(
-            definition,
-          )}
+          value={JSON.stringify(draft)}
         />
 
         {savedReport ? (
@@ -271,7 +413,7 @@ export function ReportBuilder({
 
         <button
           type="submit"
-          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-100"
+          className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium shadow-sm hover:bg-slate-100"
         >
           {savedReport
             ? "Save changes"
@@ -311,39 +453,75 @@ function FilterSelect({
   label,
   options,
   selected,
+  onToggle,
 }: {
   name: string;
   label: string;
   options: string[];
   selected: string[];
+  onToggle: (
+    value: string,
+    checked: boolean,
+  ) => void;
 }) {
   return (
-    <label className="block">
-      <span className="text-sm font-semibold">
-        {label}
-      </span>
-      <span className="mt-1 block text-xs text-slate-500">
-        Leave empty to include every value.
-      </span>
+    <details className="group rounded-xl border border-slate-200 bg-white">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3">
+        <span>
+          <span className="block text-sm font-semibold">
+            {label}
+          </span>
+          <span className="mt-1 block text-xs text-slate-500">
+            {selected.length === 0
+              ? "All values"
+              : `${selected.length} selected`}
+          </span>
+        </span>
 
-      <select
-        name={name}
-        multiple
-        defaultValue={selected}
-        className="mt-2 min-h-32 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500"
-      >
-        {options.map((option) => (
-          <option
-            key={option}
-            value={option}
-          >
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
+        <span className="text-slate-400 transition group-open:rotate-180">
+          ↓
+        </span>
+      </summary>
+
+      <div className="border-t border-slate-200 p-4">
+        {options.length > 0 ? (
+          <div className="grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
+            {options.map((option) => (
+              <label
+                key={option}
+                className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-slate-50"
+              >
+                <input
+                  type="checkbox"
+                  name={name}
+                  value={option}
+                  checked={selected.includes(
+                    option,
+                  )}
+                  onChange={(event) =>
+                    onToggle(
+                      option,
+                      event.target.checked,
+                    )
+                  }
+                />
+
+                <span className="min-w-0 truncate">
+                  {option}
+                </span>
+              </label>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500">
+            No values are available in the current
+            dataset.
+          </p>
+        )}
+      </div>
+    </details>
   );
 }
 
 const inputClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500";
+  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200";

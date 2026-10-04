@@ -1,4 +1,4 @@
-import { AnalyticsDataset } from "@/analytics/data/analytics-repository";
+import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
 import { createServerAnalyticsRepository } from "@/analytics/data/create-server-analytics-repository";
 
 import {
@@ -76,28 +76,28 @@ function buildOptions(
       dataset.leads.map(
         (lead) =>
           lead.source.trim() ||
-          "Unknown source",
+          "Unknown",
       ),
     ),
     sourceGroups: uniqueSorted(
       dataset.leads.map(
         (lead) =>
           lead.sourceGroup.trim() ||
-          "Unknown source group",
+          "Unknown",
       ),
     ),
     stages: uniqueSorted(
       dataset.leads.map(
         (lead) =>
           lead.stage.trim() ||
-          "Unknown stage",
+          "Unknown",
       ),
     ),
     statuses: uniqueSorted(
       dataset.leads.map(
         (lead) =>
           lead.status.trim() ||
-          "Unknown status",
+          "Unknown",
       ),
     ),
   };

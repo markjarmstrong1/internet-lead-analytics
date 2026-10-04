@@ -190,9 +190,9 @@ function asStringArray(
     .filter(Boolean);
 }
 
-function unique(
-  values: string[],
-): string[] {
+function unique<T extends string>(
+  values: T[],
+): T[] {
   return [...new Set(values)];
 }
 

@@ -24,16 +24,19 @@ export function buildReport(
   const observations =
     buildLeadObservations(dataset);
 
+  const observationsByLead = new Map(
+    observations.map((observation) => [
+      observation.lead.leadId,
+      observation,
+    ]),
+  );
+
   const filteredLeads = dataset.leads.filter(
     (lead) =>
       matchesDateRange(
         lead,
         definition,
-        observations.find(
-          (observation) =>
-            observation.lead.leadId ===
-            lead.leadId,
-        ),
+        observationsByLead.get(lead.leadId),
       ) &&
       matchesFilters(lead, definition),
   );
@@ -70,9 +73,20 @@ export function buildReport(
       left.label.localeCompare(right.label),
     );
 
+  const summary: ReportResult["summary"] = {};
+
+  for (const metric of definition.metrics) {
+    summary[metric] = calculateMetric(
+      metric,
+      filteredLeads,
+      filteredObservations,
+    );
+  }
+
   return {
     definition,
     populationCount: filteredLeads.length,
+    summary,
     rows,
   };
 }
@@ -116,23 +130,19 @@ function groupObservations(
           observation,
         );
       }
-    } else {
-      groups.set(key, {
-        leads: [lead],
-        observations:
-          observationsByLead.get(lead.leadId)
-            ? [
-                observationsByLead.get(
-                  lead.leadId,
-                )!,
-              ]
-            : [],
-      });
-    }
-  }
 
-  if (dimension === "none") {
-    return groups;
+      continue;
+    }
+
+    const observation =
+      observationsByLead.get(lead.leadId);
+
+    groups.set(key, {
+      leads: [lead],
+      observations: observation
+        ? [observation]
+        : [],
+    });
   }
 
   return groups;
