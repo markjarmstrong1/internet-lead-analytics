@@ -35,18 +35,28 @@ function lead(
 }
 
 describe("calculateResponseSpeedOutcomes", () => {
-  it("counts appointment evidence by response speed", () => {
+  it("counts appointment stage evidence by response speed", () => {
     const events = [
       event({
         occurredAt: "2026-01-01T10:00:00.000Z",
       }),
       event({
+        sourceEventId: "appointment-stage",
+        occurredAt: "2026-01-01T10:03:00.000Z",
+        rawType: "Stage Changed",
+        category: "lifecycle",
+        actorType: "employee",
+        channel: null,
+        direction: null,
+        details: "Stage got changed from Engage to Appt. Created",
+      }),
+      event({
         sourceEventId: "inbound",
         occurredAt: "2026-01-01T10:04:00.000Z",
         rawType: "Text Received",
-        actorType: "employee",
+        actorType: "customer",
         direction: "inbound",
-        details: "Can we schedule an appointment?",
+        details: "Yes",
       }),
     ];
 
@@ -63,6 +73,38 @@ describe("calculateResponseSpeedOutcomes", () => {
       numerator: 1,
       denominator: 1,
     });
+  });
+
+  it("does not treat appointment mentions or deleted appointments as appointment evidence", () => {
+    const events = [
+      event({
+        occurredAt: "2026-01-01T10:00:00.000Z",
+      }),
+      event({
+        sourceEventId: "message",
+        occurredAt: "2026-01-01T10:02:00.000Z",
+        rawType: "Text Sent",
+        details: "I can help reschedule your appointment.",
+      }),
+      event({
+        sourceEventId: "deleted-appointment",
+        occurredAt: "2026-01-01T10:03:00.000Z",
+        rawType: "Stage Changed",
+        category: "lifecycle",
+        actorType: "employee",
+        channel: null,
+        direction: null,
+        details:
+          "Stage got changed from Engage to Appt. Created\\nThe appointment is deleted",
+      }),
+    ];
+
+    const result = calculateResponseSpeedOutcomes(
+      events,
+      [lead({})],
+    );
+
+    expect(result.appointments.evidenceLeads).toBe(0);
   });
 
   it("does not treat a missing timeline as a zero-speed response", () => {

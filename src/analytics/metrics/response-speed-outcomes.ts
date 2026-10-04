@@ -228,10 +228,16 @@ function calculateResponseMinutes(
 function hasAppointmentEvidence(
   event: TimelineAnalyticsEvent,
 ): boolean {
-  const searchableText =
-    `${event.rawType} ${event.details}`.toLowerCase();
+  if (event.rawType !== "Stage Changed") {
+    return false;
+  }
 
-  return searchableText.includes("appointment");
+  const details = event.details.toLowerCase();
+
+  return (
+    details.includes("appt. created") &&
+    !details.includes("appointment is deleted")
+  );
 }
 
 function isSoldClosedStage(stage: string): boolean {

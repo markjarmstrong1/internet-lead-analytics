@@ -1,5 +1,4 @@
 import type {
-  ResponseSpeedBucket,
   ResponseSpeedOutcomeSummary,
   ResponseSpeedOutcomesMetric,
 } from "@/analytics/metrics/response-speed-outcomes";
@@ -171,7 +170,7 @@ export function ResponseSpeedOutcomes({
       <div className="grid gap-4 lg:grid-cols-2">
         <OutcomeSummary
           title="Appointment evidence"
-          description="Leads with observed timeline evidence mentioning an appointment."
+          description="Leads with observed Appt. Created stage evidence, excluding explicitly deleted appointments."
           summary={metric.appointments}
         />
 
