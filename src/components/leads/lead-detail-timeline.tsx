@@ -118,7 +118,9 @@ function EventDetails({
             </p>
 
             <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
-              {event.details || "No event details were preserved."}
+              {event.details
+                ? cleanEventDetails(event.details)
+                : "No event details were preserved."}
             </p>
           </div>
 
@@ -167,6 +169,14 @@ function EventDetails({
       </div>
     </div>
   );
+}
+
+function cleanEventDetails(
+  details: string,
+): string {
+  return details
+    .replace(/\.\.\.Reply\s*/gi, "")
+    .trim();
 }
 
 function DetailField({
