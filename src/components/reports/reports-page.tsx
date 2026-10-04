@@ -1,59 +1,82 @@
+import Link from "next/link";
+
 import { PageHeader } from "@/components/app/page-header";
 import { SectionPanel } from "@/components/app/section-panel";
 
-const reportGroups = ["Daily", "Weekly", "Monthly", "Custom"];
+import { ReportBuilder } from "./report-builder";
+import { ReportResults } from "./report-results";
+import { SavedReports } from "./saved-reports";
 
-export function ReportsPage() {
+import type {
+  ReportDefinition,
+  ReportResult,
+  SavedReport,
+} from "@/reports/report-types";
+
+type ReportsPageProps = {
+  definition: ReportDefinition;
+  result: ReportResult;
+  savedReports: SavedReport[];
+  savedReport: SavedReport | null;
+  options: {
+    sources: string[];
+    sourceGroups: string[];
+    stages: string[];
+    statuses: string[];
+  };
+};
+
+export function ReportsPage({
+  definition,
+  result,
+  savedReports,
+  savedReport,
+  options,
+}: ReportsPageProps) {
   return (
     <div className="mx-auto max-w-[1600px] space-y-8 px-6 py-8 lg:px-8">
       <PageHeader
         eyebrow="Reporting"
-        title="Reports"
-        description="Review, configure, save, and export management-facing reports."
+        title={
+          savedReport
+            ? savedReport.name
+            : "Report builder"
+        }
+        description="Build management reports from the same analytical evidence used throughout the application."
         actions={
-          <button
-            type="button"
-            className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white"
+          <Link
+            href="/reports"
+            className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
           >
-            Create report
-          </button>
+            New report
+          </Link>
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-4">
-        {reportGroups.map((group) => (
-          <SectionPanel key={group} title={`${group} reports`}>
-            <p className="text-sm text-slate-400">
-              Report list placeholder
-            </p>
-          </SectionPanel>
-        ))}
+      <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <SavedReports
+          reports={savedReports}
+        />
+
+        <SectionPanel
+          title="Customize report"
+          description="Choose the population, filters, grouping, and measures. Generate updates the report immediately."
+        >
+          <ReportBuilder
+            definition={definition}
+            savedReport={savedReport}
+            options={options}
+          />
+        </SectionPanel>
       </div>
 
       <SectionPanel
-        title="Report workspace"
-        description="Custom reports can compare leads, sources, methods, actions, and other supported dimensions."
+        title="Generated report"
+        description={`${result.populationCount.toLocaleString()} leads match this report definition.`}
       >
-        <div className="grid min-h-80 place-items-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-400">
-          Custom report builder
-        </div>
-      </SectionPanel>
-
-      <SectionPanel
-        title="Export"
-        description="Configured reports can eventually be exported in supported formats."
-      >
-        <div className="flex flex-wrap gap-3">
-          {["PDF", "CSV", "Table", "Chart"].map((format) => (
-            <button
-              key={format}
-              type="button"
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm"
-            >
-              {format}
-            </button>
-          ))}
-        </div>
+        <ReportResults
+          result={result}
+        />
       </SectionPanel>
     </div>
   );
