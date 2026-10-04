@@ -5,8 +5,11 @@ import { createServerSupabaseClient } from "@/lib/supabase/server-client";
 export type DashboardMetrics = {
   totalLeads: number;
   activeLeads: number;
+  engagedLeads: number;
   inConversation: number;
-  appointments: number;
+  upcomingAppointments: number;
+  totalAppointmentsBooked: number;
+  totalAppointmentsShown: number;
   sales: number;
   timelineLeads: number;
   timelineCoverageRate: number;
@@ -32,20 +35,32 @@ type TimelineRecordRow = {
   timeline_events: TimelineEventRow[] | null;
 };
 
+type AppointmentRow = {
+  scheduled_at: string;
+  showed_at: string | null;
+};
+
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   const supabase = createServerSupabaseClient();
 
-  const [{ data: leads, error: leadsError }, { data: timelines, error: timelineError }] =
-    await Promise.all([
-      supabase
-        .from("leads")
-        .select("id, status, stage, deal_status, sold_date"),
+  const [
+    { data: leads, error: leadsError },
+    { data: timelines, error: timelineError },
+    { data: appointments, error: appointmentsError },
+  ] = await Promise.all([
+    supabase
+      .from("leads")
+      .select("id, status, stage, deal_status, sold_date"),
 
-      supabase
-        .from("timeline_records")
-        .select("lead_id, timeline_events(category, direction)")
-        .not("lead_id", "is", null),
-    ]);
+    supabase
+      .from("timeline_records")
+      .select("lead_id, timeline_events(category, direction)")
+      .not("lead_id", "is", null),
+
+    supabase
+      .from("appointments")
+      .select("scheduled_at, showed_at"),
+  ]);
 
   if (leadsError) {
     throw new Error(
@@ -59,8 +74,15 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     );
   }
 
+  if (appointmentsError) {
+    throw new Error(
+      `Failed to load dashboard appointments: ${appointmentsError.message}`,
+    );
+  }
+
   const leadRows = (leads ?? []) as LeadRow[];
   const timelineRows = (timelines ?? []) as TimelineRecordRow[];
+  const appointmentRows = (appointments ?? []) as AppointmentRow[];
 
   const totalLeads = leadRows.length;
 
@@ -72,16 +94,24 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     (lead) => lead.stage?.toLowerCase() === "engage",
   ).length;
 
-  const appointments = leadRows.filter(
-    (lead) => lead.stage?.toLowerCase() === "appt. created",
-  ).length;
-
   const sales = leadRows.filter(
     (lead) =>
       lead.sold_date !== null ||
       ["closed or sold", "sold", "booked"].includes(
         lead.deal_status?.toLowerCase() ?? "",
       ),
+  ).length;
+
+  const now = Date.now();
+
+  const upcomingAppointments = appointmentRows.filter(
+    (appointment) => new Date(appointment.scheduled_at).getTime() >= now,
+  ).length;
+
+  const totalAppointmentsBooked = appointmentRows.length;
+
+  const totalAppointmentsShown = appointmentRows.filter(
+    (appointment) => appointment.showed_at !== null,
   ).length;
 
   const timelineLeadIds = new Set<string>();
@@ -111,8 +141,11 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   return {
     totalLeads,
     activeLeads,
+    engagedLeads: communicationLeadIds.size,
     inConversation,
-    appointments,
+    upcomingAppointments,
+    totalAppointmentsBooked,
+    totalAppointmentsShown,
     sales,
     timelineLeads: timelineLeadIds.size,
     timelineCoverageRate:

@@ -26,16 +26,16 @@ export async function DashboardPage() {
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <MetricCard
-            label="Total leads"
-            value={String(metrics.totalLeads)}
-            detail="Canonical lead records"
+            label="Active leads"
+            value={String(metrics.activeLeads)}
+            detail={`Total leads: ${metrics.totalLeads}`}
             state={<EvidenceState kind="calculated" />}
           />
 
           <MetricCard
-            label="Active leads"
-            value={String(metrics.activeLeads)}
-            detail="Status = Active"
+            label="Engaged leads"
+            value={String(metrics.engagedLeads)}
+            detail="Leads with observed communication"
             state={<EvidenceState kind="calculated" />}
           />
 
@@ -48,8 +48,8 @@ export async function DashboardPage() {
 
           <MetricCard
             label="Appointments"
-            value={String(metrics.appointments)}
-            detail="Leads in Appt. Created stage"
+            value={String(metrics.upcomingAppointments)}
+            detail={`Total booked: ${metrics.totalAppointmentsBooked} · Total shown: ${metrics.totalAppointmentsShown}`}
             state={<EvidenceState kind="calculated" />}
           />
 
