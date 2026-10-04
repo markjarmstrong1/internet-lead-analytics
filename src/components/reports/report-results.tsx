@@ -1,7 +1,4 @@
-import {
-  REPORT_METRICS,
-  metricDefinition,
-} from "@/reports/report-catalog";
+import { metricDefinition } from "@/reports/report-catalog";
 import type {
   ReportMetricKey,
   ReportResult,

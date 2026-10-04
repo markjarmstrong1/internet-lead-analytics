@@ -49,7 +49,7 @@ export function normalizeReportDefinition(
 
   const metrics = unique(
     asStringArray(input.metrics).filter(isReportMetric),
-  );
+  ) as ReportMetricKey[];
 
   const normalized: ReportDefinition = {
     version: REPORT_DEFINITION_VERSION,
