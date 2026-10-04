@@ -28,6 +28,7 @@ type LeadRow = {
 type TimelineEventRow = {
   category: string | null;
   direction: string | null;
+  occurred_at: string;
 };
 
 type TimelineRecordRow = {
@@ -54,7 +55,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 
     supabase
       .from("timeline_records")
-      .select("lead_id, timeline_events(category, direction)")
+      .select("lead_id, timeline_events(category, direction, occurred_at)")
       .not("lead_id", "is", null),
 
     supabase
@@ -90,9 +91,43 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     (lead) => lead.status?.toLowerCase() === "active",
   ).length;
 
-  const inConversation = leadRows.filter(
-    (lead) => lead.stage?.toLowerCase() === "engage",
-  ).length;
+  const recentCommunicationWindowMs = 30 * 24 * 60 * 60 * 1000;
+  const recentCommunicationCutoff = Date.now() - recentCommunicationWindowMs;
+
+  const inConversationLeadIds = new Set<string>();
+
+  for (const timeline of timelineRows) {
+    if (!timeline.lead_id) {
+      continue;
+    }
+
+    const lead = leadRows.find((candidate) => candidate.id === timeline.lead_id);
+
+    if (lead?.stage?.toLowerCase() !== "engage") {
+      continue;
+    }
+
+    const recentCommunicationDirections = new Set<string>();
+
+    for (const event of timeline.timeline_events ?? []) {
+      if (
+        event.category !== "communication" ||
+        !["inbound", "outbound"].includes(event.direction ?? "") ||
+        new Date(event.occurred_at).getTime() < recentCommunicationCutoff
+      ) {
+        continue;
+      }
+
+      recentCommunicationDirections.add(event.direction!);
+    }
+
+    if (
+      recentCommunicationDirections.has("inbound") &&
+      recentCommunicationDirections.has("outbound")
+    ) {
+      inConversationLeadIds.add(timeline.lead_id);
+    }
+  }
 
   const sales = leadRows.filter(
     (lead) =>
@@ -142,7 +177,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     totalLeads,
     activeLeads,
     engagedLeads: communicationLeadIds.size,
-    inConversation,
+    inConversation: inConversationLeadIds.size,
     upcomingAppointments,
     totalAppointmentsBooked,
     totalAppointmentsShown,
