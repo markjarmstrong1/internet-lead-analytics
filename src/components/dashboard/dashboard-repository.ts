@@ -29,6 +29,8 @@ type TimelineEventRow = {
   category: string | null;
   direction: string | null;
   occurred_at: string;
+  raw_type: string | null;
+  details: string | null;
 };
 
 type TimelineRecordRow = {
@@ -55,7 +57,9 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 
     supabase
       .from("timeline_records")
-      .select("lead_id, timeline_events(category, direction, occurred_at)")
+      .select(
+        "lead_id, timeline_events(category, direction, occurred_at, raw_type, details)",
+      )
       .not("lead_id", "is", null),
 
     supabase
@@ -139,29 +143,48 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 
   const now = Date.now();
 
-  const appointmentCreatedLeads = leadRows.filter(
-    (lead) => lead.stage?.toLowerCase() === "appt. created",
-  );
+  const upcomingAppointments = appointmentRows.filter(
+    (appointment) =>
+      new Date(appointment.scheduled_at).getTime() >= now,
+  ).length;
 
-  const upcomingAppointments =
-    appointmentRows.length > 0
-      ? appointmentRows.filter(
-          (appointment) =>
-            new Date(appointment.scheduled_at).getTime() >= now,
-        ).length
-      : appointmentCreatedLeads.length;
+  const appointmentEvidence = timelineRows.flatMap((timeline) =>
+    (timeline.timeline_events ?? []).filter((event) => {
+      const details = event.details?.toLowerCase() ?? "";
+      const rawType = event.raw_type?.toLowerCase() ?? "";
+
+      return (
+        details.includes("appointment") ||
+        rawType.includes("appointment")
+      );
+    }),
+  );
 
   const totalAppointmentsBooked =
     appointmentRows.length > 0
       ? appointmentRows.length
-      : appointmentCreatedLeads.length;
+      : appointmentEvidence.length;
 
   const totalAppointmentsShown =
     appointmentRows.length > 0
       ? appointmentRows.filter(
           (appointment) => appointment.showed_at !== null,
         ).length
-      : 0;
+      : timelineRows.reduce((count, timeline) => {
+          const shown = (timeline.timeline_events ?? []).some((event) => {
+            const details = event.details?.toLowerCase() ?? "";
+            const rawType = event.raw_type?.toLowerCase() ?? "";
+
+            return (
+              rawType === "checkin" ||
+              details.includes("showed") ||
+              details.includes("arrived") ||
+              details.includes("checked in")
+            );
+          });
+
+          return count + (shown ? 1 : 0);
+        }, 0);
 
   const timelineLeadIds = new Set<string>();
   const communicationLeadIds = new Set<string>();
