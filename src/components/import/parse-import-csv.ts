@@ -3,9 +3,40 @@ export type ParsedCsv = {
   rows: string[][];
 };
 
-function parseCsv(content: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
+function splitTekionLogicalRows(content: string): string[] {
+  const lines = content.replace(/\r\n?/g, "\n").split("\n");
+  const rows: string[] = [];
+  let current: string[] = [];
+
+  const isLeadRowStart = (line: string) =>
+    /^"[^"]*","[^"]*"/.test(line);
+
+  for (const line of lines) {
+    if (isLeadRowStart(line)) {
+      if (current.length > 0) {
+        rows.push(current.join(" "));
+      }
+
+      current = [line];
+      continue;
+    }
+
+    if (current.length > 0) {
+      current.push(line);
+    } else if (line.trim()) {
+      current.push(line);
+    }
+  }
+
+  if (current.length > 0) {
+    rows.push(current.join(" "));
+  }
+
+  return rows;
+}
+
+function parseCsvRow(content: string): string[] {
+  const row: string[] = [];
   let value = "";
   let quoted = false;
 
@@ -38,53 +69,19 @@ function parseCsv(content: string): string[][] {
       continue;
     }
 
-    if (character === "\r") {
-      if (content[index + 1] === "\n") {
-        index += 1;
-      }
-
-      row.push(value.trim());
-      value = "";
-
-      if (row.some((cell) => cell.length > 0)) {
-        rows.push(row);
-      }
-
-      row = [];
-      continue;
-    }
-
-    if (character === "\n") {
-      row.push(value.trim());
-      value = "";
-
-      if (row.some((cell) => cell.length > 0)) {
-        rows.push(row);
-      }
-
-      row = [];
-      continue;
-    }
-
     value += character;
   }
 
-  if (value.length > 0 || row.length > 0) {
-    row.push(value.trim());
+  row.push(value.trim());
 
-    if (row.some((cell) => cell.length > 0)) {
-      rows.push(row);
-    }
-  }
-
-  return rows;
+  return row;
 }
 
 export function parseImportCsv(content: string): ParsedCsv {
   const normalized = content.replace(/^\uFEFF/, "");
-  const rows = parseCsv(normalized);
+  const logicalRows = splitTekionLogicalRows(normalized);
 
-  if (rows.length === 0) {
+  if (logicalRows.length === 0) {
     return {
       headers: [],
       rows: [],
@@ -92,7 +89,10 @@ export function parseImportCsv(content: string): ParsedCsv {
   }
 
   return {
-    headers: rows[0],
-    rows: rows.slice(1),
+    headers: parseCsvRow(logicalRows[0]),
+    rows: logicalRows
+      .slice(1)
+      .map(parseCsvRow)
+      .filter((row) => row.some((cell) => cell.length > 0)),
   };
 }
