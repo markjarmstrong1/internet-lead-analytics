@@ -3,58 +3,96 @@ export type ParsedCsv = {
   rows: string[][];
 };
 
-function parseCsvLine(line: string): string[] {
-  const values: string[] = [];
+function parseCsv(content: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
   let value = "";
   let quoted = false;
 
-  for (let index = 0; index < line.length; index += 1) {
-    const character = line[index];
+  for (let index = 0; index < content.length; index += 1) {
+    const character = content[index];
 
-    if (character === '"') {
-      if (quoted && line[index + 1] === '"') {
-        value += '"';
-        index += 1;
+    if (quoted) {
+      if (character === '"') {
+        if (content[index + 1] === '"') {
+          value += '"';
+          index += 1;
+        } else {
+          quoted = false;
+        }
       } else {
-        quoted = !quoted;
+        value += character;
       }
 
       continue;
     }
 
-    if (character === "," && !quoted) {
-      values.push(value.trim());
+    if (character === '"') {
+      quoted = true;
+      continue;
+    }
+
+    if (character === ",") {
+      row.push(value.trim());
       value = "";
+      continue;
+    }
+
+    if (character === "\r") {
+      if (content[index + 1] === "\n") {
+        index += 1;
+      }
+
+      row.push(value.trim());
+      value = "";
+
+      if (row.some((cell) => cell.length > 0)) {
+        rows.push(row);
+      }
+
+      row = [];
+      continue;
+    }
+
+    if (character === "\n") {
+      row.push(value.trim());
+      value = "";
+
+      if (row.some((cell) => cell.length > 0)) {
+        rows.push(row);
+      }
+
+      row = [];
       continue;
     }
 
     value += character;
   }
 
-  values.push(value.trim());
+  if (value.length > 0 || row.length > 0) {
+    row.push(value.trim());
 
-  return values;
+    if (row.some((cell) => cell.length > 0)) {
+      rows.push(row);
+    }
+  }
+
+  return rows;
 }
 
 export function parseImportCsv(content: string): ParsedCsv {
-  const lines = content
-    .replace(/^\uFEFF/, "")
-    .split(/\r?\n/)
-    .filter((line) => line.trim().length > 0);
+  const normalized = content.replace(/^\uFEFF/, "");
+  const rows = parseCsv(normalized);
 
-  if (lines.length === 0) {
+  if (rows.length === 0) {
     return {
       headers: [],
       rows: [],
     };
   }
 
-  const headers = parseCsvLine(lines[0]);
-
-  const rows = lines.slice(1).map(parseCsvLine);
-
   return {
-    headers,
-    rows,
+    headers: rows[0],
+    rows: rows.slice(1),
   };
 }
