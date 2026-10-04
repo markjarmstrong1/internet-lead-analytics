@@ -171,19 +171,59 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
           (appointment) => appointment.showed_at !== null,
         ).length
       : timelineRows.reduce((count, timeline) => {
-          const shown = (timeline.timeline_events ?? []).some((event) => {
+          const appointmentEvents = (timeline.timeline_events ?? []).filter(
+            (event) => {
+              const details = event.details?.toLowerCase() ?? "";
+              const rawType = event.raw_type?.toLowerCase() ?? "";
+
+              return (
+                details.includes("appointment") ||
+                rawType.includes("appointment") ||
+                rawType === "checkin"
+              );
+            },
+          );
+
+          if (appointmentEvents.length === 0) {
+            return count;
+          }
+
+          const hasNegativeAppointmentOutcome = appointmentEvents.some(
+            (event) => {
+              const details = event.details?.toLowerCase() ?? "";
+
+              return (
+                details.includes("deleted") ||
+                details.includes("cancel") ||
+                details.includes("missed") ||
+                details.includes("no show") ||
+                details.includes("no-show") ||
+                details.includes("won't be making") ||
+                details.includes("wont be making") ||
+                details.includes("reschedule")
+              );
+            },
+          );
+
+          if (hasNegativeAppointmentOutcome) {
+            return count;
+          }
+
+          const hasVisitEvidence = appointmentEvents.some((event) => {
             const details = event.details?.toLowerCase() ?? "";
             const rawType = event.raw_type?.toLowerCase() ?? "";
 
             return (
               rawType === "checkin" ||
+              rawType.includes("visit") ||
               details.includes("showed") ||
               details.includes("arrived") ||
-              details.includes("checked in")
+              details.includes("checked in") ||
+              details.includes("visit set")
             );
           });
 
-          return count + (shown ? 1 : 0);
+          return count + (hasVisitEvidence ? 1 : 0);
         }, 0);
 
   const timelineLeadIds = new Set<string>();
