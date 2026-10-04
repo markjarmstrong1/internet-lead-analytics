@@ -1,4 +1,7 @@
-import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
+import {
+  getTekionTimelinePath,
+  hasLegacyTekionTimelineFixtures,
+} from "@/lib/tekion/fixture-paths";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -55,7 +58,9 @@ function readTimelines() {
     }));
 }
 
-describe("real Task workflow analysis", () => {
+describe.skipIf(!hasLegacyTekionTimelineFixtures())(
+  "real Task workflow analysis",
+  () => {
   it("analyzes historical Task workflows without exposing PII", () => {
     const tasks = readTasks();
     const timelines = readTimelines();

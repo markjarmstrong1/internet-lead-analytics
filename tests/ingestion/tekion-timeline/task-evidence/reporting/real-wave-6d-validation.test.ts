@@ -1,4 +1,7 @@
-import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
+import {
+  getTekionTimelinePath,
+  hasLegacyTekionTimelineFixtures,
+} from "@/lib/tekion/fixture-paths";
 import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
@@ -48,7 +51,9 @@ function readTimeline(file: string) {
   };
 }
 
-describe("real Wave 6D reporting validation", () => {
+describe.skipIf(!hasLegacyTekionTimelineFixtures())(
+  "real Wave 6D reporting validation",
+  () => {
   it("reconciles reporting output with the real Wave 5 evidence set", () => {
     const csv = fs.readFileSync(taskFile, "utf8");
 

@@ -1,5 +1,3 @@
-import "server-only";
-
 import type { TimelineDatabase } from "@/integrations/tekion/timeline/timeline-database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 

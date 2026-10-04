@@ -1,7 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { summarizeActionEvidence } from "../../../../src/integrations/tekion/timeline/action-evidence/summarize-action-evidence";
-import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
+import {
+  getTekionTimelinePath,
+  hasLegacyTekionTimelineFixtures,
+} from "@/lib/tekion/fixture-paths";
 
 const FILES = [
   "ana_yu.txt",
@@ -10,7 +13,9 @@ const FILES = [
   "jim_wilson.txt",
 ];
 
-describe("real Tekion timeline action evidence", () => {
+describe.skipIf(!hasLegacyTekionTimelineFixtures())(
+  "real Tekion timeline action evidence",
+  () => {
   it("processes all real timeline samples and reports aggregate evidence only", () => {
     const summaries = FILES.map((fileName) => {
       const content = readFileSync(getTekionTimelinePath(fileName), "utf8");

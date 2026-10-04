@@ -1,4 +1,7 @@
-import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
+import {
+  getTekionTimelinePath,
+  hasLegacyTekionTimelineFixtures,
+} from "@/lib/tekion/fixture-paths";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -28,7 +31,9 @@ function identityFromTimelineFile(file: string): string {
     .replace(/_/g, " ");
 }
 
-describe("Wave 5 real-data analytics", () => {
+describe.skipIf(!hasLegacyTekionTimelineFixtures())(
+  "Wave 5 real-data analytics",
+  () => {
   it("validates workflow, channel, completion, and timing analytics without exposing PII", () => {
     const csv = readFileSync(taskFile, "utf8");
     const rows = parseCsv(csv);

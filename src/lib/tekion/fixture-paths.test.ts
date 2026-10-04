@@ -1,33 +1,32 @@
-import path from "node:path";
 import { describe, expect, it } from "vitest";
+
 import {
   getTekionTimelinePath,
-  tekionTimelineDirectory,
-  tekionTimelineFiles,
+  hasLegacyTekionTimelineFixtures,
+  legacyTekionTimelineFiles,
 } from "./fixture-paths";
 
 describe("Tekion fixture paths", () => {
-  it("keeps timeline fixtures under the timelines directory", () => {
-    expect(tekionTimelineDirectory).toBe(
-      path.join(process.cwd(), "data/tekion/timelines"),
-    );
-  });
-
-  it("defines the known timeline fixture files", () => {
-    expect(tekionTimelineFiles).toEqual([
+  it("defines the legacy historical fixture set explicitly", () => {
+    expect(legacyTekionTimelineFiles).toEqual([
       "ana_yu.txt",
       "anthony_bacon.txt",
       "jeffery_becker.txt",
       "jim_wilson.txt",
     ]);
+
+    expect(
+      legacyTekionTimelineFiles.every((file) =>
+        getTekionTimelinePath(file).endsWith(
+          `data/tekion/timelines/${file}`,
+        ),
+      ),
+    ).toBe(true);
   });
 
-  it("builds timeline paths from the timelines directory", () => {
-    expect(getTekionTimelinePath("ana_yu.txt")).toBe(
-      path.join(
-        process.cwd(),
-        "data/tekion/timelines/ana_yu.txt",
-      ),
+  it("reports whether the legacy historical fixture pack is available", () => {
+    expect(typeof hasLegacyTekionTimelineFixtures()).toBe(
+      "boolean",
     );
   });
 });

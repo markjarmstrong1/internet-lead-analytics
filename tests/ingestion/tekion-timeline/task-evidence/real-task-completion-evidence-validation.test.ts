@@ -1,4 +1,7 @@
-import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
+import {
+  getTekionTimelinePath,
+  hasLegacyTekionTimelineFixtures,
+} from "@/lib/tekion/fixture-paths";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -73,7 +76,9 @@ function qualifyingEvidenceCount(
   ).length;
 }
 
-describe("real Task ↔ Timeline completion evidence", () => {
+describe.skipIf(!hasLegacyTekionTimelineFixtures())(
+  "real Task ↔ Timeline completion evidence",
+  () => {
   it("measures aggregate historical completion evidence without exposing PII", () => {
     const tasks = readTasks();
     const timelines = readTimelines();

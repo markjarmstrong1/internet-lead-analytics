@@ -6,7 +6,10 @@ import { importTimelineFile } from "../../../../src/integrations/tekion/timeline
 import { buildTaskTimelineCorrelation } from "../../../../src/integrations/tekion/timeline/correlation/build-task-timeline-correlation";
 import type { TekionTaskRecord } from "../../../../src/integrations/tekion/csv/task-record";
 import { mapTaskRow } from "../../../../src/integrations/tekion/csv/map-task-row";
-import { getTekionTimelinePath } from "@/lib/tekion/fixture-paths";
+import {
+  getTekionTimelinePath,
+  hasLegacyTekionTimelineFixtures,
+} from "@/lib/tekion/fixture-paths";
 
 const TIMELINE_FILES = [
   "ana_yu.txt",
@@ -55,7 +58,9 @@ function readTimelines() {
   });
 }
 
-describe("real Task ↔ Timeline correlation", () => {
+describe.skipIf(!hasLegacyTekionTimelineFixtures())(
+  "real Task ↔ Timeline correlation",
+  () => {
   it("measures aggregate historical Task correlation coverage", () => {
     const tasks = readTasks();
     const timelines = readTimelines();

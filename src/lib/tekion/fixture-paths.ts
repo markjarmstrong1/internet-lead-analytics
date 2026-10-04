@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 
 const projectRoot = process.cwd();
@@ -12,13 +13,21 @@ export const tekionTimelineDirectory = path.join(
   "data/tekion/timelines",
 );
 
-export const tekionTimelineFiles = [
+export const legacyTekionTimelineFiles = [
   "ana_yu.txt",
   "anthony_bacon.txt",
   "jeffery_becker.txt",
   "jim_wilson.txt",
 ] as const;
 
+export const tekionTimelineFiles = legacyTekionTimelineFiles;
+
 export function getTekionTimelinePath(file: string): string {
   return path.join(tekionTimelineDirectory, file);
+}
+
+export function hasLegacyTekionTimelineFixtures(): boolean {
+  return legacyTekionTimelineFiles.every((file) =>
+    fs.existsSync(getTekionTimelinePath(file)),
+  );
 }
