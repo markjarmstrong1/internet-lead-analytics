@@ -110,11 +110,17 @@ export function reconcileTimelineImport(
   const eventItems: TimelineEventReconciliationItem[] = [];
 
   for (const [recordIdentity, events] of incomingEventsByRecordIdentity) {
+    const uniqueIncomingEvents =
+      deduplicateIncomingTimelineEvents(
+        recordIdentity,
+        events,
+      );
+
     const result = reconcileImportRecords<
       TimelineEventPersistenceRow,
       PersistedTimelineEvent
     >(
-      events,
+      uniqueIncomingEvents,
       existingEventsByRecordIdentity.get(recordIdentity) ?? [],
       {
         getIdentity: getTimelineEventPersistenceIdentity,
@@ -140,6 +146,45 @@ export function reconcileTimelineImport(
       summary: summarizeEventItems(eventItems),
     },
   };
+}
+
+function deduplicateIncomingTimelineEvents(
+  recordIdentity: string,
+  events: TimelineEventPersistenceRow[],
+): TimelineEventPersistenceRow[] {
+  const eventsByIdentity = new Map<
+    string,
+    TimelineEventPersistenceRow
+  >();
+
+  for (const event of events) {
+    const identity =
+      getTimelineEventPersistenceIdentity(event);
+
+    if (!identity) {
+      continue;
+    }
+
+    const existing = eventsByIdentity.get(identity);
+
+    if (!existing) {
+      eventsByIdentity.set(identity, event);
+      continue;
+    }
+
+    if (!areTimelineEventsEqual(event, existing)) {
+      throw new Error(
+        [
+          "Incoming Tekion timeline events have a persistence identity collision.",
+          `Timeline record: ${recordIdentity}`,
+          `Event identity: ${identity}`,
+          "The same event identity was received with different payloads.",
+        ].join(" "),
+      );
+    }
+  }
+
+  return Array.from(eventsByIdentity.values());
 }
 
 function summarizeEventItems(

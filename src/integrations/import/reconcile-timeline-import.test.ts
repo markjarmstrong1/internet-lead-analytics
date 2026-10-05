@@ -88,6 +88,64 @@ describe("reconcileTimelineImport", () => {
     expect(result.events.summary.unchangedCount).toBe(0);
   });
 
+  it("deduplicates identical incoming events before persistence", () => {
+    const record = createRecord();
+    const recordIdentity =
+      "tekion:timeline:fixture:fixtures/ana_yu.txt";
+    const event = createEvent();
+
+    const result = reconcileTimelineImport(
+      [record],
+      [],
+      [
+        createImportEvent(recordIdentity, event),
+        createImportEvent(recordIdentity, {
+          ...event,
+          metadata: {
+            ...event.metadata,
+          },
+          raw_data: {
+            ...event.raw_data,
+          },
+        }),
+      ],
+      [],
+    );
+
+    expect(result.events.summary.total).toBe(1);
+    expect(result.events.summary.newCount).toBe(1);
+    expect(result.events.items).toHaveLength(1);
+    expect(result.events.items[0]?.status).toBe("new");
+  });
+
+  it("rejects conflicting incoming events that share an identity", () => {
+    const record = createRecord();
+    const recordIdentity =
+      "tekion:timeline:fixture:fixtures/ana_yu.txt";
+
+    expect(() =>
+      reconcileTimelineImport(
+        [record],
+        [],
+        [
+          createImportEvent(
+            recordIdentity,
+            createEvent(),
+          ),
+          createImportEvent(
+            recordIdentity,
+            createEvent({
+              details: "Different payload",
+            }),
+          ),
+        ],
+        [],
+      ),
+    ).toThrow(
+      "Incoming Tekion timeline events have a persistence identity collision.",
+    );
+  });
+
   it("classifies an identical repeat import as unchanged", () => {
     const record = createRecord();
     const event = createEvent();
