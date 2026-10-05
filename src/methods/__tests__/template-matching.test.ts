@@ -69,6 +69,29 @@ describe("template matching", () => {
     expect(result.evidence.coverage).toBeGreaterThan(0.55);
   });
 
+  it("keeps ambiguous partial matches in review", () => {
+    const result = matchCommunicationToTemplates(
+      "Thanks for reaching out about your vehicle. I would be happy to help.",
+      null,
+      [
+        template(
+          "a",
+          "Template A",
+          "Thanks for reaching out about your vehicle. I would be happy to help.",
+        ),
+        template(
+          "b",
+          "Template B",
+          "Thanks for reaching out about your vehicle. I would be happy to help today.",
+        ),
+      ],
+    );
+
+    expect(result.status).toBe("review");
+    expect(result.templateId).toBeNull();
+    expect(result.evidence.candidateCount).toBe(2);
+  });
+
   it("does not match a generic template from only a short shared phrase", () => {
     const result = matchCommunicationToTemplates(
       "Hi John, thanks for reaching out. I would be happy to help you.",

@@ -96,32 +96,18 @@ export function stripTekionDynamicTags(value: string): {
   segments: Segment[];
 } {
   const segments: Segment[] = [];
+  const spanPattern = /<\/?span\\b[^>]*>/gi;
 
-  const pattern =
-    /<span[^>]*class=["'][^"']*dynamic_tag[^"']*["'][^>]*>[\s\S]*?<\/span>/gi;
+  let cursor = 0;
+  let literalStart = 0;
+  let dynamicDepth = 0;
 
-  let last = 0;
-
-  for (const match of value.matchAll(pattern)) {
-    const start = match.index ?? 0;
-
-    if (start > last) {
-      const raw = value.slice(last, start);
-      const normalized = normalize(raw);
-
-      if (normalized) {
-        segments.push({
-          text: raw,
-          normalized,
-        });
-      }
+  const appendLiteral = (end: number) => {
+    if (end <= literalStart) {
+      return;
     }
 
-    last = start + match[0].length;
-  }
-
-  if (last < value.length) {
-    const raw = value.slice(last);
+    const raw = value.slice(literalStart, end);
     const normalized = normalize(raw);
 
     if (normalized) {
@@ -130,6 +116,40 @@ export function stripTekionDynamicTags(value: string): {
         normalized,
       });
     }
+  };
+
+  for (const match of value.matchAll(spanPattern)) {
+    const start = match.index ?? 0;
+    const tag = match[0];
+    const end = start + tag.length;
+    const isOpening = /^<span\\b/i.test(tag);
+    const isClosing = /^<\\/span\\b/i.test(tag);
+    const isDynamicOpening =
+      isOpening &&
+      /class=["'][^"']*dynamic_tag[^"']*["']/i.test(tag);
+
+    if (dynamicDepth === 0) {
+      if (isDynamicOpening) {
+        appendLiteral(start);
+        dynamicDepth = 1;
+        literalStart = end;
+      }
+      continue;
+    }
+
+    if (isOpening) {
+      dynamicDepth += 1;
+    } else if (isClosing) {
+      dynamicDepth -= 1;
+
+      if (dynamicDepth === 0) {
+        literalStart = end;
+      }
+    }
+  }
+
+  if (dynamicDepth === 0) {
+    appendLiteral(value.length);
   }
 
   return {
@@ -343,6 +363,30 @@ export function matchCommunicationToTemplates(
 
   const best = candidates[0];
   const second = candidates[1];
+
+  /*
+   * A single weak candidate is not enough evidence for review.
+   * Review is intended for genuinely ambiguous matches where more
+   * than one template has meaningful evidence.
+   */
+  if (
+    candidates.length === 1 &&
+    best.status === "review" &&
+    !best.evidence.subjectMatch
+  ) {
+    return {
+      templateId: null,
+      status: "unmatched",
+      score: null,
+      runnerUpScore: null,
+      method: "no-sufficient-evidence",
+      matchedFragment: best.matchedFragment,
+      evidence: {
+        ...best.evidence,
+        candidateCount: 1,
+      },
+    };
+  }
 
   const margin =
     second ? best.rank - second.rank : best.rank;
