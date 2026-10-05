@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { AppShell } from "@/components/app/app-shell";
 import { PageHeader } from "@/components/app/page-header";
-import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
 import type { AnalyticsFilters } from "@/analytics/filters/analytics-filters";
 
 import { AnalyticsFilters as Filters } from "./analytics-filters";
