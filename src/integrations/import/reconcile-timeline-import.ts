@@ -157,11 +157,14 @@ function deduplicateIncomingTimelineEvents(
     TimelineEventPersistenceRow
   >();
 
+  const invalidEvents: TimelineEventPersistenceRow[] = [];
+
   for (const event of events) {
     const identity =
       getTimelineEventPersistenceIdentity(event);
 
     if (!identity) {
+      invalidEvents.push(event);
       continue;
     }
 
@@ -184,7 +187,10 @@ function deduplicateIncomingTimelineEvents(
     }
   }
 
-  return Array.from(eventsByIdentity.values());
+  return [
+    ...invalidEvents,
+    ...Array.from(eventsByIdentity.values()),
+  ];
 }
 
 function summarizeEventItems(

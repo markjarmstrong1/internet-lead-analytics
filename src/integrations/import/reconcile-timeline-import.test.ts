@@ -146,6 +146,34 @@ describe("reconcileTimelineImport", () => {
     );
   });
 
+  it("preserves invalid incoming events for reconciliation", () => {
+    const record = createRecord();
+    const recordIdentity =
+      "tekion:timeline:fixture:fixtures/ana_yu.txt";
+
+    const result = reconcileTimelineImport(
+      [record],
+      [],
+      [
+        createImportEvent(
+          recordIdentity,
+          createEvent({
+            source_event_id: "",
+          }),
+        ),
+      ],
+      [],
+    );
+
+    expect(result.events.summary.total).toBe(1);
+    expect(result.events.summary.invalidCount).toBe(1);
+    expect(result.events.items).toHaveLength(1);
+    expect(result.events.items[0]?.status).toBe("invalid");
+    expect(result.events.items[0]?.reason).toBe(
+      "The record does not contain a stable source identity.",
+    );
+  });
+
   it("classifies an identical repeat import as unchanged", () => {
     const record = createRecord();
     const event = createEvent();
