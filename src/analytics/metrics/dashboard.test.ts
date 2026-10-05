@@ -142,7 +142,10 @@ describe("buildDashboardAnalysis", () => {
         lead("slow-appt"),
       ],
       events: [
-        event("fast-appt"),
+        event("fast-appt", {
+          occurredAt:
+            "2026-01-01T10:04:00.000Z",
+        }),
         event("fast-appt", {
           sourceEventId:
             "fast-appt-response",
@@ -166,7 +169,10 @@ describe("buildDashboardAnalysis", () => {
             "Stage got changed from Engage to Appt. Created",
         }),
 
-        event("fast-no-appt"),
+        event("fast-no-appt", {
+          occurredAt:
+            "2026-01-01T10:04:00.000Z",
+        }),
         event("fast-no-appt", {
           sourceEventId:
             "fast-no-appt-response",
