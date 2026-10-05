@@ -19,6 +19,8 @@ function event(
     channel: "text",
     direction: "outbound",
     details: "Hello",
+    metadata: {},
+    rawData: {},
     ...overrides,
   };
 }

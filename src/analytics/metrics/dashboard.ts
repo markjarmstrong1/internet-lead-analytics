@@ -331,9 +331,9 @@ export function buildDashboardAnalysis(
       ),
     },
 
-    soldLeadAnalytics: SoldLeadAnalytics;
+    soldLeadAnalytics,
 
-  progression: {
+    progression: {
       appointmentEvidence:
         appointmentEvidence.length,
       appointmentRateOfAll: ratio(

@@ -45,6 +45,8 @@ describe("buildAnalyticsEvents", () => {
         channel: "text",
         direction: "outbound",
         details: "Hello",
+        metadata: {},
+        rawData: {},
       },
     ]);
   });
@@ -70,6 +72,8 @@ describe("buildAnalyticsEvents", () => {
         channel: null,
         direction: null,
         details: "Hello",
+        metadata: {},
+        rawData: {},
       },
     ]);
   });

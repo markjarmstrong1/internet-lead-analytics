@@ -125,7 +125,7 @@ export function buildLeadObservations(
       : null;
 
     const responseAction = firstInbound
-      ? findFirstOutboundAfter(
+      ? findLastOutboundAtOrBefore(
           outboundActions,
           firstInbound.occurredAt,
         )
@@ -229,8 +229,8 @@ export function extractTemplate(
 
   for (const key of explicitKeys) {
     const value =
-      readString(event.metadata[key]) ??
-      readString(event.rawData[key]);
+      readString(event.metadata?.[key]) ??
+      readString(event.rawData?.[key]);
 
     if (value) {
       return {
@@ -325,7 +325,7 @@ export function findFirstInboundCommunication(
   );
 }
 
-function findFirstOutboundAfter(
+function findLastOutboundAtOrBefore(
   actions: LeadAction[],
   inboundAt: string,
 ): LeadAction | null {
@@ -335,13 +335,22 @@ function findFirstOutboundAfter(
     return null;
   }
 
-  return (
-    actions.find(
-      (action) =>
-        Date.parse(action.event.occurredAt) >
-        inboundTime,
-    ) ?? null
-  );
+  let responseAction: LeadAction | null = null;
+
+  for (const action of actions) {
+    const actionTime = Date.parse(
+      action.event.occurredAt,
+    );
+
+    if (
+      Number.isFinite(actionTime) &&
+      actionTime <= inboundTime
+    ) {
+      responseAction = action;
+    }
+  }
+
+  return responseAction;
 }
 
 export function calculateElapsedMinutes(
