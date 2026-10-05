@@ -3,6 +3,7 @@ import {
   buildLeadObservations,
   contactSpeedBucket,
   CONTACT_SPEED_BUCKETS,
+  average,
   median,
   responseSpeedBucket,
   RESPONSE_SPEED_BUCKETS,
@@ -87,10 +88,57 @@ export type InvestigationRow = {
   firstContactAt: string | null;
   firstContactMinutes: number | null;
   firstContactChannel: string | null;
+  firstAction: string | null;
+  firstTemplate: string | null;
   responseAt: string | null;
   responseMinutes: number | null;
   appointmentEvidence: boolean;
   soldClosed: boolean;
+};
+
+
+export type ActionRow = {
+  action: string;
+  channel: string | null;
+  contacted: number;
+  responded: number;
+  responseRate: number | null;
+  averageResponseMinutes: number | null;
+  medianResponseMinutes: number | null;
+  appointmentEvidence: number;
+  appointmentRate: number | null;
+  soldClosed: number;
+  soldClosedRate: number | null;
+};
+
+export type TemplateRow = {
+  template: string;
+  templateSource: string;
+  uses: number;
+  leads: number;
+  responded: number;
+  responseRate: number | null;
+  averageResponseMinutes: number | null;
+  medianResponseMinutes: number | null;
+  appointmentEvidence: number;
+  appointmentRate: number | null;
+  soldClosed: number;
+  soldClosedRate: number | null;
+};
+
+export type SoldLeadAnalytics = {
+  soldClosed: number;
+  contacted: number;
+  responded: number;
+  averageFirstContactMinutes: number | null;
+  medianFirstContactMinutes: number | null;
+  averageFirstResponseMinutes: number | null;
+  medianFirstResponseMinutes: number | null;
+  respondedWithin24h: number;
+  responseWithin24hRate: number | null;
+  averageOutboundBeforeResponse: number | null;
+  firstActions: ActionRow[];
+  templates: TemplateRow[];
 };
 
 export type DashboardAnalysis = {
@@ -121,6 +169,8 @@ export type DashboardAnalysis = {
     speed: ResponseSpeedRow[];
     channels: ChannelRow[];
   };
+
+  soldLeadAnalytics: SoldLeadAnalytics;
 
   progression: {
     appointmentEvidence: number;
@@ -203,6 +253,10 @@ export function buildDashboardAnalysis(
         observation.firstContactMinutes !== null,
     );
 
+
+  const soldLeadAnalytics =
+    buildSoldLeadAnalytics(soldClosed);
+
   const medianFirstContactMinutes = median(
     validFirstContactTimes.map(
       (observation) =>
@@ -277,7 +331,9 @@ export function buildDashboardAnalysis(
       ),
     },
 
-    progression: {
+    soldLeadAnalytics: SoldLeadAnalytics;
+
+  progression: {
       appointmentEvidence:
         appointmentEvidence.length,
       appointmentRateOfAll: ratio(
@@ -789,6 +845,12 @@ function buildInvestigationRows(
       firstContactChannel:
         observation.firstOutbound?.channel ??
         null,
+      firstAction:
+        observation.firstAction?.actionType ??
+        null,
+      firstTemplate:
+        observation.firstAction?.template ??
+        null,
       responseAt:
         observation.firstInbound
           ?.occurredAt ?? null,
@@ -828,4 +890,294 @@ function formatMonth(
       Date.UTC(year, month - 1, 1),
     ),
   );
+}
+
+
+function buildSoldLeadAnalytics(
+  soldRows: ReturnType<typeof buildLeadObservations>,
+): SoldLeadAnalytics {
+  const contacted = soldRows.filter(
+    (row) => row.firstOutbound !== null,
+  );
+
+  const responded = contacted.filter(
+    (row) => row.responseMinutes !== null,
+  );
+
+  const firstContactTimes = contacted
+    .map((row) => row.firstContactMinutes)
+    .filter(
+      (value): value is number =>
+        value !== null,
+    );
+
+  const responseTimes = responded
+    .map((row) => row.responseMinutes)
+    .filter(
+      (value): value is number =>
+        value !== null,
+    );
+
+  const attempts = responded
+    .map(
+      (row) =>
+        row.outboundAttemptsBeforeResponse,
+    )
+    .filter(
+      (value): value is number =>
+        value !== null,
+    );
+
+  return {
+    soldClosed: soldRows.length,
+    contacted: contacted.length,
+    responded: responded.length,
+
+    averageFirstContactMinutes:
+      average(firstContactTimes),
+    medianFirstContactMinutes:
+      median(firstContactTimes),
+
+    averageFirstResponseMinutes:
+      average(responseTimes),
+    medianFirstResponseMinutes:
+      median(responseTimes),
+
+    respondedWithin24h:
+      contacted.filter(
+        (row) => row.respondedWithin24h,
+      ).length,
+
+    responseWithin24hRate: ratio(
+      contacted.filter(
+        (row) => row.respondedWithin24h,
+      ).length,
+      contacted.length,
+    ),
+
+    averageOutboundBeforeResponse:
+      average(attempts),
+
+    firstActions:
+      buildActionRows(soldRows),
+
+    templates:
+      buildTemplateRows(soldRows),
+  };
+}
+
+function buildActionRows(
+  observations: ReturnType<typeof buildLeadObservations>,
+): ActionRow[] {
+  const groups = new Map<
+    string,
+    ReturnType<typeof buildLeadObservations>
+  >();
+
+  for (const observation of observations) {
+    const action = observation.firstAction;
+
+    if (!action) {
+      continue;
+    }
+
+    const key = [
+      action.actionType,
+      action.channel ?? "none",
+    ].join("|");
+
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.push(observation);
+    } else {
+      groups.set(key, [observation]);
+    }
+  }
+
+  return [...groups.entries()]
+    .map(([key, rows]) => {
+      const [action, channel] =
+        key.split("|");
+
+      const responded = rows.filter(
+        (row) =>
+          row.responseMinutes !== null,
+      );
+
+      const responseTimes = responded
+        .map((row) => row.responseMinutes)
+        .filter(
+          (value): value is number =>
+            value !== null,
+        );
+
+      const appointments =
+        rows.filter(
+          (row) =>
+            row.appointmentEvidence,
+        );
+
+      return {
+        action,
+        channel:
+          channel === "none"
+            ? null
+            : channel,
+        contacted: rows.length,
+        responded: responded.length,
+        responseRate: ratio(
+          responded.length,
+          rows.length,
+        ),
+        averageResponseMinutes:
+          average(responseTimes),
+        medianResponseMinutes:
+          median(responseTimes),
+        appointmentEvidence:
+          appointments.length,
+        appointmentRate: ratio(
+          appointments.length,
+          rows.length,
+        ),
+        soldClosed: rows.filter(
+          (row) => row.soldClosed,
+        ).length,
+        soldClosedRate: ratio(
+          rows.filter(
+            (row) => row.soldClosed,
+          ).length,
+          rows.length,
+        ),
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.contacted - left.contacted ||
+        left.action.localeCompare(
+          right.action,
+        ),
+    );
+}
+
+function buildTemplateRows(
+  observations: ReturnType<typeof buildLeadObservations>,
+): TemplateRow[] {
+  const groups = new Map<
+    string,
+    {
+      source: string;
+      observations: ReturnType<typeof buildLeadObservations>;
+      uses: number;
+    }
+  >();
+
+  for (const observation of observations) {
+    for (const action of observation.templateActions) {
+      if (!action.template) {
+        continue;
+      }
+
+      const key = [
+        action.templateSource,
+        action.template,
+      ].join("|");
+
+      const existing = groups.get(key);
+
+      if (existing) {
+        existing.observations.push(
+          observation,
+        );
+        existing.uses += 1;
+      } else {
+        groups.set(key, {
+          source:
+            action.templateSource,
+          observations: [observation],
+          uses: 1,
+        });
+      }
+    }
+  }
+
+  return [...groups.entries()]
+    .map(([key, group]) => {
+      const [, template] =
+        key.split("|");
+
+      const uniqueObservations = [
+        ...new Map(
+          group.observations.map(
+            (row) => [
+              row.lead.leadId,
+              row,
+            ],
+          ),
+        ).values(),
+      ];
+
+      const responded =
+        uniqueObservations.filter(
+          (row) =>
+            row.responseMinutes !== null,
+        );
+
+      const responseTimes =
+        responded
+          .map(
+            (row) =>
+              row.responseMinutes,
+          )
+          .filter(
+            (value): value is number =>
+              value !== null,
+          );
+
+      const appointments =
+        uniqueObservations.filter(
+          (row) =>
+            row.appointmentEvidence,
+        );
+
+      const sold =
+        uniqueObservations.filter(
+          (row) =>
+            row.soldClosed,
+        );
+
+      return {
+        template,
+        templateSource: group.source,
+        uses: group.uses,
+        leads: uniqueObservations.length,
+        responded: responded.length,
+        responseRate: ratio(
+          responded.length,
+          uniqueObservations.length,
+        ),
+        averageResponseMinutes:
+          average(responseTimes),
+        medianResponseMinutes:
+          median(responseTimes),
+        appointmentEvidence:
+          appointments.length,
+        appointmentRate: ratio(
+          appointments.length,
+          uniqueObservations.length,
+        ),
+        soldClosed: sold.length,
+        soldClosedRate: ratio(
+          sold.length,
+          uniqueObservations.length,
+        ),
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.leads - left.leads ||
+        left.template.localeCompare(
+          right.template,
+        ),
+    );
 }

@@ -39,6 +39,7 @@ export function AnalyticsInvestigationPage({
               <th className="pb-3">Lead</th>
               <th className="pb-3">Source</th>
               <th className="pb-3">Stage</th>
+              <th className="pb-3">First action</th>
               <th className="pb-3">First contact</th>
               <th className="pb-3">Response</th>
               <th className="pb-3">Evidence</th>
@@ -54,6 +55,20 @@ export function AnalyticsInvestigationPage({
                 </td>
                 <td className="py-3">{row.source}</td>
                 <td className="py-3">{row.stage}</td>
+                <td className="py-3">
+                  {row.firstAction ? (
+                    <>
+                      <div>{row.firstAction}</div>
+                      {row.firstTemplate ? (
+                        <div className="max-w-[220px] truncate text-xs text-slate-400">
+                          {row.firstTemplate}
+                        </div>
+                      ) : null}
+                    </>
+                  ) : (
+                    "Not observed"
+                  )}
+                </td>
                 <td className="py-3">
                   {row.firstContactAt
                     ? minutes(row.firstContactMinutes)

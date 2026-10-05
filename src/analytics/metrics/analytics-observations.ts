@@ -24,22 +24,39 @@ export type ResponseSpeedBucketKey =
   | "over_24h"
   | "no_response";
 
+export type TemplateSource =
+  | "explicit"
+  | "email_subject"
+  | "none";
+
+export type LeadAction = {
+  event: AnalyticsEvent;
+  actionType: string;
+  channel: string | null;
+  template: string | null;
+  templateSource: TemplateSource;
+};
+
 export type LeadObservation = {
   lead: AnalyticsLead;
   events: AnalyticsEvent[];
+
   firstOutbound: AnalyticsEvent | null;
   firstInbound: AnalyticsEvent | null;
 
-  /**
-   * Time from lead creation to first qualifying employee outbound.
-   * Null means the lead was not contacted or either timestamp is unusable.
-   */
-  firstContactMinutes: number | null;
+  firstAction: LeadAction | null;
+  responseAction: LeadAction | null;
 
-  /**
-   * Time from first qualifying employee outbound to first subsequent inbound.
-   */
+  outboundActions: LeadAction[];
+  templateActions: LeadAction[];
+
+  firstContactMinutes: number | null;
   responseMinutes: number | null;
+
+  outboundAttemptsBeforeResponse: number | null;
+
+  appointmentAt: string | null;
+  soldClosedAt: string | null;
 
   respondedWithin24h: boolean;
   outboundCount: number;
@@ -90,13 +107,27 @@ export function buildLeadObservations(
           Date.parse(right.occurredAt),
       );
 
+    const outboundActions = events
+      .filter(isEmployeeOutboundCommunication)
+      .map(buildLeadAction);
+
     const firstOutbound =
-      findFirstOutboundEmployeeCommunication(events);
+      outboundActions[0]?.event ?? null;
+
+    const firstAction =
+      outboundActions[0] ?? null;
 
     const firstInbound = firstOutbound
       ? findFirstInboundCommunication(
           events,
           firstOutbound.occurredAt,
+        )
+      : null;
+
+    const responseAction = firstInbound
+      ? findFirstOutboundAfter(
+          outboundActions,
+          firstInbound.occurredAt,
         )
       : null;
 
@@ -116,24 +147,135 @@ export function buildLeadObservations(
           )
         : null;
 
+    const appointmentAt =
+      findAppointmentEvidenceAt(events);
+
+    const soldClosed =
+      isSoldClosedStage(lead.stage);
+
+    const soldClosedAt =
+      soldClosed
+        ? lead.soldDate ??
+          lead.closedTime ??
+          findObservedSoldClosedAt(events)
+        : null;
+
+    const actionsBeforeResponse =
+      firstInbound
+        ? outboundActions.filter(
+            (action) =>
+              Date.parse(action.event.occurredAt) <=
+              Date.parse(firstInbound.occurredAt),
+          ).length
+        : null;
+
     return {
       lead,
       events,
       firstOutbound,
       firstInbound,
+      firstAction,
+      responseAction,
+      outboundActions,
+      templateActions:
+        outboundActions.filter(
+          (action) => action.template !== null,
+        ),
       firstContactMinutes,
       responseMinutes,
+      outboundAttemptsBeforeResponse:
+        actionsBeforeResponse,
+      appointmentAt,
+      soldClosedAt,
       respondedWithin24h:
         responseMinutes !== null &&
         responseMinutes <= RESPONSE_WINDOW_MINUTES,
-      outboundCount: events.filter(
-        isEmployeeOutboundCommunication,
-      ).length,
+      outboundCount: outboundActions.length,
       appointmentEvidence:
-        hasAppointmentEvidence(events),
-      soldClosed: isSoldClosedStage(lead.stage),
+        appointmentAt !== null,
+      soldClosed,
     };
   });
+}
+
+export function buildLeadAction(
+  event: AnalyticsEvent,
+): LeadAction {
+  const template = extractTemplate(event);
+
+  return {
+    event,
+    actionType:
+      event.rawType.trim() || "Unknown action",
+    channel: event.channel,
+    template: template.value,
+    templateSource: template.source,
+  };
+}
+
+export function extractTemplate(
+  event: AnalyticsEvent,
+): {
+  value: string | null;
+  source: TemplateSource;
+} {
+  const explicitKeys = [
+    "templateName",
+    "template_name",
+    "template",
+    "templateId",
+    "template_id",
+  ];
+
+  for (const key of explicitKeys) {
+    const value =
+      readString(event.metadata[key]) ??
+      readString(event.rawData[key]);
+
+    if (value) {
+      return {
+        value,
+        source: "explicit",
+      };
+    }
+  }
+
+  if (event.channel === "email") {
+    const subject = extractEmailSubject(
+      event.details,
+    );
+
+    if (subject) {
+      return {
+        value: subject,
+        source: "email_subject",
+      };
+    }
+  }
+
+  return {
+    value: null,
+    source: "none",
+  };
+}
+
+function extractEmailSubject(
+  details: string,
+): string | null {
+  const match = details.match(
+    /(?:^|\n)Subject:\s*(.+?)(?:\n|$)/i,
+  );
+
+  return match?.[1]?.trim() || null;
+}
+
+function readString(
+  value: unknown,
+): string | null {
+  return typeof value === "string" &&
+    value.trim()
+    ? value.trim()
+    : null;
 }
 
 export function findFirstOutboundEmployeeCommunication(
@@ -169,7 +311,9 @@ export function findFirstInboundCommunication(
 
   return (
     events.find((event) => {
-      const occurredAt = Date.parse(event.occurredAt);
+      const occurredAt = Date.parse(
+        event.occurredAt,
+      );
 
       return (
         event.category === "communication" &&
@@ -181,6 +325,25 @@ export function findFirstInboundCommunication(
   );
 }
 
+function findFirstOutboundAfter(
+  actions: LeadAction[],
+  inboundAt: string,
+): LeadAction | null {
+  const inboundTime = Date.parse(inboundAt);
+
+  if (!Number.isFinite(inboundTime)) {
+    return null;
+  }
+
+  return (
+    actions.find(
+      (action) =>
+        Date.parse(action.event.occurredAt) >
+        inboundTime,
+    ) ?? null
+  );
+}
+
 export function calculateElapsedMinutes(
   startAt: string,
   endAt: string,
@@ -188,7 +351,10 @@ export function calculateElapsedMinutes(
   const start = Date.parse(startAt);
   const end = Date.parse(endAt);
 
-  if (!Number.isFinite(start) || !Number.isFinite(end)) {
+  if (
+    !Number.isFinite(start) ||
+    !Number.isFinite(end)
+  ) {
     return null;
   }
 
@@ -274,17 +440,25 @@ export function contactSpeedBucket(
 export function hasAppointmentEvidence(
   events: AnalyticsEvent[],
 ): boolean {
-  return events.some((event) => {
-    if (!isAppointmentStageEvidence(event)) {
+  return findAppointmentEvidenceAt(events) !== null;
+}
+
+export function findAppointmentEvidenceAt(
+  events: AnalyticsEvent[],
+): string | null {
+  const event = events.find((candidate) => {
+    if (!isAppointmentStageEvidence(candidate)) {
       return false;
     }
 
     return !events.some(
       (other) =>
-        other.occurredAt === event.occurredAt &&
+        other.occurredAt === candidate.occurredAt &&
         isDeletedAppointmentEvidence(other),
     );
   });
+
+  return event?.occurredAt ?? null;
 }
 
 export function isAppointmentStageEvidence(
@@ -308,6 +482,28 @@ function isDeletedAppointmentEvidence(
   return event.details
     .toLowerCase()
     .includes("appointment is deleted");
+}
+
+function findObservedSoldClosedAt(
+  events: AnalyticsEvent[],
+): string | null {
+  const event = events.find((candidate) => {
+    if (
+      candidate.rawType !== "Stage Changed" &&
+      candidate.rawType !== "Status Changed"
+    ) {
+      return false;
+    }
+
+    const details = candidate.details.toLowerCase();
+
+    return (
+      details.includes("sold") ||
+      details.includes("closed")
+    );
+  });
+
+  return event?.occurredAt ?? null;
 }
 
 export function isSoldClosedStage(
@@ -341,6 +537,21 @@ export function median(
   }
 
   return sorted[middle];
+}
+
+export function average(
+  values: number[],
+): number | null {
+  if (values.length === 0) {
+    return null;
+  }
+
+  return (
+    values.reduce(
+      (total, value) => total + value,
+      0,
+    ) / values.length
+  );
 }
 
 function groupEventsByRecord(

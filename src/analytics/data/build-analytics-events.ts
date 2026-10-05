@@ -37,6 +37,8 @@ export function buildAnalyticsEvents(
     channel: normalizeChannel(event.channel),
     direction: normalizeDirection(event.direction),
     details: event.details,
+    metadata: event.metadata ?? {},
+    rawData: event.raw_data ?? {},
   }));
 }
 

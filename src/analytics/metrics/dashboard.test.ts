@@ -269,6 +269,134 @@ describe("buildDashboardAnalysis", () => {
     ).toBeNull();
   });
 
+
+  it("calculates Sold / Closed response timing by first action", () => {
+    const dataset: AnalyticsDataset = {
+      leads: [
+        lead("sold-text", {
+          stage: "Sold",
+          soldDate:
+            "2026-01-02T10:00:00.000Z",
+        }),
+        lead("sold-email", {
+          stage: "Closed",
+          closedTime:
+            "2026-01-02T10:00:00.000Z",
+        }),
+      ],
+      events: [
+        event("sold-text", {
+          occurredAt:
+            "2026-01-01T10:03:00.000Z",
+          rawType: "Text Sent",
+          details: "Hello",
+        }),
+        event("sold-text", {
+          sourceEventId:
+            "sold-text-response",
+          occurredAt:
+            "2026-01-01T10:08:00.000Z",
+          rawType: "Text Received",
+          actorType: "unknown",
+          direction: "inbound",
+          channel: "text",
+        }),
+
+        event("sold-email", {
+          sourceEventId:
+            "sold-email-first",
+          occurredAt:
+            "2026-01-01T10:10:00.000Z",
+          rawType: "Email Sent",
+          channel: "email",
+          details:
+            "customer@example.com\\nSubject: My pleasure to help you today!",
+        }),
+        event("sold-email", {
+          sourceEventId:
+            "sold-email-response",
+          occurredAt:
+            "2026-01-01T10:30:00.000Z",
+          rawType: "Email Received",
+          actorType: "unknown",
+          direction: "inbound",
+          channel: "email",
+        }),
+      ],
+    };
+
+    const result =
+      buildDashboardAnalysis(dataset);
+
+    expect(
+      result.soldLeadAnalytics.soldClosed,
+    ).toBe(2);
+
+    expect(
+      result.soldLeadAnalytics.averageFirstContactMinutes,
+    ).toBe(6.5);
+
+    expect(
+      result.soldLeadAnalytics.averageFirstResponseMinutes,
+    ).toBe(12.5);
+
+    const text =
+      result.soldLeadAnalytics.firstActions.find(
+        (row) => row.action === "Text Sent",
+      );
+
+    expect(text?.contacted).toBe(1);
+    expect(text?.responded).toBe(1);
+    expect(text?.averageResponseMinutes).toBe(5);
+    expect(text?.soldClosedRate).toBe(1);
+
+    const emailTemplate =
+      result.soldLeadAnalytics.templates.find(
+        (row) =>
+          row.template ===
+          "My pleasure to help you today!",
+      );
+
+    expect(emailTemplate?.leads).toBe(1);
+    expect(emailTemplate?.templateSource).toBe(
+      "email_subject",
+    );
+    expect(emailTemplate?.soldClosedRate).toBe(1);
+  });
+
+  it("prefers explicit template metadata over email subject", () => {
+    const dataset: AnalyticsDataset = {
+      leads: [
+        lead("template-lead"),
+      ],
+      events: [
+        event("template-lead", {
+          rawType: "Email Sent",
+          channel: "email",
+          metadata: {
+            templateName: "Internet Lead Initial Email",
+          },
+          details:
+            "customer@example.com\\nSubject: Actual email subject",
+        }),
+      ],
+    };
+
+    const result =
+      buildDashboardAnalysis(dataset);
+
+    expect(
+      result.investigation[0]?.firstTemplate,
+    ).toBe(
+      "Internet Lead Initial Email",
+    );
+
+    expect(
+      result.soldLeadAnalytics.templates,
+    ).toHaveLength(0);
+  });
+
+
   it("calculates source rates using their correct denominators", () => {
     const dataset: AnalyticsDataset = {
       leads: [

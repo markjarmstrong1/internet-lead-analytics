@@ -1,5 +1,11 @@
 import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
-import { Bars, Card, minutes, pct, Stat } from "./analytics-section-page";
+import {
+  Bars,
+  Card,
+  minutes,
+  pct,
+  Stat,
+} from "./analytics-section-page";
 
 export function AcquisitionPage({
   analysis,
@@ -183,6 +189,57 @@ export function ProgressionPage({
           />
         </div>
       </Card>
+
+      <Card
+        title="What happened with Sold / Closed leads?"
+        description="Observed timeline behavior for the leads currently in Sold or Closed state."
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat
+            label="Average first contact"
+            value={minutes(
+              analysis.soldLeadAnalytics
+                .averageFirstContactMinutes,
+            )}
+            detail="lead creation → first outbound"
+          />
+          <Stat
+            label="Median first contact"
+            value={minutes(
+              analysis.soldLeadAnalytics
+                .medianFirstContactMinutes,
+            )}
+            detail="lead creation → first outbound"
+          />
+          <Stat
+            label="Average first response"
+            value={minutes(
+              analysis.soldLeadAnalytics
+                .averageFirstResponseMinutes,
+            )}
+            detail="first outbound → first inbound"
+          />
+          <Stat
+            label="Median first response"
+            value={minutes(
+              analysis.soldLeadAnalytics
+                .medianFirstResponseMinutes,
+            )}
+            detail="first outbound → first inbound"
+          />
+        </div>
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-2">
+          <ActionTable
+            title="First action on Sold / Closed leads"
+            rows={analysis.soldLeadAnalytics.firstActions}
+          />
+          <TemplateTable
+            title="Observed templates / message subjects"
+            rows={analysis.soldLeadAnalytics.templates}
+          />
+        </div>
+      </Card>
     </>
   );
 }
@@ -321,6 +378,143 @@ function Outcome({
         <span className="text-xs font-medium text-slate-500">{rate}</span>
       </div>
       <p className="mt-1 text-xs text-slate-400">{detail}</p>
+    </div>
+  );
+}
+
+
+function ActionTable({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: DashboardAnalysis["soldLeadAnalytics"]["firstActions"];
+}) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold">
+        {title}
+      </h3>
+      <p className="mt-1 text-xs text-slate-400">
+        Response time is measured from the first qualifying outbound action.
+      </p>
+
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[650px] text-sm">
+          <thead className="border-b border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            <tr>
+              <th className="pb-3">Action</th>
+              <th className="pb-3 text-right">Leads</th>
+              <th className="pb-3 text-right">Response</th>
+              <th className="pb-3 text-right">Avg response</th>
+              <th className="pb-3 text-right">Sold rate</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.map((row) => (
+              <tr key={`${row.action}-${row.channel ?? "none"}`}>
+                <td className="py-3">
+                  <div className="font-medium">
+                    {row.action}
+                  </div>
+                  {row.channel ? (
+                    <div className="text-xs capitalize text-slate-400">
+                      {row.channel}
+                    </div>
+                  ) : null}
+                </td>
+                <td className="py-3 text-right tabular-nums">
+                  {row.contacted}
+                </td>
+                <td className="py-3 text-right tabular-nums">
+                  {pct(row.responseRate)}
+                </td>
+                <td className="py-3 text-right tabular-nums">
+                  {minutes(row.averageResponseMinutes)}
+                </td>
+                <td className="py-3 text-right tabular-nums">
+                  {pct(row.soldClosedRate)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {!rows.length ? (
+        <p className="mt-4 text-sm text-slate-500">
+          No qualifying first actions were observed.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function TemplateTable({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: DashboardAnalysis["soldLeadAnalytics"]["templates"];
+}) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold">
+        {title}
+      </h3>
+      <p className="mt-1 text-xs text-slate-400">
+        Explicit template metadata is preferred. Email subjects are used only when no explicit template exists.
+      </p>
+
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[650px] text-sm">
+          <thead className="border-b border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            <tr>
+              <th className="pb-3">Template</th>
+              <th className="pb-3 text-right">Uses</th>
+              <th className="pb-3 text-right">Response</th>
+              <th className="pb-3 text-right">Avg response</th>
+              <th className="pb-3 text-right">Sold rate</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.map((row) => (
+              <tr
+                key={`${row.templateSource}-${row.template}`}
+              >
+                <td className="max-w-[280px] py-3">
+                  <div className="truncate font-medium">
+                    {row.template}
+                  </div>
+                  <div className="text-xs text-slate-400">
+                    {row.templateSource === "explicit"
+                      ? "Explicit template"
+                      : "Email subject"}
+                  </div>
+                </td>
+                <td className="py-3 text-right tabular-nums">
+                  {row.uses}
+                </td>
+                <td className="py-3 text-right tabular-nums">
+                  {pct(row.responseRate)}
+                </td>
+                <td className="py-3 text-right tabular-nums">
+                  {minutes(row.averageResponseMinutes)}
+                </td>
+                <td className="py-3 text-right tabular-nums">
+                  {pct(row.soldClosedRate)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {!rows.length ? (
+        <p className="mt-4 text-sm text-slate-500">
+          No template identifiers were observed in the selected population.
+        </p>
+      ) : null}
     </div>
   );
 }
