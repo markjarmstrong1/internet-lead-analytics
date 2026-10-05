@@ -225,6 +225,7 @@ describe("buildReport", () => {
           lead("lead-1"),
           lead("lead-2", {
             source: "Source B",
+            timelineRecordIds: [],
           }),
         ],
         [
