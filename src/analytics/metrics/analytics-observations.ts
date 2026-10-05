@@ -50,6 +50,7 @@ export type LeadObservation = {
   outboundActions: LeadAction[];
   templateActions: LeadAction[];
 
+  firstContactedTime: string | null;
   firstContactMinutes: number | null;
   responseMinutes: number | null;
 
@@ -131,11 +132,19 @@ export function buildLeadObservations(
         )
       : null;
 
+    /*
+     * Contact status and speed come from the lead export's
+     * First Contacted Time. Timeline evidence is separate:
+     * it explains what happened after contact.
+     */
+    const firstContactedTime =
+      lead.firstContactedTime ?? null;
+
     const firstContactMinutes =
-      firstOutbound && lead.creationTime
+      firstContactedTime && lead.creationTime
         ? calculateElapsedMinutes(
             lead.creationTime,
-            firstOutbound.occurredAt,
+            firstContactedTime,
           )
         : null;
 
@@ -181,6 +190,7 @@ export function buildLeadObservations(
         outboundActions.filter(
           (action) => action.template !== null,
         ),
+      firstContactedTime,
       firstContactMinutes,
       responseMinutes,
       outboundAttemptsBeforeResponse:

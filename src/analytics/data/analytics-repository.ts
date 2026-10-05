@@ -12,7 +12,7 @@ export type AnalyticsLead = {
   stage: string;
   status: string;
   creationTime: string | null;
-  firstContactedTime: string | null;
+  firstContactedTime?: string | null;
   soldDate: string | null;
   closedTime: string | null;
   timelineRecordIds: string[];
@@ -25,6 +25,36 @@ export type AnalyticsDataset = {
 
 export interface AnalyticsRepository {
   load(): Promise<AnalyticsDataset>;
+}
+
+function extractFirstContactedTime(
+  rawData: Record<string, unknown> | null,
+): string | null {
+  if (!rawData || typeof rawData !== "object") {
+    return null;
+  }
+
+  const row = rawData.row;
+
+  if (!row || typeof row !== "object") {
+    return null;
+  }
+
+  const value =
+    (row as Record<string, unknown>)["First Contacted Time"];
+
+  if (
+    typeof value !== "string" ||
+    !value.trim()
+  ) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+
+  return Number.isNaN(parsed.getTime())
+    ? null
+    : parsed.toISOString();
 }
 
 export class SupabaseAnalyticsRepository
@@ -91,6 +121,8 @@ export class SupabaseAnalyticsRepository
         stage: lead.stage ?? "",
         status: lead.status ?? "",
         creationTime: lead.creation_time ?? null,
+        firstContactedTime:
+          extractFirstContactedTime(lead.raw_data),
         soldDate: lead.sold_date ?? null,
         closedTime: lead.closed_time ?? null,
         timelineRecordIds:

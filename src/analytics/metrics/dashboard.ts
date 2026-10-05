@@ -174,6 +174,8 @@ export type DashboardAnalysis = {
 
   engagement: {
     contacted: number;
+    responseEligible: number;
+    responseEvidenceCoverageRate: number | null;
     responded: number;
     responseRate: number | null;
     respondedWithin24h: number;
@@ -217,16 +219,21 @@ export function buildDashboardAnalysis(
 
   const contacted = observations.filter(
     (observation) =>
-      observation.firstOutbound !== null,
+      observation.firstContactedTime !== null,
   );
 
-  const responded = contacted.filter(
+  const responseEligible = contacted.filter(
+    (observation) =>
+      observation.lead.timelineRecordIds.length > 0,
+  );
+
+  const responded = responseEligible.filter(
     (observation) =>
       observation.responseMinutes !== null,
   );
 
   const respondedWithin24h =
-    contacted.filter(
+    responseEligible.filter(
       (observation) =>
         observation.respondedWithin24h,
     );
@@ -324,16 +331,21 @@ export function buildDashboardAnalysis(
 
     engagement: {
       contacted: contacted.length,
+      responseEligible: responseEligible.length,
+      responseEvidenceCoverageRate: ratio(
+        responseEligible.length,
+        contacted.length,
+      ),
       responded: responded.length,
       responseRate: ratio(
         responded.length,
-        contacted.length,
+        responseEligible.length,
       ),
       respondedWithin24h:
         respondedWithin24h.length,
       responseWithin24hRate: ratio(
         respondedWithin24h.length,
-        contacted.length,
+        responseEligible.length,
       ),
       medianResponseMinutes,
       speed: buildResponseSpeedRows(
@@ -436,9 +448,14 @@ function buildResponseSpeedRows(
     typeof buildLeadObservations
   >,
 ): ResponseSpeedRow[] {
+  const responseEligible = contacted.filter(
+    (observation) =>
+      observation.lead.timelineRecordIds.length > 0,
+  );
+
   return RESPONSE_SPEED_BUCKETS.map(
     (bucket) => {
-      const rows = contacted.filter(
+      const rows = responseEligible.filter(
         (observation) =>
           responseSpeedBucket(
             observation.responseMinutes,
@@ -494,6 +511,11 @@ function buildChannelRows(
     typeof buildLeadObservations
   >,
 ): ChannelRow[] {
+  const responseEligible = contacted.filter(
+    (observation) =>
+      observation.lead.timelineRecordIds.length > 0,
+  );
+
   const channels = [
     "text",
     "email",
@@ -502,7 +524,7 @@ function buildChannelRows(
   ] as const;
 
   return channels.map((channel) => {
-    const rows = contacted.filter(
+    const rows = responseEligible.filter(
       (observation) =>
         observation.firstOutbound?.channel ===
         channel,
