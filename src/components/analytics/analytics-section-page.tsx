@@ -10,7 +10,6 @@ import { AnalyticsFilters as Filters } from "./analytics-filters";
 type Props = {
   title: string;
   description: string;
-  analysis: DashboardAnalysis;
   filters: AnalyticsFilters;
   options: {
     sources: string[];
@@ -35,7 +34,6 @@ const sections = [
 export function AnalyticsSectionPage({
   title,
   description,
-  analysis,
   filters,
   options,
   children,
