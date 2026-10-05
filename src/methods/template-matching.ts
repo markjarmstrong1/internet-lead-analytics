@@ -96,9 +96,8 @@ export function stripTekionDynamicTags(value: string): {
   segments: Segment[];
 } {
   const segments: Segment[] = [];
-  const spanPattern = /<\/?span\\b[^>]*>/gi;
+  const spanPattern = /<\/?span\b[^>]*>/gi;
 
-  let cursor = 0;
   let literalStart = 0;
   let dynamicDepth = 0;
 
@@ -122,8 +121,10 @@ export function stripTekionDynamicTags(value: string): {
     const start = match.index ?? 0;
     const tag = match[0];
     const end = start + tag.length;
-    const isOpening = /^<span\\b/i.test(tag);
-    const isClosing = /^<\\/span\\b/i.test(tag);
+
+    const isOpening = /^<span\b/i.test(tag);
+    const isClosing = /^<\/span\b/i.test(tag);
+
     const isDynamicOpening =
       isOpening &&
       /class=["'][^"']*dynamic_tag[^"']*["']/i.test(tag);
@@ -134,12 +135,16 @@ export function stripTekionDynamicTags(value: string): {
         dynamicDepth = 1;
         literalStart = end;
       }
+
       continue;
     }
 
     if (isOpening) {
       dynamicDepth += 1;
-    } else if (isClosing) {
+      continue;
+    }
+
+    if (isClosing) {
       dynamicDepth -= 1;
 
       if (dynamicDepth === 0) {
@@ -150,10 +155,24 @@ export function stripTekionDynamicTags(value: string): {
 
   if (dynamicDepth === 0) {
     appendLiteral(value.length);
+  } else {
+    /*
+     * If Tekion gives us malformed/unclosed dynamic markup, do not
+     * accidentally persist the entire remainder of the template as
+     * dynamic content. Keep the safe literal portion we already found.
+     */
+    appendLiteral(value.length);
   }
 
+  const literal = segments
+    .map((segment) => segment.text)
+    .join(" ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
   return {
-    literal: segments.map((segment) => segment.text).join(" "),
+    literal,
     segments,
   };
 }

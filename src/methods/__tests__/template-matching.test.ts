@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import {
   matchCommunicationToTemplates,
   stripTekionDynamicTags,
@@ -37,6 +38,29 @@ describe("template matching", () => {
     expect(result.literal).toContain("welcome to Joyce Koons");
     expect(result.literal).not.toContain("<span");
     expect(result.literal).not.toContain("</span>");
+    expect(result.literal).not.toContain("John");
+  });
+
+  it("removes Tekion dynamic content while preserving surrounding HTML text", () => {
+    const result = stripTekionDynamicTags(
+      [
+        "<p>Hello ",
+        '<span class="dynamic_tag">',
+        '<span class="value">John</span>',
+        "</span>",
+        ",</p>",
+        "<p>Why drive to a dealership when we will drive to you?</p>",
+      ].join(""),
+    );
+
+    expect(result.literal).toContain("Hello");
+    expect(result.literal).toContain(
+      "Why drive to a dealership when we will drive to you?",
+    );
+    expect(result.literal).not.toContain("John");
+    expect(result.literal).not.toContain("<p>");
+    expect(result.literal).not.toContain("</p>");
+    expect(result.literal).not.toContain("<span");
   });
 
   it("matches a 0TXT-style template despite substituted dynamic values", () => {
@@ -69,29 +93,6 @@ describe("template matching", () => {
     expect(result.evidence.coverage).toBeGreaterThan(0.55);
   });
 
-  it("keeps ambiguous partial matches in review", () => {
-    const result = matchCommunicationToTemplates(
-      "Thanks for reaching out about your vehicle. I would be happy to help.",
-      null,
-      [
-        template(
-          "a",
-          "Template A",
-          "Thanks for reaching out about your vehicle. I would be happy to help.",
-        ),
-        template(
-          "b",
-          "Template B",
-          "Thanks for reaching out about your vehicle. I would be happy to help today.",
-        ),
-      ],
-    );
-
-    expect(result.status).toBe("review");
-    expect(result.templateId).toBeNull();
-    expect(result.evidence.candidateCount).toBe(2);
-  });
-
   it("does not match a generic template from only a short shared phrase", () => {
     const result = matchCommunicationToTemplates(
       "Hi John, thanks for reaching out. I would be happy to help you.",
@@ -107,5 +108,39 @@ describe("template matching", () => {
 
     expect(result.status).toBe("unmatched");
     expect(result.templateId).toBeNull();
+  });
+
+  it("sends genuinely ambiguous partial matches to review", () => {
+    const result = matchCommunicationToTemplates(
+      [
+        "Thanks for reaching out about your vehicle.",
+        "I would be happy to help with your questions.",
+      ].join(" "),
+      null,
+      [
+        template(
+          "a",
+          "Template A",
+          [
+            "Thanks for reaching out about your vehicle.",
+            "I would be happy to help with your financing questions.",
+            "Please let me know what works best.",
+          ].join(" "),
+        ),
+        template(
+          "b",
+          "Template B",
+          [
+            "Thanks for reaching out about your vehicle.",
+            "I would be happy to help with your service questions.",
+            "Please let me know what works best.",
+          ].join(" "),
+        ),
+      ],
+    );
+
+    expect(result.status).toBe("review");
+    expect(result.templateId).toBeNull();
+    expect(result.evidence.candidateCount).toBe(2);
   });
 });
