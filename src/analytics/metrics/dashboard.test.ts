@@ -312,7 +312,7 @@ describe("buildDashboardAnalysis", () => {
           rawType: "Email Sent",
           channel: "email",
           details:
-            "customer@example.com\\nSubject: My pleasure to help you today!",
+            "customer@example.com\nSubject: My pleasure to help you today!",
         }),
         event("sold-email", {
           sourceEventId:
