@@ -177,7 +177,7 @@ describe("buildDashboardAnalysis", () => {
           sourceEventId:
             "fast-no-appt-response",
           occurredAt:
-            "2026-01-01T10:04:00.000Z",
+            "2026-01-01T10:05:00.000Z",
           rawType: "Text Received",
           actorType: "unknown",
           direction: "inbound",
