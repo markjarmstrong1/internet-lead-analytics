@@ -12,6 +12,7 @@ export function AnalyticsSoldLeadAnalysis({
   analysis: DashboardAnalysis;
 }) {
   const sold = analysis.soldLeadAnalytics;
+  const hasTimelineEvidence = sold.timelineCovered > 0;
 
   return (
     <Card
@@ -20,49 +21,102 @@ export function AnalyticsSoldLeadAnalysis({
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Stat
+          label="Timeline evidence"
+          value={`${sold.timelineCovered} / ${sold.soldClosed}`}
+          detail="Sold / Closed leads with linked timeline records"
+        />
+
+        <Stat
           label="Average first contact"
-          value={minutes(sold.averageFirstContactMinutes)}
+          value={
+            hasTimelineEvidence
+              ? minutes(sold.averageFirstContactMinutes)
+              : "—"
+          }
           detail="lead creation → first qualifying outbound"
         />
 
         <Stat
           label="Median first contact"
-          value={minutes(sold.medianFirstContactMinutes)}
+          value={
+            hasTimelineEvidence
+              ? minutes(sold.medianFirstContactMinutes)
+              : "—"
+          }
           detail="lead creation → first qualifying outbound"
         />
 
         <Stat
           label="Average first response"
-          value={minutes(sold.averageFirstResponseMinutes)}
+          value={
+            hasTimelineEvidence
+              ? minutes(sold.averageFirstResponseMinutes)
+              : "—"
+          }
           detail="first outbound → first inbound"
         />
 
         <Stat
           label="Median first response"
-          value={minutes(sold.medianFirstResponseMinutes)}
+          value={
+            hasTimelineEvidence
+              ? minutes(sold.medianFirstResponseMinutes)
+              : "—"
+          }
           detail="first outbound → first inbound"
         />
 
         <Stat
           label="Response within 24h"
-          value={pct(sold.responseWithin24hRate)}
-          detail={`${sold.respondedWithin24h} contacted Sold / Closed leads`}
+          value={
+            hasTimelineEvidence
+              ? pct(sold.responseWithin24hRate)
+              : "—"
+          }
+          detail={
+            hasTimelineEvidence
+              ? `${sold.respondedWithin24h} contacted Sold / Closed leads`
+              : "No communication evidence available"
+          }
         />
 
         <Stat
           label="Outbound attempts"
           value={
-            sold.averageOutboundBeforeResponse === null
-              ? "—"
-              : sold.averageOutboundBeforeResponse.toFixed(1)
+            hasTimelineEvidence &&
+            sold.averageOutboundBeforeResponse !== null
+              ? sold.averageOutboundBeforeResponse.toFixed(1)
+              : "—"
           }
           detail="average qualifying outbound attempts before an observed response"
         />
       </div>
 
+      {!hasTimelineEvidence ? (
+        <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <div className="font-semibold">
+            No timeline evidence is available for the current Sold / Closed
+            population.
+          </div>
+          <p className="mt-1 leading-6">
+            Communication behavior, response speed, outbound actions, and
+            message/template associations cannot be evaluated for these leads
+            from the current dataset. The Sold / Closed state is observed from
+            the lead record, but there are no linked timeline records to
+            reconstruct what happened.
+          </p>
+        </div>
+      ) : null}
+
       <div className="mt-8 grid gap-8 xl:grid-cols-2">
-        <ResponseActionTable rows={sold.responseActions} />
-        <TemplateTable rows={sold.templates} />
+        <ResponseActionTable
+          rows={sold.responseActions}
+          hasTimelineEvidence={hasTimelineEvidence}
+        />
+        <TemplateTable
+          rows={sold.templates}
+          hasTimelineEvidence={hasTimelineEvidence}
+        />
       </div>
     </Card>
   );
@@ -70,8 +124,10 @@ export function AnalyticsSoldLeadAnalysis({
 
 function ResponseActionTable({
   rows,
+  hasTimelineEvidence,
 }: {
   rows: DashboardAnalysis["soldLeadAnalytics"]["responseActions"];
+  hasTimelineEvidence: boolean;
 }) {
   return (
     <div>
@@ -100,9 +156,7 @@ function ResponseActionTable({
             {rows.map((row) => (
               <tr key={`${row.action}-${row.channel ?? "none"}`}>
                 <td className="py-3">
-                  <div className="font-medium">
-                    {row.action}
-                  </div>
+                  <div className="font-medium">{row.action}</div>
 
                   {row.channel ? (
                     <div className="text-xs capitalize text-slate-400">
@@ -134,8 +188,9 @@ function ResponseActionTable({
 
       {!rows.length ? (
         <p className="mt-4 text-sm text-slate-500">
-          No observed responses are available for the current Sold /
-          Closed population.
+          {hasTimelineEvidence
+            ? "No observed responses are available for the current Sold / Closed population."
+            : "No action-level response evidence is available because the current Sold / Closed population has no linked timeline records."}
         </p>
       ) : null}
     </div>
@@ -144,8 +199,10 @@ function ResponseActionTable({
 
 function TemplateTable({
   rows,
+  hasTimelineEvidence,
 }: {
   rows: DashboardAnalysis["soldLeadAnalytics"]["templates"];
+  hasTimelineEvidence: boolean;
 }) {
   return (
     <div>
@@ -154,9 +211,9 @@ function TemplateTable({
       </h3>
 
       <p className="mt-1 text-xs leading-5 text-slate-400">
-        Explicit template metadata is preferred. Email subjects are
-        used only when no explicit template exists. Results describe
-        observed template use, not causal performance.
+        Explicit template metadata is preferred. Email subjects are used only
+        when no explicit template exists. Results describe observed template
+        use, not causal performance.
       </p>
 
       <div className="mt-4 overflow-x-auto">
@@ -214,8 +271,9 @@ function TemplateTable({
 
       {!rows.length ? (
         <p className="mt-4 text-sm text-slate-500">
-          No template identifiers were observed in the current Sold /
-          Closed population.
+          {hasTimelineEvidence
+            ? "No template identifiers were observed in the current Sold / Closed population."
+            : "No template or message-subject evidence is available because the current Sold / Closed population has no linked timeline records."}
         </p>
       ) : null}
     </div>
