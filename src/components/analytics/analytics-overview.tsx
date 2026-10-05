@@ -287,7 +287,7 @@ export function AnalyticsOverview({
         description="Among Sold / Closed leads with observed responses, this shows the outbound action immediately preceding the observed response."
       >
         {soldLeadAnalytics.responseActions.length === 0 ? (
-          <EmptyState text="No response-action evidence is currently available for Sold / Closed leads." />
+          <EmptyState text="No timeline evidence is linked to the current Sold / Closed population, so response actions cannot be evaluated." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
@@ -405,18 +405,45 @@ export function AnalyticsOverview({
               value={String(soldLeadAnalytics.soldClosed)}
             />
             <MiniMetric
+              label="Timeline evidence"
+              value={`${soldLeadAnalytics.timelineCovered} / ${soldLeadAnalytics.soldClosed}`}
+              detail="Sold / Closed leads with linked timeline records"
+            />
+            <MiniMetric
               label="Contacted"
-              value={String(soldLeadAnalytics.contacted)}
+              value={
+                soldLeadAnalytics.timelineCovered === 0
+                  ? "—"
+                  : String(soldLeadAnalytics.contacted)
+              }
+              detail={
+                soldLeadAnalytics.timelineCovered === 0
+                  ? "No communication evidence available"
+                  : undefined
+              }
             />
             <MiniMetric
               label="Responded"
-              value={String(soldLeadAnalytics.responded)}
+              value={
+                soldLeadAnalytics.timelineCovered === 0
+                  ? "—"
+                  : String(soldLeadAnalytics.responded)
+              }
+              detail={
+                soldLeadAnalytics.timelineCovered === 0
+                  ? "No communication evidence available"
+                  : undefined
+              }
             />
             <MiniMetric
               label="Response within 24h"
-              value={pct(
-                soldLeadAnalytics.responseWithin24hRate,
-              )}
+              value={
+                soldLeadAnalytics.timelineCovered === 0
+                  ? "—"
+                  : pct(
+                      soldLeadAnalytics.responseWithin24hRate,
+                    )
+              }
             />
             <MiniMetric
               label="Avg first contact"
@@ -443,6 +470,15 @@ export function AnalyticsOverview({
               )}
             />
           </div>
+
+          {soldLeadAnalytics.timelineCovered === 0 ? (
+            <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-800">
+              The current Sold / Closed population has no linked timeline
+              evidence. Communication behavior, response speed, actions, and
+              message/template associations cannot be evaluated for these
+              leads from the current dataset.
+            </p>
+          ) : null}
         </Card>
       </div>
 

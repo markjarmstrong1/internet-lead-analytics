@@ -74,6 +74,9 @@ describe("Sold / Closed action analytics", () => {
 
     const result = buildDashboardAnalysis(dataset);
 
+    expect(result.soldLeadAnalytics.timelineCovered).toBe(1);
+    expect(result.soldLeadAnalytics.timelineCoverageRate).toBe(1);
+
     expect(
       result.soldLeadAnalytics.firstActions,
     ).toEqual(
@@ -111,4 +114,28 @@ describe("Sold / Closed action analytics", () => {
       }),
     ]);
   });
+});
+
+
+it("does not imply communication performance when Sold / Closed leads have no timeline evidence", () => {
+  const dataset: AnalyticsDataset = {
+    leads: [
+      {
+        ...lead("sold-without-timeline"),
+        timelineRecordIds: [],
+      },
+    ],
+    events: [],
+  };
+
+  const result = buildDashboardAnalysis(dataset);
+
+  expect(result.soldLeadAnalytics.soldClosed).toBe(1);
+  expect(result.soldLeadAnalytics.timelineCovered).toBe(0);
+  expect(result.soldLeadAnalytics.timelineCoverageRate).toBe(0);
+  expect(result.soldLeadAnalytics.contacted).toBe(0);
+  expect(result.soldLeadAnalytics.responded).toBe(0);
+  expect(result.soldLeadAnalytics.firstActions).toEqual([]);
+  expect(result.soldLeadAnalytics.responseActions).toEqual([]);
+  expect(result.soldLeadAnalytics.templates).toEqual([]);
 });

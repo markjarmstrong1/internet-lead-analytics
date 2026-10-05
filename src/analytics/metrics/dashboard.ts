@@ -138,6 +138,8 @@ export type TemplateRow = {
 
 export type SoldLeadAnalytics = {
   soldClosed: number;
+  timelineCovered: number;
+  timelineCoverageRate: number | null;
   contacted: number;
   responded: number;
   averageFirstContactMinutes: number | null;
@@ -939,8 +941,17 @@ function buildSoldLeadAnalytics(
         value !== null,
     );
 
+  const timelineCovered = soldRows.filter(
+    (row) => row.lead.timelineRecordIds.length > 0,
+  ).length;
+
   return {
     soldClosed: soldRows.length,
+    timelineCovered,
+    timelineCoverageRate: ratio(
+      timelineCovered,
+      soldRows.length,
+    ),
     contacted: contacted.length,
     responded: responded.length,
 
