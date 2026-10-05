@@ -17,12 +17,14 @@ export const REPORT_DATE_BASES: Array<{
   {
     key: "timeline_activity",
     label: "Timeline activity",
-    description: "Include leads with timeline activity in the selected period.",
+    description:
+      "Select leads with timeline activity in the period; metrics use the selected leads' observed timeline/state evidence.",
   },
   {
     key: "outcome_date",
     label: "Outcome date",
-    description: "Include leads with a Sold or Closed date in the selected period.",
+    description:
+      "Select leads with a recorded Sold or Closed date in the period; Sold / Closed counts use current stage evidence.",
   },
 ];
 

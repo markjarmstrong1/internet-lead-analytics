@@ -73,31 +73,22 @@ export function buildEngagementAnalysis(
         observation.respondedWithin24h,
     );
 
-  const appointmentObservations =
-    contacted.filter(
-      (observation) =>
-        observation.appointmentEvidence,
-    );
-
-  const soldClosedObservations =
-    contacted.filter(
-      (observation) =>
-        observation.soldClosed,
-    );
-
   return {
     contacted: contacted.length,
     responded: responded.length,
     respondedWithin24h:
       respondedWithin24h.length,
+
     responseRate: ratio(
       responded.length,
       contacted.length,
     ),
+
     responseWithin24hRate: ratio(
       respondedWithin24h.length,
       contacted.length,
     ),
+
     channels: CHANNELS.map((channel) => {
       const rows = contacted.filter(
         (observation) =>
@@ -130,88 +121,97 @@ export function buildEngagementAnalysis(
         ),
       };
     }),
+
     speed: RESPONSE_SPEED_BUCKETS.map(
       (bucket) => {
-        const count = contacted.filter(
+        const rows = contacted.filter(
           (observation) =>
             responseSpeedBucket(
               observation.responseMinutes,
             ) === bucket.key,
-        ).length;
+        );
 
         return {
           key: bucket.key,
           label: bucket.label,
-          count,
+          count: rows.length,
           rate: ratio(
-            count,
+            rows.length,
             contacted.length,
           ),
         };
       },
     ),
+
     appointmentSpeed:
       buildOutcomeSpeedRows(
-        appointmentObservations,
+        contacted,
+        (observation) =>
+          observation.appointmentEvidence,
       ),
+
     soldClosedSpeed:
       buildOutcomeSpeedRows(
-        soldClosedObservations,
+        contacted,
+        (observation) =>
+          observation.soldClosed,
       ),
+
     soldClosedWithTimeline:
-      dataset.leads.filter(
-        (lead) =>
-          lead.soldDate !== null ||
-          lead.closedTime !== null ||
-          ["sold", "closed"].includes(
-            lead.stage.trim().toLowerCase(),
-          ),
-      ).filter(
-        (lead) =>
-          lead.timelineRecordIds.length > 0,
+      observations.filter(
+        (observation) =>
+          observation.soldClosed &&
+          observation.lead.timelineRecordIds
+            .length > 0,
       ).length,
+
     soldClosedWithoutTimeline:
-      dataset.leads.filter(
-        (lead) =>
-          ["sold", "closed"].includes(
-            lead.stage.trim().toLowerCase(),
-          ) &&
-          lead.timelineRecordIds.length === 0,
+      observations.filter(
+        (observation) =>
+          observation.soldClosed &&
+          observation.lead.timelineRecordIds
+            .length === 0,
       ).length,
+
     appointmentEvidenceLeads:
-      dataset.leads.filter((lead) =>
-        observations.some(
-          (observation) =>
-            observation.lead.leadId ===
-              lead.leadId &&
-            observation.appointmentEvidence,
-        ),
+      observations.filter(
+        (observation) =>
+          observation.appointmentEvidence,
       ).length,
   };
 }
 
 function buildOutcomeSpeedRows(
-  observations: ReturnType<
+  contacted: ReturnType<
     typeof buildLeadObservations
   >,
+  predicate: (
+    observation: ReturnType<
+      typeof buildLeadObservations
+    >[number],
+  ) => boolean,
 ): OutcomeSpeedRow[] {
   return RESPONSE_SPEED_BUCKETS.map(
     (bucket) => {
-      const count = observations.filter(
+      const rows = contacted.filter(
         (observation) =>
           responseSpeedBucket(
             observation.responseMinutes,
           ) === bucket.key,
+      );
+
+      const numerator = rows.filter(
+        predicate,
       ).length;
 
       return {
         key: bucket.key,
         label: bucket.label,
-        numerator: count,
-        denominator: observations.length,
+        numerator,
+        denominator: rows.length,
         rate: ratio(
-          count,
-          observations.length,
+          numerator,
+          rows.length,
         ),
       };
     },

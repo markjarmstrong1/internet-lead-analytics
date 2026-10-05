@@ -4,6 +4,8 @@ import type {
 } from "@/analytics/data/analytics-repository";
 import {
   buildLeadObservations,
+  isSoldClosedStage,
+  median,
   responseSpeedBucket,
   RESPONSE_SPEED_BUCKETS,
   type LeadObservation,
@@ -211,7 +213,9 @@ function calculateMetric(
       ).length;
 
     case "soldClosed":
-      return leads.filter(isSoldClosed).length;
+      return leads.filter((lead) =>
+        isSoldClosedStage(lead.stage),
+      ).length;
 
     case "responseRate":
       return ratio(
@@ -435,18 +439,6 @@ function responseSpeedBucketLabel(
   );
 }
 
-function isSoldClosed(
-  lead: AnalyticsLead,
-): boolean {
-  const stage =
-    lead.stage.trim().toLowerCase();
-
-  return (
-    stage === "sold" ||
-    stage === "closed"
-  );
-}
-
 function ratio(
   numerator: number,
   denominator: number,
@@ -454,30 +446,4 @@ function ratio(
   return denominator === 0
     ? null
     : numerator / denominator;
-}
-
-function median(
-  values: number[],
-): number | null {
-  if (values.length === 0) {
-    return null;
-  }
-
-  const sorted = [...values].sort(
-    (left, right) => left - right,
-  );
-
-  const middle = Math.floor(
-    sorted.length / 2,
-  );
-
-  if (sorted.length % 2 === 0) {
-    return (
-      (sorted[middle - 1] +
-        sorted[middle]) /
-      2
-    );
-  }
-
-  return sorted[middle];
 }

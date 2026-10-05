@@ -179,6 +179,24 @@ export function buildDashboardAnalysis(
       observation.soldClosed,
   );
 
+  const contactedAppointmentEvidence =
+    contacted.filter(
+      (observation) =>
+        observation.appointmentEvidence,
+    );
+
+  const respondedAppointmentEvidence =
+    responded.filter(
+      (observation) =>
+        observation.appointmentEvidence,
+    );
+
+  const contactedSoldClosed =
+    contacted.filter(
+      (observation) =>
+        observation.soldClosed,
+    );
+
   const validFirstContactTimes =
     contacted.filter(
       (observation) =>
@@ -267,11 +285,11 @@ export function buildDashboardAnalysis(
         totalLeads,
       ),
       appointmentRateOfContacted: ratio(
-        appointmentEvidence.length,
+        contactedAppointmentEvidence.length,
         contacted.length,
       ),
       appointmentRateOfResponded: ratio(
-        appointmentEvidence.length,
+        respondedAppointmentEvidence.length,
         responded.length,
       ),
       soldClosed: soldClosed.length,
@@ -280,7 +298,7 @@ export function buildDashboardAnalysis(
         totalLeads,
       ),
       soldClosedRateOfContacted: ratio(
-        soldClosed.length,
+        contactedSoldClosed.length,
         contacted.length,
       ),
       soldClosedWithTimeline:
@@ -332,10 +350,13 @@ function buildContactSpeedRows(
         key: bucket.key,
         label: bucket.label,
         contacted: count,
-        rate: ratio(
-          count,
-          validCount,
-        ),
+        rate:
+          bucket.key === "unknown"
+            ? null
+            : ratio(
+                count,
+                validCount,
+              ),
       };
     },
   );
@@ -511,7 +532,7 @@ function buildSourceRows(
             row.respondedWithin24h,
         );
 
-      const appointments = rows.filter(
+      const appointments = contacted.filter(
         (row) =>
           row.appointmentEvidence,
       );
@@ -675,7 +696,7 @@ function buildTrendRows(
           row.responseMinutes !== null,
       );
 
-      const appointments = rows.filter(
+      const appointments = contacted.filter(
         (row) =>
           row.appointmentEvidence,
       );
