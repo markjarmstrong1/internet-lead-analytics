@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import {
   ANALYTICS_DATE_BASES,
   type AnalyticsFilters,
@@ -13,104 +15,109 @@ type Props = {
   };
 };
 
-export function AnalyticsFilters({
-  filters,
-  options,
-}: Props) {
+export function AnalyticsFilters({ filters, options }: Props) {
+  const activeCount =
+    filters.sources.length +
+    filters.sourceGroups.length +
+    filters.stages.length +
+    filters.statuses.length;
+
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-sm font-semibold text-slate-950">
-          Analysis population
-        </h2>
-        <p className="text-xs leading-5 text-slate-500">
-          Every metric below is calculated from this population. Change
-          the population before interpreting differences.
-        </p>
-      </div>
-
-      <form method="get" className="mt-5 space-y-5">
-        <div className="grid gap-4 lg:grid-cols-3">
-          <Field label="Date basis">
-            <select
-              name="dateBasis"
-              defaultValue={filters.dateBasis}
-              className={inputClass}
-            >
-              {ANALYTICS_DATE_BASES.map((basis) => (
-                <option key={basis.key} value={basis.key}>
-                  {basis.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-
-          <Field label="Start date">
-            <input
-              type="date"
-              name="start"
-              defaultValue={filters.start ?? ""}
-              className={inputClass}
-            />
-          </Field>
-
-          <Field label="End date">
-            <input
-              type="date"
-              name="end"
-              defaultValue={filters.end ?? ""}
-              className={inputClass}
-            />
-          </Field>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <FilterGroup
-            name="source"
-            label="Source"
-            values={options.sources}
-            selected={filters.sources}
-          />
-          <FilterGroup
-            name="sourceGroup"
-            label="Source group"
-            values={options.sourceGroups}
-            selected={filters.sourceGroups}
-          />
-          <FilterGroup
-            name="stage"
-            label="Stage"
-            values={options.stages}
-            selected={filters.stages}
-          />
-          <FilterGroup
-            name="status"
-            label="Status"
-            values={options.statuses}
-            selected={filters.statuses}
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
-          <button
-            type="submit"
-            className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
+    <section className="rounded-xl border border-slate-200 bg-white">
+      <form method="get" className="flex flex-wrap items-end gap-3 p-3">
+        <Field label="Date basis">
+          <select
+            name="dateBasis"
+            defaultValue={filters.dateBasis}
+            className={`${controlClass} min-w-[150px]`}
           >
-            Apply population
-          </button>
-          <a
-            href="/analytics"
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            Reset
-          </a>
+            {ANALYTICS_DATE_BASES.map((basis) => (
+              <option key={basis.key} value={basis.key}>
+                {basis.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="From">
+          <input
+            type="date"
+            name="start"
+            defaultValue={filters.start ?? ""}
+            className={controlClass}
+          />
+        </Field>
+
+        <Field label="To">
+          <input
+            type="date"
+            name="end"
+            defaultValue={filters.end ?? ""}
+            className={controlClass}
+          />
+        </Field>
+
+        <FilterMenu
+          name="source"
+          label="Source"
+          values={options.sources}
+          selected={filters.sources}
+        />
+
+        <FilterMenu
+          name="sourceGroup"
+          label="Source group"
+          values={options.sourceGroups}
+          selected={filters.sourceGroups}
+        />
+
+        <FilterMenu
+          name="stage"
+          label="Stage"
+          values={options.stages}
+          selected={filters.stages}
+        />
+
+        <FilterMenu
+          name="status"
+          label="Status"
+          values={options.statuses}
+          selected={filters.statuses}
+        />
+
+        <button
+          type="submit"
+          className="h-10 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
+        >
+          Apply
+        </button>
+
+        <a
+          href="/analytics"
+          className="h-10 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+        >
+          Reset
+        </a>
+
+        <div className="ml-auto flex h-10 items-center text-xs text-slate-500">
+          {activeCount > 0
+            ? `${activeCount} filters active`
+            : "All leads"}
         </div>
       </form>
+
+      <div className="border-t border-slate-100 px-4 py-2.5 text-xs text-slate-400">
+        {
+          ANALYTICS_DATE_BASES.find(
+            (basis) => basis.key === filters.dateBasis,
+          )?.description
+        }
+      </div>
     </section>
   );
 }
 
-function FilterGroup({
+function FilterMenu({
   name,
   label,
   values,
@@ -122,31 +129,36 @@ function FilterGroup({
   selected: string[];
 }) {
   return (
-    <details className="group rounded-xl border border-slate-200">
-      <summary className="cursor-pointer list-none px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm font-semibold">{label}</span>
-          <span className="text-xs text-slate-400">
-            {selected.length ? `${selected.length} selected` : "All"}
+    <details className="relative">
+      <summary className="flex h-10 cursor-pointer list-none items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-600">
+        {label}
+
+        {selected.length > 0 ? (
+          <span className="rounded-full bg-slate-950 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+            {selected.length}
           </span>
-        </div>
+        ) : null}
+
+        <span className="text-slate-400">⌄</span>
       </summary>
 
-      <div className="max-h-56 overflow-y-auto border-t border-slate-100 p-3">
-        {values.map((value) => (
-          <label
-            key={value}
-            className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-slate-50"
-          >
-            <input
-              type="checkbox"
-              name={name}
-              value={value}
-              defaultChecked={selected.includes(value)}
-            />
-            <span className="truncate">{value}</span>
-          </label>
-        ))}
+      <div className="absolute left-0 top-11 z-30 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+        <div className="max-h-64 overflow-y-auto">
+          {values.map((value) => (
+            <label
+              key={value}
+              className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-slate-50"
+            >
+              <input
+                type="checkbox"
+                name={name}
+                value={value}
+                defaultChecked={selected.includes(value)}
+              />
+              <span className="truncate">{value}</span>
+            </label>
+          ))}
+        </div>
       </div>
     </details>
   );
@@ -157,11 +169,11 @@ function Field({
   children,
 }: {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
         {label}
       </span>
       {children}
@@ -169,5 +181,5 @@ function Field({
   );
 }
 
-const inputClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200";
+const controlClass =
+  "h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-slate-500";

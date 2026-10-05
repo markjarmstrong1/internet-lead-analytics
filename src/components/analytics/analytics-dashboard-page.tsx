@@ -1,20 +1,16 @@
 import Link from "next/link";
 
 import { AppShell } from "@/components/app/app-shell";
-import { EvidenceLegend } from "@/components/app/evidence-legend";
 import { PageHeader } from "@/components/app/page-header";
 
 import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
 import type { AnalyticsFilters } from "@/analytics/filters/analytics-filters";
 
-import { AnalyticsFilters as AnalyticsFilterPanel } from "./analytics-filters";
-import { AnalyticsSummary } from "./analytics-summary";
-import { AnalyticsContactSection } from "./analytics-contact-section";
-import { AnalyticsEngagementSection } from "./analytics-engagement-section";
-import { AnalyticsProgressionSection } from "./analytics-progression-section";
-import { AnalyticsSourcesSection } from "./analytics-sources-section";
-import { AnalyticsTrendsSection } from "./analytics-trends-section";
-import { AnalyticsInvestigationSection } from "./analytics-investigation-section";
+import { AnalyticsFilters } from "./analytics-filters";
+import { AnalyticsManagementSummary } from "./analytics-management-summary";
+import { AnalyticsPerformance } from "./analytics-performance";
+import { AnalyticsTrends } from "./analytics-trends";
+import { AnalyticsInvestigation } from "./analytics-investigation";
 
 type Props = {
   analysis: DashboardAnalysis;
@@ -34,100 +30,133 @@ export function AnalyticsDashboardPage({
 }: Props) {
   return (
     <AppShell>
-      <div className="mx-auto max-w-[1600px] space-y-6 px-6 py-8 lg:px-8">
+      <div className="mx-auto max-w-[1500px] space-y-6 px-6 py-7 lg:px-8">
         <PageHeader
           eyebrow="Analytics"
-          title="Internet Lead Performance"
-          description="A population-driven analytical workspace for acquisition, contact, engagement, progression, source differences, trends, and lead-level investigation."
+          title="Internet lead performance"
+          description="Understand volume, contact speed, customer response, and observed outcomes—then investigate the leads behind the numbers."
+          actions={
+            <Link
+              href="/reports"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Build a report
+            </Link>
+          }
         />
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/reports"
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            Open Reports
-          </Link>
-          <span className="text-xs text-slate-500">
-            Reports are for custom dimensions and saved analyses.
-          </span>
-        </div>
-
-        <AnalyticsFilterPanel
+        <AnalyticsFilters
           filters={filters}
           options={options}
         />
 
-        <EvidenceLegend />
+        <AnalyticsManagementSummary analysis={analysis} />
 
-        <AnalyticsSummary analysis={analysis} />
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+          <section className="rounded-xl border border-slate-200 bg-white p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-semibold">
+                  Acquisition
+                </h2>
 
-        <nav
-          aria-label="Analytics sections"
-          className="sticky top-0 z-20 -mx-6 overflow-x-auto border-y border-slate-200 bg-white/95 px-6 backdrop-blur lg:-mx-8 lg:px-8"
-        >
-          <div className="flex min-w-max gap-1">
-            {[
-              ["Contact", "contact"],
-              ["Engagement", "engagement"],
-              ["Progression", "progression"],
-              ["Sources", "sources"],
-              ["Trends", "trends"],
-              ["Investigation", "investigation"],
-            ].map(([label, id]) => (
-              <a
-                key={id}
-                href={`#${id}`}
-                className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-950"
-              >
-                {label}
-              </a>
-            ))}
-          </div>
-        </nav>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  How much volume is entering the system, and how much
+                  evidence do we have to analyze it?
+                </p>
+              </div>
 
-        <section id="contact" className="scroll-mt-20">
-          <AnalyticsContactSection analysis={analysis} />
-        </section>
+              <span className="text-xs font-medium text-slate-400">
+                {analysis.acquisition.sourceGroups} source groups
+              </span>
+            </div>
 
-        <section id="engagement" className="scroll-mt-20">
-          <AnalyticsEngagementSection analysis={analysis} />
-        </section>
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              <Mini
+                label="Leads"
+                value={String(analysis.acquisition.leads)}
+              />
 
-        <section id="progression" className="scroll-mt-20">
-          <AnalyticsProgressionSection analysis={analysis} />
-        </section>
+              <Mini
+                label="Timeline coverage"
+                value={pct(
+                  analysis.acquisition.timelineCoverageRate,
+                )}
+              />
 
-        <section id="sources" className="scroll-mt-20">
-          <AnalyticsSourcesSection analysis={analysis} />
-        </section>
+              <Mini
+                label="Unknown source"
+                value={String(
+                  analysis.acquisition.unknownSource,
+                )}
+              />
+            </div>
+          </section>
 
-        <section id="trends" className="scroll-mt-20">
-          <AnalyticsTrendsSection analysis={analysis} />
-        </section>
-
-        <section id="investigation" className="scroll-mt-20">
-          <AnalyticsInvestigationSection analysis={analysis} />
-        </section>
-
-        <section className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-          <h2 className="text-sm font-semibold">Methodology</h2>
-          <div className="mt-3 grid gap-4 text-xs leading-5 text-slate-600 md:grid-cols-3">
-            <p>
-              <strong>Contact</strong> means a qualifying employee outbound
-              communication was observed.
+          <section className="rounded-xl border border-slate-200 bg-slate-950 p-5 text-white">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Evidence check
             </p>
-            <p>
-              <strong>Response</strong> means an inbound communication was
-              observed at or after first qualifying outbound.
+
+            <p className="mt-2 text-lg font-semibold">
+              Know what the data can support.
             </p>
-            <p>
-              <strong>Outcome</strong> uses the current Sold/Closed lead
-              state. It is not a reconstructed transaction history.
+
+            <p className="mt-2 text-xs leading-5 text-slate-400">
+              Timeline coverage is{" "}
+              {pct(
+                analysis.acquisition.timelineCoverageRate,
+              )}
+              . Communication conclusions are incomplete for leads without
+              timeline evidence.
             </p>
-          </div>
-        </section>
+
+            <p className="mt-4 text-xs font-medium text-slate-300">
+              {analysis.progression.soldClosedWithoutTimeline} Sold/Closed
+              leads have no timeline evidence.
+            </p>
+          </section>
+        </div>
+
+        <AnalyticsPerformance analysis={analysis} />
+
+        <AnalyticsTrends analysis={analysis} />
+
+        <AnalyticsInvestigation analysis={analysis} />
+
+        <footer className="border-t border-slate-200 pt-4 text-xs leading-5 text-slate-400">
+          Contact = qualifying employee outbound. Response = observed inbound
+          at or after first qualifying outbound. Sold/Closed = current observed
+          lead state, not a reconstructed transaction record. Source differences
+          are associations, not causal findings.
+        </footer>
       </div>
     </AppShell>
+  );
+}
+
+function pct(value: number | null) {
+  return value === null
+    ? "—"
+    : `${(value * 100).toFixed(1)}%`;
+}
+
+function Mini({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg bg-slate-50 p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
+
+      <p className="mt-1 text-lg font-semibold tabular-nums">
+        {value}
+      </p>
+    </div>
   );
 }
