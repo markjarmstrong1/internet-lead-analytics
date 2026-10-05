@@ -111,6 +111,16 @@ export type ActionRow = {
   soldClosedRate: number | null;
 };
 
+export type ResponseActionRow = {
+  action: string;
+  channel: string | null;
+  responses: number;
+  averageResponseMinutes: number | null;
+  medianResponseMinutes: number | null;
+  appointmentEvidence: number;
+  appointmentRate: number | null;
+};
+
 export type TemplateRow = {
   template: string;
   templateSource: string;
@@ -138,6 +148,7 @@ export type SoldLeadAnalytics = {
   responseWithin24hRate: number | null;
   averageOutboundBeforeResponse: number | null;
   firstActions: ActionRow[];
+  responseActions: ResponseActionRow[];
   templates: TemplateRow[];
 };
 
@@ -961,6 +972,9 @@ function buildSoldLeadAnalytics(
     firstActions:
       buildActionRows(soldRows),
 
+    responseActions:
+      buildResponseActionRows(soldRows),
+
     templates:
       buildTemplateRows(soldRows),
   };
@@ -1057,6 +1071,76 @@ function buildActionRows(
         left.action.localeCompare(
           right.action,
         ),
+    );
+}
+
+function buildResponseActionRows(
+  observations: ReturnType<typeof buildLeadObservations>,
+): ResponseActionRow[] {
+  const groups = new Map<
+    string,
+    ReturnType<typeof buildLeadObservations>
+  >();
+
+  for (const observation of observations) {
+    const action = observation.responseAction;
+
+    if (!action || observation.responseMinutes === null) {
+      continue;
+    }
+
+    const key = [
+      action.actionType,
+      action.channel ?? "none",
+    ].join("|");
+
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.push(observation);
+    } else {
+      groups.set(key, [observation]);
+    }
+  }
+
+  return [...groups.entries()]
+    .map(([key, rows]) => {
+      const [action, channel] = key.split("|");
+
+      const responseTimes = rows
+        .map((row) => row.responseMinutes)
+        .filter(
+          (value): value is number =>
+            value !== null,
+        );
+
+      const appointments = rows.filter(
+        (row) => row.appointmentEvidence,
+      );
+
+      return {
+        action,
+        channel:
+          channel === "none"
+            ? null
+            : channel,
+        responses: rows.length,
+        averageResponseMinutes:
+          average(responseTimes),
+        medianResponseMinutes:
+          median(responseTimes),
+        appointmentEvidence:
+          appointments.length,
+        appointmentRate: ratio(
+          appointments.length,
+          rows.length,
+        ),
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.responses - left.responses ||
+        left.action.localeCompare(right.action),
     );
 }
 
