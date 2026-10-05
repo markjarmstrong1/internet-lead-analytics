@@ -155,10 +155,6 @@ export function filterAnalyticsDataset(
     return true;
   });
 
-  const leadIds = new Set(
-    selectedLeads.map((lead) => lead.leadId),
-  );
-
   const recordIds = new Set(
     selectedLeads.flatMap(
       (lead) => lead.timelineRecordIds,
