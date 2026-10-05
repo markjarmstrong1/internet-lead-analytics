@@ -4,7 +4,7 @@ import { AppShell } from "@/components/app/app-shell";
 import { PageHeader } from "@/components/app/page-header";
 
 import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
-import type { AnalyticsFilters } from "@/analytics/filters/analytics-filters";
+import type { AnalyticsFilters as AnalyticsFilterState } from "@/analytics/filters/analytics-filters";
 
 import { AnalyticsFilters } from "./analytics-filters";
 import { AnalyticsManagementSummary } from "./analytics-management-summary";
@@ -14,7 +14,7 @@ import { AnalyticsInvestigation } from "./analytics-investigation";
 
 type Props = {
   analysis: DashboardAnalysis;
-  filters: AnalyticsFilters;
+  filters: AnalyticsFilterState;
   options: {
     sources: string[];
     sourceGroups: string[];
