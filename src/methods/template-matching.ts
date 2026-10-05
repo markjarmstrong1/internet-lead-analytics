@@ -1,4 +1,4 @@
-export const TEMPLATE_MATCHER_VERSION = "portion-v1";
+export const TEMPLATE_MATCHER_VERSION = "sequence-v2";
 
 export type TemplateMatchStatus =
   | "matched"
@@ -150,7 +150,7 @@ function usefulTokens(value: string): string[] {
   );
 }
 
-function longestContiguousMatch(
+function longestOrderedMatch(
   templateTokens: string[],
   communicationTokens: string[],
 ): {
@@ -164,49 +164,62 @@ function longestContiguousMatch(
     };
   }
 
-  let bestCount = 0;
-  let bestStart = -1;
+  /*
+   * Tekion substitutes dynamic values into templates:
+   *
+   *   "Hi John, your 2025 Honda Civic..."
+   *
+   * while the stored template contains:
+   *
+   *   "Hi {{customer_first_name}}, your {{vehicle_year}}..."
+   *
+   * A contiguous substring matcher therefore breaks as soon as
+   * Tekion inserts one of those values.
+   *
+   * Instead, find the longest ordered sequence of template tokens
+   * appearing in the communication. This allows arbitrary dynamic
+   * values between template words while still requiring the template
+   * language to appear in the correct order.
+   */
+  const rows = templateTokens.length + 1;
+  const cols = communicationTokens.length + 1;
 
-  const communicationSet = new Map<string, number[]>();
+  const dp = Array.from(
+    { length: rows },
+    () => new Uint16Array(cols),
+  );
 
-  communicationTokens.forEach((token, index) => {
-    const indexes = communicationSet.get(token) ?? [];
-    indexes.push(index);
-    communicationSet.set(token, indexes);
-  });
-
-  for (let templateIndex = 0; templateIndex < templateTokens.length; templateIndex += 1) {
-    const token = templateTokens[templateIndex];
-    const candidates = communicationSet.get(token) ?? [];
-
-    for (const communicationIndex of candidates) {
-      let count = 0;
-
-      while (
-        templateIndex + count < templateTokens.length &&
-        communicationIndex + count < communicationTokens.length &&
-        templateTokens[templateIndex + count] ===
-          communicationTokens[communicationIndex + count]
-      ) {
-        count += 1;
-      }
-
-      if (count > bestCount) {
-        bestCount = count;
-        bestStart = communicationIndex;
+  for (let i = 1; i < rows; i += 1) {
+    for (let j = 1; j < cols; j += 1) {
+      if (templateTokens[i - 1] === communicationTokens[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
       }
     }
   }
 
+  const matched: string[] = [];
+  let i = templateTokens.length;
+  let j = communicationTokens.length;
+
+  while (i > 0 && j > 0) {
+    if (templateTokens[i - 1] === communicationTokens[j - 1]) {
+      matched.push(templateTokens[i - 1]);
+      i -= 1;
+      j -= 1;
+    } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+      i -= 1;
+    } else {
+      j -= 1;
+    }
+  }
+
+  matched.reverse();
+
   return {
-    count: bestCount,
-    fragment:
-      bestStart >= 0
-        ? communicationTokens.slice(
-            bestStart,
-            bestStart + bestCount,
-          ).join(" ")
-        : null,
+    count: matched.length,
+    fragment: matched.length ? matched.join(" ") : null,
   };
 }
 
@@ -220,7 +233,7 @@ function scoreTemplate(
 
   const templateTokens = usefulTokens(template.normalizedContent);
 
-  const longest = longestContiguousMatch(
+  const longest = longestOrderedMatch(
     templateTokens,
     communicationTokens,
   );
