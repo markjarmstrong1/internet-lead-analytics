@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
-import { Card, minutes, pct, Stat } from "./analytics-section-page";
+import { Card, minutes, pct } from "./analytics-section-page";
 
 const links = [
   {
@@ -470,7 +470,7 @@ export function AnalyticsOverview({
 
         <p className="mt-4 text-xs leading-5 text-slate-400">
           Contact and response metrics describe observed timeline evidence.
-          Sold / Closed describes the lead's current observed state; it is not
+          Sold / Closed describes the lead&apos;s current observed state; it is not
           a reconstructed sales transaction history.
         </p>
       </Card>
