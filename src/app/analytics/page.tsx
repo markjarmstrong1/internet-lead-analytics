@@ -1,7 +1,6 @@
-import { AnalyticsLayout } from "@/components/analytics/analytics-layout";
-import { AnalyticsOverviewPage } from "@/components/analytics/analytics-overview-page";
 import { createServerAnalyticsRepository } from "@/analytics/data/create-server-analytics-repository";
-import { buildOverviewAnalysis } from "@/analytics/metrics/overview";
+import { buildDashboardAnalysis } from "@/analytics/metrics/dashboard";
+import { AnalyticsDashboardPage } from "@/components/analytics/analytics-dashboard-page";
 
 export const dynamic = "force-dynamic";
 
@@ -10,14 +9,8 @@ export default async function AnalyticsRoute() {
     await createServerAnalyticsRepository().load();
 
   return (
-    <AnalyticsLayout
-      active="/analytics"
-      title="Overview"
-      description="Are we getting value from the Internet leads we pay for?"
-    >
-      <AnalyticsOverviewPage
-        overview={buildOverviewAnalysis(dataset)}
-      />
-    </AnalyticsLayout>
+    <AnalyticsDashboardPage
+      analysis={buildDashboardAnalysis(dataset)}
+    />
   );
 }
