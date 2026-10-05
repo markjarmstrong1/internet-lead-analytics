@@ -21,6 +21,6 @@ export type AnalyticsEvent = {
   channel: AnalyticsCommunicationChannel | null;
   direction: AnalyticsCommunicationDirection | null;
   details: string;
-  metadata: Record<string, unknown>;
-  rawData: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  rawData?: Record<string, unknown>;
 };
