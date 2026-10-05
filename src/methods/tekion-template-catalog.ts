@@ -173,7 +173,10 @@ function sourceKindForFile(
     .relative(ROOT, filePath)
     .replaceAll("\\", "/");
 
-  if (relative.startsWith("email-templates/")) {
+  if (
+    relative.startsWith("email-templates/") &&
+    path.basename(filePath) === "template.json"
+  ) {
     return "email";
   }
 
