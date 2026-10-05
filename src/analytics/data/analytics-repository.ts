@@ -12,6 +12,7 @@ export type AnalyticsLead = {
   stage: string;
   status: string;
   creationTime: string | null;
+  firstContactedTime: string | null;
   soldDate: string | null;
   closedTime: string | null;
   timelineRecordIds: string[];
@@ -39,7 +40,7 @@ export class SupabaseAnalyticsRepository
         this.client
           .from("leads")
           .select(
-            "id, contact_name, source, lead_source_group, stage, status, creation_time, sold_date, closed_time",
+            "id, contact_name, source, lead_source_group, stage, status, creation_time, raw_data, sold_date, closed_time",
           ),
         this.client
           .from("timeline_records")
