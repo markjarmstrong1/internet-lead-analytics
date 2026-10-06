@@ -17,6 +17,10 @@ export type EmailTemplateEngagementRow = {
   responseRate: number | null;
   firstInbound: number;
   firstInboundRate: number | null;
+  openedResponses: number;
+  openedResponseRate: number | null;
+  openedNoResponse: number;
+  unopenedResponses: number;
   averageFirstResponseMinutes: number | null;
   medianFirstResponseMinutes: number | null;
 };
@@ -28,56 +32,26 @@ export type EmailEngagementAnalysis = {
   openedSends: number;
   openRate: number | null;
   clicks: number;
-
   attributedResponses: number;
   firstInbound: number;
   firstInboundRate: number | null;
+  openedResponses: number;
+  openedResponseRate: number | null;
+  openedNoResponse: number;
+  unopenedResponses: number;
   averageFirstResponseMinutes: number | null;
   medianFirstResponseMinutes: number | null;
-
   templates: EmailTemplateEngagementRow[];
 };
 
 export function buildEmailEngagementAnalysis(
   dataset: AnalyticsDataset,
 ): EmailEngagementAnalysis {
-  const leadByTimelineRecord = new Map<string, string>();
+  const leadByTimelineRecord =
+    buildLeadByTimelineRecord(dataset);
 
-  for (const lead of dataset.leads) {
-    for (const timelineRecordId of lead.timelineRecordIds) {
-      leadByTimelineRecord.set(
-        timelineRecordId,
-        lead.leadId,
-      );
-    }
-  }
-
-  const eventsByTimelineRecord = new Map<
-    string,
-    typeof dataset.events
-  >();
-
-  for (const event of dataset.events) {
-    const existing =
-      eventsByTimelineRecord.get(
-        event.timelineRecordId,
-      );
-
-    if (existing) {
-      existing.push(event);
-    } else {
-      eventsByTimelineRecord.set(
-        event.timelineRecordId,
-        [event],
-      );
-    }
-  }
-
-  const allEvidence = [
-    ...eventsByTimelineRecord.values(),
-  ].flatMap((events) =>
-    buildEmailEvidence(events),
-  );
+  const allEvidence =
+    buildAllEmailEvidence(dataset);
 
   const sends = allEvidence.length;
 
@@ -112,8 +86,28 @@ export function buildEmailEngagementAnalysis(
     (row) => row.firstInbound !== null,
   );
 
+  const openedResponses =
+    responses.filter(
+      (row) => row.opened,
+    ).length;
+
+  const openedNoResponse =
+    allEvidence.filter(
+      (row) =>
+        row.opened &&
+        row.firstInbound === null,
+    ).length;
+
+  const unopenedResponses =
+    responses.filter(
+      (row) => !row.opened,
+    ).length;
+
   const responseTimes = responses
-    .map((row) => row.firstInboundMinutes)
+    .map(
+      (row) =>
+        row.firstInboundMinutes,
+    )
     .filter(
       (value): value is number =>
         value !== null,
@@ -137,6 +131,13 @@ export function buildEmailEngagementAnalysis(
       responses.length,
       sends,
     ),
+    openedResponses,
+    openedResponseRate: ratio(
+      openedResponses,
+      openedSends,
+    ),
+    openedNoResponse,
+    unopenedResponses,
     averageFirstResponseMinutes:
       average(responseTimes),
     medianFirstResponseMinutes:
@@ -147,6 +148,54 @@ export function buildEmailEngagementAnalysis(
         leadByTimelineRecord,
       ),
   };
+}
+
+function buildLeadByTimelineRecord(
+  dataset: AnalyticsDataset,
+): Map<string, string> {
+  const result = new Map<string, string>();
+
+  for (const lead of dataset.leads) {
+    for (const timelineRecordId of lead.timelineRecordIds) {
+      result.set(
+        timelineRecordId,
+        lead.leadId,
+      );
+    }
+  }
+
+  return result;
+}
+
+function buildAllEmailEvidence(
+  dataset: AnalyticsDataset,
+): EmailEvidence[] {
+  const eventsByTimelineRecord = new Map<
+    string,
+    typeof dataset.events
+  >();
+
+  for (const event of dataset.events) {
+    const existing =
+      eventsByTimelineRecord.get(
+        event.timelineRecordId,
+      );
+
+    if (existing) {
+      existing.push(event);
+    } else {
+      eventsByTimelineRecord.set(
+        event.timelineRecordId,
+        [event],
+      );
+    }
+  }
+
+  return [
+    ...eventsByTimelineRecord.values(),
+  ].flatMap((events) =>
+    buildEmailEvidence(events),
+  );
 }
 
 function buildTemplateRows(
@@ -191,6 +240,28 @@ function buildTemplateRows(
               value !== null,
           );
 
+      const openedSends =
+        rows.filter(
+          (row) => row.opened,
+        ).length;
+
+      const openedResponses =
+        responseRows.filter(
+          (row) => row.opened,
+        ).length;
+
+      const openedNoResponse =
+        rows.filter(
+          (row) =>
+            row.opened &&
+            row.firstInbound === null,
+        ).length;
+
+      const unopenedResponses =
+        responseRows.filter(
+          (row) => !row.opened,
+        ).length;
+
       const leads = new Set(
         rows
           .map((row) =>
@@ -203,11 +274,6 @@ function buildTemplateRows(
               Boolean(leadId),
           ),
       ).size;
-
-      const openedSends =
-        rows.filter(
-          (row) => row.opened,
-        ).length;
 
       return {
         template,
@@ -240,6 +306,13 @@ function buildTemplateRows(
           responseRows.length,
           rows.length,
         ),
+        openedResponses,
+        openedResponseRate: ratio(
+          openedResponses,
+          openedSends,
+        ),
+        openedNoResponse,
+        unopenedResponses,
         averageFirstResponseMinutes:
           average(responseTimes),
         medianFirstResponseMinutes:

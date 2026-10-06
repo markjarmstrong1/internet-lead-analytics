@@ -12,6 +12,10 @@ import {
   buildEmailEngagementAnalysis,
   type EmailEngagementAnalysis,
 } from "./email-engagement";
+import {
+  buildFirstResponseAnalysis,
+  type FirstResponseAnalysis,
+} from "./first-response-analysis";
 
 export type DashboardMetric = {
   count: number;
@@ -188,6 +192,7 @@ export type DashboardAnalysis = {
     speed: ResponseSpeedRow[];
     channels: ChannelRow[];
     email: EmailEngagementAnalysis;
+    firstResponse: FirstResponseAnalysis;
   };
 
   soldLeadAnalytics: SoldLeadAnalytics;
@@ -285,6 +290,9 @@ export function buildDashboardAnalysis(
   const emailEngagement =
     buildEmailEngagementAnalysis(dataset);
 
+  const firstResponse =
+    buildFirstResponseAnalysis(observations);
+
   const medianFirstContactMinutes = median(
     validFirstContactTimes.map(
       (observation) =>
@@ -363,6 +371,7 @@ export function buildDashboardAnalysis(
         contacted,
       ),
       email: emailEngagement,
+      firstResponse,
     },
 
     soldLeadAnalytics,

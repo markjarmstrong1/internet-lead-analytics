@@ -1,4 +1,5 @@
 import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
+import { FirstResponseAnalysisCard } from "./first-response-analysis-card";
 import {
   Bars,
   Card,
@@ -100,9 +101,11 @@ export function EngagementPage({
         />
       </div>
 
+      <FirstResponseAnalysisCard analysis={analysis} />
+
       <Card
         title="Email engagement evidence"
-        description="Open and click counts come directly from Tekion's Email Sent timeline evidence. Email-attributed first inbound is only counted when no later employee outbound occurs first."
+        description="Open and click counts come directly from Tekion's Email Sent timeline evidence. Email-attributed first inbound is only counted when no later outbound communication occurs first. Tekion provides open counts, not reliable open timestamps."
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
@@ -125,6 +128,16 @@ export function EngagementPage({
             value={String(analysis.engagement.email.firstInbound)}
             detail={`${pct(analysis.engagement.email.firstInboundRate)} of email sends`}
           />
+          <Stat
+            label="Opened-send response"
+            value={String(analysis.engagement.email.openedResponses)}
+            detail={`${pct(analysis.engagement.email.openedResponseRate)} of opened sends`}
+          />
+          <Stat
+            label="Opened, no response"
+            value={String(analysis.engagement.email.openedNoResponse)}
+            detail="Opened sends without attributed first inbound"
+          />
         </div>
 
         <div className="mt-6 overflow-x-auto">
@@ -139,6 +152,8 @@ export function EngagementPage({
                 <th className="pb-3 text-right">Clicks</th>
                 <th className="pb-3 text-right">Responses</th>
                 <th className="pb-3 text-right">First inbound</th>
+                <th className="pb-3 text-right">Opened → response</th>
+                <th className="pb-3 text-right">Opened / no response</th>
               </tr>
             </thead>
 
@@ -169,6 +184,12 @@ export function EngagementPage({
                     </td>
                     <td className="py-3 text-right tabular-nums">
                       {pct(row.firstInboundRate)}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {row.openedResponses} · {pct(row.openedResponseRate)}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {row.openedNoResponse}
                     </td>
                   </tr>
                 ),
