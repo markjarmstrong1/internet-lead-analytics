@@ -95,6 +95,7 @@ describe("email evidence", () => {
           "2026-10-01T10:05:00.000Z",
         rawType: "Text Sent",
         channel: "text",
+        actorType: "unknown",
         details: "Follow up",
       }),
       event({

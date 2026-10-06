@@ -128,7 +128,6 @@ function findFirstInboundAfterEmail(
      */
     if (
       event.category === "communication" &&
-      event.actorType === "employee" &&
       event.direction === "outbound"
     ) {
       return null;
