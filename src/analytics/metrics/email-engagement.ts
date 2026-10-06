@@ -205,7 +205,7 @@ function buildTemplateRows(
   templates: AnalyticsDataset["templates"],
 ): EmailTemplateEngagementRow[] {
   const templateNames = new Map(
-    templates.map((template) => [
+    (templates ?? []).map((template) => [
       template.templateCode,
       template.name,
     ]),
