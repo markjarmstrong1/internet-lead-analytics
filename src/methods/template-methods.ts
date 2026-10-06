@@ -7,7 +7,6 @@ import {
 
 import {
   loadTekionTemplateCatalog,
-  type CatalogTemplate,
 } from "./tekion-template-catalog";
 
 import {

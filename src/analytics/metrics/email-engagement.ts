@@ -142,12 +142,16 @@ export function buildEmailEngagementAnalysis(
     medianFirstResponseMinutes:
       median(responseTimes),
     templates:
-      buildTemplateRows(allEvidence),
+      buildTemplateRows(
+        allEvidence,
+        leadByTimelineRecord,
+      ),
   };
 }
 
 function buildTemplateRows(
   evidence: EmailEvidence[],
+  leadByTimelineRecord: Map<string, string>,
 ): EmailTemplateEngagementRow[] {
   const groups = new Map<
     string,
