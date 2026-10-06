@@ -26,7 +26,7 @@ export type AnalyticsTemplate = {
 export type AnalyticsDataset = {
   leads: AnalyticsLead[];
   events: AnalyticsEvent[];
-  templates: AnalyticsTemplate[];
+  templates?: AnalyticsTemplate[];
 };
 
 export interface AnalyticsRepository {
