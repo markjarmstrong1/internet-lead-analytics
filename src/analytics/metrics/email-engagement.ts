@@ -219,18 +219,23 @@ function buildTemplateRows(
     const templateCode =
       row.templateCode?.trim() || null;
 
-    const template =
-      templateCode
-        ? templateNames.get(templateCode) ??
-          templateCode
-        : "Unmatched";
+    if (!templateCode) {
+      continue;
+    }
 
-    const existing = groups.get(template);
+    const templateName =
+      templateNames.get(templateCode);
+
+    if (!templateName) {
+      continue;
+    }
+
+    const existing = groups.get(templateName);
 
     if (existing) {
       existing.push(row);
     } else {
-      groups.set(template, [row]);
+      groups.set(templateName, [row]);
     }
   }
 

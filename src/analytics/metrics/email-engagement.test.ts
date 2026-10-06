@@ -73,6 +73,12 @@ describe("buildEmailEngagementAnalysis", () => {
             templateCode: null,
           }),
         ],
+        templates: [
+          {
+            templateCode: "e36",
+            name: "Sales Vanilla",
+          },
+        ],
       });
 
     expect(result.sends).toBe(1);
@@ -160,12 +166,18 @@ describe("buildEmailEngagementAnalysis", () => {
             templateCode: "e36",
           }),
         ],
+        templates: [
+          {
+            templateCode: "e36",
+            name: "Sales Vanilla",
+          },
+        ],
       });
 
     const row =
       result.templates.find(
         (template) =>
-          template.template === "e36",
+          template.template === "Sales Vanilla",
       );
 
     expect(row?.sends).toBe(3);
