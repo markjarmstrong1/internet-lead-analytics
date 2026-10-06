@@ -146,6 +146,7 @@ export function buildEmailEngagementAnalysis(
       buildTemplateRows(
         allEvidence,
         leadByTimelineRecord,
+        dataset.templates,
       ),
   };
 }
@@ -201,16 +202,28 @@ function buildAllEmailEvidence(
 function buildTemplateRows(
   evidence: EmailEvidence[],
   leadByTimelineRecord: Map<string, string>,
+  templates: AnalyticsDataset["templates"],
 ): EmailTemplateEngagementRow[] {
+  const templateNames = new Map(
+    templates.map((template) => [
+      template.templateCode,
+      template.name,
+    ]),
+  );
   const groups = new Map<
     string,
     EmailEvidence[]
   >();
 
   for (const row of evidence) {
+    const templateCode =
+      row.templateCode?.trim() || null;
+
     const template =
-      row.templateCode?.trim() ||
-      "unmatched";
+      templateCode
+        ? templateNames.get(templateCode) ??
+          templateCode
+        : "Unmatched";
 
     const existing = groups.get(template);
 

@@ -18,9 +18,15 @@ export type AnalyticsLead = {
   timelineRecordIds: string[];
 };
 
+export type AnalyticsTemplate = {
+  templateCode: string;
+  name: string;
+};
+
 export type AnalyticsDataset = {
   leads: AnalyticsLead[];
   events: AnalyticsEvent[];
+  templates: AnalyticsTemplate[];
 };
 
 export interface AnalyticsRepository {
@@ -65,8 +71,12 @@ export class SupabaseAnalyticsRepository
   ) {}
 
   async load(): Promise<AnalyticsDataset> {
-    const [leadsResult, recordsResult, eventsResult] =
-      await Promise.all([
+    const [
+      leadsResult,
+      recordsResult,
+      eventsResult,
+      templatesResult,
+    ] = await Promise.all([
         this.client
           .from("leads")
           .select(
@@ -80,6 +90,10 @@ export class SupabaseAnalyticsRepository
           .from("timeline_events")
           .select("*")
           .order("occurred_at", { ascending: true }),
+        this.client
+          .from("templates")
+          .select("template_code,name")
+          .eq("is_active", true),
       ]);
 
     if (leadsResult.error) {
@@ -97,6 +111,12 @@ export class SupabaseAnalyticsRepository
     if (eventsResult.error) {
       throw new Error(
         `Failed to load analytics timeline events: ${eventsResult.error.message}`,
+      );
+    }
+
+    if (templatesResult.error) {
+      throw new Error(
+        `Failed to load analytics templates: ${templatesResult.error.message}`,
       );
     }
 
@@ -134,6 +154,12 @@ export class SupabaseAnalyticsRepository
       leads,
       events: buildAnalyticsEvents(
         eventsResult.data ?? [],
+      ),
+      templates: (templatesResult.data ?? []).map(
+        (template) => ({
+          templateCode: template.template_code,
+          name: template.name,
+        }),
       ),
     };
   }

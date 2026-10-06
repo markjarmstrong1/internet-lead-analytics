@@ -27,6 +27,18 @@ export type TimelineDatabase = {
         Relationships: [];
       };
 
+      templates: {
+        Row: {
+          id: string;
+          name: string;
+          template_code: string;
+          is_active: boolean;
+        };
+        Insert: Record<string, unknown>;
+        Update: Record<string, unknown>;
+        Relationships: [];
+      };
+
       source_imports: {
         Row: PersistedSourceImport;
         Insert: SourceImportPersistenceRow &
