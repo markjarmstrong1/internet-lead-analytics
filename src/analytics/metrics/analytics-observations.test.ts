@@ -133,6 +133,25 @@ describe("analytics observations", () => {
     expect(result.soldClosed).toBe(true);
   });
 
+  it("uses lead-export First Contacted Time for contact status and speed", () => {
+    const result = buildLeadObservations(
+      dataset([], {
+        creationTime:
+          "2026-01-01T10:00:00.000Z",
+        firstContactedTime:
+          "2026-01-01T10:12:00.000Z",
+        timelineRecordIds: [],
+      }),
+    )[0];
+
+    expect(result.firstContactedTime).toBe(
+      "2026-01-01T10:12:00.000Z",
+    );
+    expect(result.firstContactMinutes).toBe(12);
+    expect(result.firstOutbound).toBeNull();
+    expect(result.responseMinutes).toBeNull();
+  });
+
   it("classifies mutually exclusive response-speed buckets", () => {
     expect(responseSpeedBucket(2)).toBe(
       "under_5m",

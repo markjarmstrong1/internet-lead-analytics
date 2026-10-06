@@ -609,16 +609,21 @@ function buildSourceRows(
 
       const contacted = rows.filter(
         (row) =>
-          row.firstOutbound !== null,
+          row.firstContactedTime !== null,
       );
 
-      const responded = contacted.filter(
+      const responseEligible = contacted.filter(
+        (row) =>
+          row.lead.timelineRecordIds.length > 0,
+      );
+
+      const responded = responseEligible.filter(
         (row) =>
           row.responseMinutes !== null,
       );
 
       const respondedWithin24h =
-        contacted.filter(
+        responseEligible.filter(
           (row) =>
             row.respondedWithin24h,
         );
@@ -677,13 +682,13 @@ function buildSourceRows(
         responded: responded.length,
         responseRate: ratio(
           responded.length,
-          contacted.length,
+          responseEligible.length,
         ),
         respondedWithin24h:
           respondedWithin24h.length,
         responseWithin24hRate: ratio(
           respondedWithin24h.length,
-          contacted.length,
+          responseEligible.length,
         ),
         appointmentEvidence:
           appointments.length,
@@ -779,10 +784,15 @@ function buildTrendRows(
     .map(([month, rows]) => {
       const contacted = rows.filter(
         (row) =>
-          row.firstOutbound !== null,
+          row.firstContactedTime !== null,
       );
 
-      const responded = contacted.filter(
+      const responseEligible = contacted.filter(
+        (row) =>
+          row.lead.timelineRecordIds.length > 0,
+      );
+
+      const responded = responseEligible.filter(
         (row) =>
           row.responseMinutes !== null,
       );
@@ -809,7 +819,7 @@ function buildTrendRows(
         responded: responded.length,
         responseRate: ratio(
           responded.length,
-          contacted.length,
+          responseEligible.length,
         ),
         appointmentEvidence:
           appointments.length,
@@ -834,13 +844,13 @@ function buildInvestigationRows(
   return [...observations]
     .sort((left, right) => {
       const leftPriority =
-        Number(left.firstOutbound === null) +
+        Number(left.firstContactedTime === null) +
         Number(
           left.responseMinutes === null,
         );
 
       const rightPriority =
-        Number(right.firstOutbound === null) +
+        Number(right.firstContactedTime === null) +
         Number(
           right.responseMinutes === null,
         );
@@ -873,8 +883,7 @@ function buildInvestigationRows(
         observation.lead.timelineRecordIds
           .length > 0,
       firstContactAt:
-        observation.firstOutbound
-          ?.occurredAt ?? null,
+        observation.firstContactedTime,
       firstContactMinutes:
         observation.firstContactMinutes,
       firstContactChannel:
@@ -932,10 +941,14 @@ function buildSoldLeadAnalytics(
   soldRows: ReturnType<typeof buildLeadObservations>,
 ): SoldLeadAnalytics {
   const contacted = soldRows.filter(
-    (row) => row.firstOutbound !== null,
+    (row) => row.firstContactedTime !== null,
   );
 
-  const responded = contacted.filter(
+  const responseEligible = contacted.filter(
+    (row) => row.lead.timelineRecordIds.length > 0,
+  );
+
+  const responded = responseEligible.filter(
     (row) => row.responseMinutes !== null,
   );
 
@@ -988,15 +1001,15 @@ function buildSoldLeadAnalytics(
       median(responseTimes),
 
     respondedWithin24h:
-      contacted.filter(
+      responseEligible.filter(
         (row) => row.respondedWithin24h,
       ).length,
 
     responseWithin24hRate: ratio(
-      contacted.filter(
+      responseEligible.filter(
         (row) => row.respondedWithin24h,
       ).length,
-      contacted.length,
+      responseEligible.length,
     ),
 
     averageOutboundBeforeResponse:

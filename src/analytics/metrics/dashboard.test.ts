@@ -37,6 +37,7 @@ function lead(
     stage: "Engage",
     status: "active",
     creationTime: "2026-01-01T10:00:00.000Z",
+    firstContactedTime: null,
     soldDate: null,
     closedTime: null,
     timelineRecordIds: [id],
@@ -48,9 +49,16 @@ describe("buildDashboardAnalysis", () => {
   it("calculates acquisition, contact and response denominators independently", () => {
     const dataset: AnalyticsDataset = {
       leads: [
-        lead("lead-1"),
-        lead("lead-2"),
+        lead("lead-1", {
+          firstContactedTime:
+            "2026-01-01T10:03:00.000Z",
+        }),
+        lead("lead-2", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
         lead("lead-3", {
+          firstContactedTime: null,
           timelineRecordIds: [],
         }),
       ],
@@ -89,16 +97,20 @@ describe("buildDashboardAnalysis", () => {
     );
   });
 
-  it("calculates true speed-to-lead from creation to first outbound", () => {
+  it("calculates speed-to-lead from creation to First Contacted Time", () => {
     const dataset: AnalyticsDataset = {
       leads: [
         lead("fast", {
           creationTime:
             "2026-01-01T10:00:00.000Z",
+          firstContactedTime:
+            "2026-01-01T10:03:00.000Z",
         }),
         lead("slow", {
           creationTime:
             "2026-01-01T10:00:00.000Z",
+          firstContactedTime:
+            "2026-01-01T11:30:00.000Z",
         }),
       ],
       events: [
@@ -139,9 +151,18 @@ describe("buildDashboardAnalysis", () => {
   it("calculates appointment rates by response-speed population", () => {
     const dataset: AnalyticsDataset = {
       leads: [
-        lead("fast-appt"),
-        lead("fast-no-appt"),
-        lead("slow-appt"),
+        lead("fast-appt", {
+          firstContactedTime:
+            "2026-01-01T10:04:00.000Z",
+        }),
+        lead("fast-no-appt", {
+          firstContactedTime:
+            "2026-01-01T10:04:00.000Z",
+        }),
+        lead("slow-appt", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
       ],
       events: [
         event("fast-appt", {
@@ -277,11 +298,15 @@ describe("buildDashboardAnalysis", () => {
       leads: [
         lead("sold-text", {
           stage: "Sold",
+          firstContactedTime:
+            "2026-01-01T10:03:00.000Z",
           soldDate:
             "2026-01-02T10:00:00.000Z",
         }),
         lead("sold-email", {
           stage: "Closed",
+          firstContactedTime:
+            "2026-01-01T10:10:00.000Z",
           closedTime:
             "2026-01-02T10:00:00.000Z",
         }),
@@ -404,12 +429,18 @@ describe("buildDashboardAnalysis", () => {
       leads: [
         lead("a-1", {
           source: "A",
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
         }),
         lead("a-2", {
           source: "A",
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
         }),
         lead("b-1", {
           source: "B",
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
         }),
       ],
       events: [

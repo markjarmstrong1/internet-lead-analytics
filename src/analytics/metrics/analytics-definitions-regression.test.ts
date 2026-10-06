@@ -86,9 +86,14 @@ describe("canonical analytics definitions", () => {
   it("keeps Unknown contact timing outside timed-contact percentages", () => {
     const dataset: AnalyticsDataset = {
       leads: [
-        makeLead("timed"),
+        makeLead("timed", {
+          firstContactedTime:
+            "2026-01-01T10:03:00.000Z",
+        }),
         makeLead("unknown", {
           creationTime: null,
+          firstContactedTime:
+            "2026-01-01T10:03:00.000Z",
         }),
       ],
       events: [
@@ -128,8 +133,14 @@ describe("canonical analytics definitions", () => {
     const dataset: AnalyticsDataset = {
       leads: [
         makeLead("uncontacted-appt"),
-        makeLead("contacted-appt"),
-        makeLead("contacted-no-appt"),
+        makeLead("contacted-appt", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
+        makeLead("contacted-no-appt", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
       ],
       events: [
         makeEvent("uncontacted-appt", {
@@ -200,8 +211,14 @@ describe("canonical analytics definitions", () => {
   it("uses contacted leads as the response-speed outcome denominator", () => {
     const dataset: AnalyticsDataset = {
       leads: [
-        makeLead("appt"),
-        makeLead("no-appt"),
+        makeLead("appt", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
+        makeLead("no-appt", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
       ],
       events: [
         makeEvent("appt", {

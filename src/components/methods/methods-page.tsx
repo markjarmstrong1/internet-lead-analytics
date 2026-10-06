@@ -171,6 +171,8 @@ export function MethodsPage({
     initialAnalysis.acquisition.leads;
   const responded =
     initialAnalysis.engagement.responded;
+  const responseEligible =
+    initialAnalysis.engagement.responseEligible;
   const timelineCovered =
     initialAnalysis.acquisition.timelineCovered;
   const timelineCoverageRate =
@@ -412,20 +414,16 @@ export function MethodsPage({
           >
             <p>
               {number(contacted)} leads have a
-              qualifying employee outbound
-              communication.
+              recorded First Contacted Time in the
+              lead export.
             </p>
 
             <EvidenceDetails
               population={`${number(leads)} canonical Internet leads`}
-              numerator={`${number(contacted)} leads with qualifying employee outbound`}
+              numerator={`${number(contacted)} leads with First Contacted Time`}
               denominator={`${number(leads)} canonical leads`}
-              evidence="Lead creation timestamp → first qualifying employee outbound"
-              limitation={
-                timelineCovered < leads
-                  ? "Timeline coverage is incomplete, so this describes observed communication evidence."
-                  : "All canonical leads have timeline coverage."
-              }
+              evidence="Lead creation timestamp → lead export First Contacted Time"
+              limitation="Contact status and speed-to-lead come from the lead export; timeline coverage is separate evidence about subsequent activity."
             />
           </QuestionCard>
 
@@ -437,21 +435,17 @@ export function MethodsPage({
             tone="warning"
           >
             <p>
-              These leads have no qualifying
-              employee outbound communication
-              in the observed timeline.
+              These leads have no recorded
+              First Contacted Time in the
+              lead export.
             </p>
 
             <EvidenceDetails
               population={`${number(leads)} canonical Internet leads`}
-              numerator={`${number(notContacted)} leads with no qualifying outbound`}
+              numerator={`${number(notContacted)} leads without First Contacted Time`}
               denominator={`${number(leads)} canonical leads`}
-              evidence="Employee outbound communication records"
-              limitation={
-                timelineCovered < leads
-                  ? "A lead without timeline coverage cannot be distinguished from a lead with no activity."
-                  : "All canonical leads have timeline coverage."
-              }
+              evidence="Lead export First Contacted Time"
+              limitation="A missing First Contacted Time is treated as not contacted for the contact-rate calculation; timeline coverage is not used to infer contact status."
             />
           </QuestionCard>
 
@@ -461,20 +455,26 @@ export function MethodsPage({
             value={pct(
               initialAnalysis.engagement.responseRate,
             )}
-            valueLabel={`${number(responded)} observed responses from ${number(contacted)} contacted leads`}
+            valueLabel={`${number(responded)} observed responses from ${number(responseEligible)} contacted leads with timeline evidence`}
           >
             <p>
               Response means an observed inbound
               communication after the first qualifying
-              outbound contact.
+              outbound contact. Leads that were contacted
+              but have no timeline evidence are unknown,
+              not non-responders.
             </p>
 
             <EvidenceDetails
-              population={`${number(contacted)} contacted leads`}
+              population={`${number(responseEligible)} contacted leads with timeline evidence`}
               numerator={`${number(responded)} contacted leads with observed inbound response`}
-              denominator={`${number(contacted)} contacted leads`}
-              evidence="Outbound contact → subsequent inbound communication"
-              limitation="This is observed response behavior, not a modeled or assumed response."
+              denominator={`${number(responseEligible)} contacted leads with timeline evidence`}
+              evidence="First Contacted Time → timeline evidence of subsequent inbound communication"
+              limitation={
+                responseEligible < contacted
+                  ? `${number(contacted - responseEligible)} contacted leads lack timeline evidence and are excluded from the response denominator.`
+                  : "All contacted leads have timeline evidence."
+              }
             />
           </QuestionCard>
         </div>
