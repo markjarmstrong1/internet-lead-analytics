@@ -101,7 +101,7 @@ export function FirstResponseAnalysisCard({
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            The communication channel of the customer's first observed inbound.
+            The communication channel of the customer&apos;s first observed inbound.
           </p>
 
           <div className="mt-4 overflow-x-auto">
