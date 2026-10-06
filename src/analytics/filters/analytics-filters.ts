@@ -166,6 +166,7 @@ export function filterAnalyticsDataset(
     events: dataset.events.filter((event) =>
       recordIds.has(event.timelineRecordId),
     ),
+    templates: dataset.templates,
   };
 }
 
