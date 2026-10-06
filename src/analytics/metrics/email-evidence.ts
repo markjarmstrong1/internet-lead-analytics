@@ -121,9 +121,10 @@ function findFirstInboundAfterEmail(
     }
 
     /*
-     * Once another employee outbound occurs, we no longer attribute
-     * a later inbound to this specific email.
+     * Once another outbound communication occurs, we no longer
+     * attribute a later inbound to this specific email.
      *
+     * Direction is the reliable semantic here; actor type is not.
      * This deliberately keeps email attribution conservative.
      */
     if (

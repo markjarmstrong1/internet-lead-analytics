@@ -41,17 +41,57 @@ export type EmailEngagementAnalysis = {
 export function buildEmailEngagementAnalysis(
   dataset: AnalyticsDataset,
 ): EmailEngagementAnalysis {
-  const allEvidence = dataset.events.flatMap(
-    (event) =>
-      buildEmailEvidence([event]),
+  const leadByTimelineRecord = new Map<string, string>();
+
+  for (const lead of dataset.leads) {
+    for (const timelineRecordId of lead.timelineRecordIds) {
+      leadByTimelineRecord.set(
+        timelineRecordId,
+        lead.leadId,
+      );
+    }
+  }
+
+  const eventsByTimelineRecord = new Map<
+    string,
+    typeof dataset.events
+  >();
+
+  for (const event of dataset.events) {
+    const existing =
+      eventsByTimelineRecord.get(
+        event.timelineRecordId,
+      );
+
+    if (existing) {
+      existing.push(event);
+    } else {
+      eventsByTimelineRecord.set(
+        event.timelineRecordId,
+        [event],
+      );
+    }
+  }
+
+  const allEvidence = [
+    ...eventsByTimelineRecord.values(),
+  ].flatMap((events) =>
+    buildEmailEvidence(events),
   );
 
   const sends = allEvidence.length;
 
   const leads = new Set(
-    allEvidence.map(
-      (row) => row.event.timelineRecordId,
-    ),
+    allEvidence
+      .map((row) =>
+        leadByTimelineRecord.get(
+          row.event.timelineRecordId,
+        ),
+      )
+      .filter(
+        (leadId): leadId is string =>
+          Boolean(leadId),
+      ),
   ).size;
 
   const opens = allEvidence.reduce(
@@ -148,10 +188,16 @@ function buildTemplateRows(
           );
 
       const leads = new Set(
-        rows.map(
-          (row) =>
-            row.event.timelineRecordId,
-        ),
+        rows
+          .map((row) =>
+            leadByTimelineRecord.get(
+              row.event.timelineRecordId,
+            ),
+          )
+          .filter(
+            (leadId): leadId is string =>
+              Boolean(leadId),
+          ),
       ).size;
 
       const openedSends =
