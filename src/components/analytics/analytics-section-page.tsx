@@ -27,6 +27,7 @@ const sections = [
   ["Progression", "/analytics/progression"],
   ["Sources", "/analytics/sources"],
   ["Trends", "/analytics/trends"],
+  ["Sold Leads", "/analytics/sold"],
   ["Investigation", "/analytics/investigation"],
 ] as const;
 

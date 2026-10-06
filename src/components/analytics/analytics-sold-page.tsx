@@ -1,4 +1,5 @@
 import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
+
 import {
   Card,
   minutes,
@@ -13,114 +14,122 @@ export function AnalyticsSoldPage({
   analysis: DashboardAnalysis;
 }) {
   const sold = analysis.soldLeadAnalytics;
+
   const soldLeads = analysis.investigation.filter(
     (lead) => lead.soldClosed,
   );
 
-  const topSoldSources = [...analysis.sources]
+  const soldSources = [...analysis.sources]
     .filter((row) => row.soldClosed > 0)
     .sort(
       (left, right) =>
         right.soldClosed - left.soldClosed ||
-        right.soldClosedRate - left.soldClosedRate,
-    )
-    .slice(0, 8);
+        (right.soldClosedRate ?? 0) -
+          (left.soldClosedRate ?? 0),
+    );
 
-  const maxTrend = Math.max(
+  const maxSoldTrend = Math.max(
     ...analysis.trends.map((row) => row.soldClosed),
     1,
   );
 
+  const contactedRate =
+    sold.soldClosed > 0
+      ? sold.contacted / sold.soldClosed
+      : null;
+
+  const timelineRate =
+    sold.soldClosed > 0
+      ? sold.timelineCovered / sold.soldClosed
+      : null;
+
   return (
-    <>
+    <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
           label="Sold / Closed"
           value={String(sold.soldClosed)}
-          detail="Current Sold or Closed stage"
+          detail="Current observed lead state"
         />
 
         <Stat
           label="Timeline coverage"
-          value={pct(sold.timelineCoverageRate)}
+          value={pct(timelineRate)}
           detail={`${sold.timelineCovered} of ${sold.soldClosed} have timeline evidence`}
         />
 
         <Stat
           label="Recorded contact"
-          value={
-            sold.soldClosed
-              ? pct(sold.contacted / sold.soldClosed)
-              : "—"
-          }
-          detail={`${sold.contacted} have a recorded First Contacted Time`}
+          value={pct(contactedRate)}
+          detail={`${sold.contacted} have First Contacted Time`}
         />
 
         <Stat
-          label="Observed responses"
+          label="Observed response"
           value={String(sold.responded)}
-          detail="Only among Sold / Closed leads with timeline evidence"
+          detail="Among contacted leads with timeline evidence"
         />
       </div>
 
       <Card
         title="What do Sold / Closed leads have in common?"
-        description="The page looks for recurring characteristics inside the observed Sold / Closed population. These are descriptive similarities and associations, not proof that any behavior caused the sale."
+        description="These are characteristics observed inside the Sold / Closed population. They describe associations in the available data; they do not establish that any characteristic caused a sale."
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Similarity
-            label="Contacted"
-            value={
-              sold.soldClosed
-                ? pct(sold.contacted / sold.soldClosed)
-                : "—"
-            }
-            detail={`${sold.contacted} of ${sold.soldClosed} have recorded contact`}
-          />
-
-          <Similarity
-            label="Median first contact"
+          <Insight
+            label="First contact"
             value={minutes(sold.medianFirstContactMinutes)}
-            detail="Lead creation → recorded First Contacted Time"
+            detail="Median lead creation → First Contacted Time"
           />
 
-          <Similarity
-            label="Median response"
+          <Insight
+            label="First response"
             value={minutes(sold.medianFirstResponseMinutes)}
-            detail="Observed first outbound → inbound response"
+            detail="Median observed outbound → inbound response"
           />
 
-          <Similarity
+          <Insight
             label="Response ≤24h"
             value={pct(sold.responseWithin24hRate)}
             detail={`${sold.respondedWithin24h} observed responses within 24 hours`}
           />
+
+          <Insight
+            label="Outbound before response"
+            value={
+              sold.averageOutboundBeforeResponse === null
+                ? "—"
+                : sold.averageOutboundBeforeResponse.toFixed(1)
+            }
+            detail="Average qualifying outbound attempts"
+          />
         </div>
 
-        <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+        <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm font-semibold">
-            Evidence interpretation
+            How to read this
           </p>
           <p className="mt-1 text-sm leading-6 text-slate-600">
-            A Sold / Closed lead is included because its current lead stage
-            says Sold or Closed. Timeline-derived behavior is only discussed
-            where linked timeline evidence exists. A missing timeline does not
-            mean the lead was not contacted or did not respond.
+            Sold / Closed is an observed current lead state. Contact
+            comes from First Contacted Time in the lead export.
+            Response behavior requires linked timeline evidence.
+            Therefore, a Sold / Closed lead without a timeline is not
+            treated as a non-responder.
           </p>
         </div>
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Card
-          title="Where are Sold / Closed leads coming from?"
-          description="Sources with observed Sold / Closed outcomes. The rate is Sold / Closed divided by all leads from that source."
+          title="Where do Sold / Closed leads come from?"
+          description="Sources ranked by the number of observed Sold / Closed leads."
         >
-          {topSoldSources.length ? (
+          {soldSources.length ? (
             <div className="space-y-4">
-              {topSoldSources.map((row) => (
+              {soldSources.map((row) => (
                 <div
                   key={row.source}
-                  className="grid grid-cols-[minmax(0,1fr)_80px_80px] items-center gap-4"
+                  className="grid grid-cols-[minmax(0,1fr)_70px_80px] items-center gap-4"
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium">
@@ -149,45 +158,49 @@ export function AnalyticsSoldPage({
         </Card>
 
         <Card
-          title="Sold / Closed trend"
-          description="Sold / Closed counts by the month the lead was created. This is a cohort view, not a sales-date trend."
+          title="Sold / Closed cohort trend"
+          description="Sold / Closed count by the month the lead was created. This is a cohort view, not a sales-date trend."
         >
           {analysis.trends.length ? (
             <div className="space-y-3">
-              {analysis.trends.map((row) => (
-                <div
-                  key={row.month}
-                  className="grid grid-cols-[80px_1fr_60px] items-center gap-3"
-                >
-                  <span className="text-sm font-medium">
-                    {row.label}
-                  </span>
+              {analysis.trends.map((row) => {
+                const width = row.soldClosed
+                  ? Math.max(
+                      (row.soldClosed / maxSoldTrend) * 100,
+                      10,
+                    )
+                  : 0;
 
-                  <div className="h-7 overflow-hidden rounded bg-slate-100">
-                    <div
-                      className="flex h-full min-w-0 items-center rounded bg-slate-900 px-2 text-xs font-semibold text-white"
-                      style={{
-                        width: row.soldClosed
-                          ? `${Math.max(
-                              (row.soldClosed / maxTrend) * 100,
-                              12,
-                            )}%`
-                          : "0%",
-                      }}
-                    >
-                      {row.soldClosed || ""}
+                return (
+                  <div
+                    key={row.month}
+                    className="grid grid-cols-[80px_minmax(0,1fr)_50px] items-center gap-3"
+                  >
+                    <span className="text-sm font-medium">
+                      {row.label}
+                    </span>
+
+                    <div className="h-7 overflow-hidden rounded bg-slate-100">
+                      {row.soldClosed > 0 ? (
+                        <div
+                          className="flex h-full items-center rounded bg-slate-900 px-2 text-xs font-semibold text-white"
+                          style={{ width: `${width}%` }}
+                        >
+                          {row.soldClosed}
+                        </div>
+                      ) : null}
                     </div>
-                  </div>
 
-                  <span className="text-right text-sm tabular-nums">
-                    {row.soldClosed}
-                  </span>
-                </div>
-              ))}
+                    <span className="text-right text-sm tabular-nums">
+                      {row.soldClosed}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p className="py-8 text-center text-sm text-slate-500">
-              No valid creation dates are available.
+              No valid lead creation dates are available.
             </p>
           )}
         </Card>
@@ -197,17 +210,17 @@ export function AnalyticsSoldPage({
 
       <Card
         title="Sold / Closed leads"
-        description={`${soldLeads.length} individual leads currently in a Sold or Closed stage.`}
+        description={`${soldLeads.length} individual leads currently classified as Sold or Closed.`}
       >
         {soldLeads.length ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-sm">
+            <table className="w-full min-w-[950px] text-sm">
               <thead className="border-b border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 <tr>
                   <th className="pb-3">Lead</th>
                   <th className="pb-3">Source</th>
                   <th className="pb-3">Created</th>
-                  <th className="pb-3">Contact</th>
+                  <th className="pb-3">First Contact</th>
                   <th className="pb-3">Response</th>
                   <th className="pb-3">Appointment</th>
                   <th className="pb-3">Timeline</th>
@@ -239,12 +252,14 @@ export function AnalyticsSoldPage({
 
                     <td className="py-3">
                       {lead.firstContactAt ? (
-                        <div>
-                          <div>{formatDate(lead.firstContactAt)}</div>
+                        <>
+                          <div>
+                            {formatDate(lead.firstContactAt)}
+                          </div>
                           <div className="text-xs text-slate-400">
                             {minutes(lead.firstContactMinutes)}
                           </div>
-                        </div>
+                        </>
                       ) : (
                         <span className="text-slate-400">
                           Unknown
@@ -282,11 +297,11 @@ export function AnalyticsSoldPage({
           </p>
         )}
       </Card>
-    </>
+    </div>
   );
 }
 
-function Similarity({
+function Insight({
   label,
   value,
   detail,
@@ -311,9 +326,7 @@ function Similarity({
 }
 
 function formatDate(value: string | null): string {
-  if (!value) {
-    return "Unknown";
-  }
+  if (!value) return "Unknown";
 
   const date = new Date(value);
 
