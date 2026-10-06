@@ -7,9 +7,13 @@ import { PageHeader } from "@/components/app/page-header";
 
 const sections = [
   { label: "Overview", href: "/analytics" },
-  { label: "Lead Journey", href: "/analytics/journey" },
+  { label: "Acquisition", href: "/analytics/acquisition" },
+  { label: "Contact", href: "/analytics/contact" },
   { label: "Engagement", href: "/analytics/engagement" },
-  { label: "Drivers", href: "/analytics/drivers" },
+  { label: "Progression", href: "/analytics/progression" },
+  { label: "Sources", href: "/analytics/sources" },
+  { label: "Trends", href: "/analytics/trends" },
+  { label: "Sold Leads", href: "/analytics/sold" },
   { label: "Investigation", href: "/analytics/investigation" },
 ] as const;
 

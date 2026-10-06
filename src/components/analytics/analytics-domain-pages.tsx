@@ -6,7 +6,6 @@ import {
   pct,
   Stat,
 } from "./analytics-section-page";
-import { AnalyticsSoldLeadAnalysis } from "./analytics-sold-lead-analysis";
 
 export function AcquisitionPage({
   analysis,
@@ -191,7 +190,6 @@ export function ProgressionPage({
         </div>
       </Card>
 
-      <AnalyticsSoldLeadAnalysis analysis={analysis} />
     </>
   );
 }
