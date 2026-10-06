@@ -69,6 +69,7 @@ export type TimelineDatabase = {
       timeline_events: {
         Row: PersistedTimelineEvent &
           Record<string, unknown> & {
+            template_code: string | null;
             created_at: string;
             updated_at: string;
           };

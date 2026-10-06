@@ -100,6 +100,110 @@ export function EngagementPage({
         />
       </div>
 
+      <Card
+        title="Email engagement evidence"
+        description="Open and click counts come directly from Tekion's Email Sent timeline evidence. Email-attributed first inbound is only counted when no later employee outbound occurs first."
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat
+            label="Email sends"
+            value={String(analysis.engagement.email.sends)}
+            detail={`${analysis.engagement.email.leads} leads`}
+          />
+          <Stat
+            label="Opened sends"
+            value={String(analysis.engagement.email.openedSends)}
+            detail={`${pct(analysis.engagement.email.openRate)} open rate`}
+          />
+          <Stat
+            label="Total opens"
+            value={String(analysis.engagement.email.opens)}
+            detail={`${analysis.engagement.email.clicks} clicks`}
+          />
+          <Stat
+            label="First inbound"
+            value={String(analysis.engagement.email.firstInbound)}
+            detail={`${pct(analysis.engagement.email.firstInboundRate)} of email sends`}
+          />
+        </div>
+
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[980px] text-sm">
+            <thead className="border-b border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              <tr>
+                <th className="pb-3">Template</th>
+                <th className="pb-3 text-right">Sends</th>
+                <th className="pb-3 text-right">Leads</th>
+                <th className="pb-3 text-right">Opens</th>
+                <th className="pb-3 text-right">Open rate</th>
+                <th className="pb-3 text-right">Clicks</th>
+                <th className="pb-3 text-right">Responses</th>
+                <th className="pb-3 text-right">First inbound</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100">
+              {analysis.engagement.email.templates.map(
+                (row) => (
+                  <tr key={row.template}>
+                    <td className="py-3 font-medium">
+                      {row.template}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {row.sends}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {row.leads}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {row.opens}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {pct(row.openRate)}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {row.clicks}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {row.responded}
+                    </td>
+                    <td className="py-3 text-right tabular-nums">
+                      {pct(row.firstInboundRate)}
+                    </td>
+                  </tr>
+                ),
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Average first response
+            </p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums">
+              {minutes(
+                analysis.engagement.email
+                  .averageFirstResponseMinutes,
+              )}
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Median first response
+            </p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums">
+              {minutes(
+                analysis.engagement.email
+                  .medianFirstResponseMinutes,
+              )}
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid gap-6 xl:grid-cols-2">
         <Card
           title="Response speed"
