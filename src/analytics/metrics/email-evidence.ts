@@ -1,4 +1,7 @@
 import type { AnalyticsEvent } from "@/analytics/data/analytics-types";
+import {
+  findFirstInboundAfterSpecificOutbound,
+} from "@/analytics/observations/communication-evidence";
 
 export type EmailEvidence = {
   event: AnalyticsEvent;
@@ -69,7 +72,7 @@ export function buildEmailEvidence(
     .map((event) => {
       const evidence = parseEmailEvidence(event);
       const firstInbound =
-        findFirstInboundAfterEmail(
+        findFirstInboundAfterSpecificOutbound(
           ordered,
           event,
         );
@@ -94,55 +97,6 @@ export function buildEmailEvidence(
             : null,
       };
     });
-}
-
-function findFirstInboundAfterEmail(
-  events: AnalyticsEvent[],
-  email: AnalyticsEvent,
-): AnalyticsEvent | null {
-  const emailTime = Date.parse(
-    email.occurredAt,
-  );
-
-  if (!Number.isFinite(emailTime)) {
-    return null;
-  }
-
-  for (const event of events) {
-    const eventTime = Date.parse(
-      event.occurredAt,
-    );
-
-    if (
-      !Number.isFinite(eventTime) ||
-      eventTime <= emailTime
-    ) {
-      continue;
-    }
-
-    /*
-     * Once another outbound communication occurs, we no longer
-     * attribute a later inbound to this specific email.
-     *
-     * Direction is the reliable semantic here; actor type is not.
-     * This deliberately keeps email attribution conservative.
-     */
-    if (
-      event.category === "communication" &&
-      event.direction === "outbound"
-    ) {
-      return null;
-    }
-
-    if (
-      event.category === "communication" &&
-      event.direction === "inbound"
-    ) {
-      return event;
-    }
-  }
-
-  return null;
 }
 
 function elapsedMinutes(
