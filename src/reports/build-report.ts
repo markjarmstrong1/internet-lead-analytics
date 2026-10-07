@@ -292,7 +292,7 @@ function matchesDateRange(
 
   if (basis === "first_contacted") {
     return isDateInRange(
-      lead.firstContactedTime,
+      lead.firstContactedTime ?? null,
       start,
       end,
     );

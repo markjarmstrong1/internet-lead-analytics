@@ -49,6 +49,7 @@ function lead(
     status: "Active",
     creationTime:
       "2026-09-10T09:00:00.000Z",
+    firstContactedTime: null,
     soldDate: null,
     closedTime: null,
     timelineRecordIds: ["record-1"],
@@ -91,14 +92,46 @@ describe("buildReport", () => {
 
   it("keeps CRM contacted and observed outbound as distinct metrics", () => {
     const result = buildReport(
-      makeReportDefinition({
+      dataset(
+        [
+          lead("contacted", {
+            firstContactedTime:
+              "2026-09-10T09:30:00.000Z",
+          }),
+          lead("outbound-only", {
+            leadId: "outbound-only",
+            firstContactedTime: null,
+            timelineRecordIds: ["record-2"],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "outbound-1",
+            occurredAt:
+              "2026-09-10T10:00:00.000Z",
+            actorType: "employee",
+            direction: "outbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "outbound-2",
+            occurredAt:
+              "2026-09-10T10:01:00.000Z",
+            actorType: "employee",
+            direction: "outbound",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
         metrics: ["contacted", "observedOutbound"],
       }),
-      FIXTURES,
     );
 
-    expect(result.summary.contacted).toBe(1);
-    expect(result.summary.observedOutbound).toBe(2);
+    expect(result.summary).toEqual({
+      contacted: 1,
+      observedOutbound: 2,
+    });
   });
 
 
@@ -106,7 +139,10 @@ describe("buildReport", () => {
     const result = buildReport(
       dataset(
         [
-          lead("lead-1"),
+          lead("lead-1", {
+            firstContactedTime:
+              "2026-09-10T09:30:00.000Z",
+          }),
           lead("lead-2", {
             source: "Source B",
             timelineRecordIds: [],
@@ -236,7 +272,10 @@ describe("buildReport", () => {
     const result = buildReport(
       dataset(
         [
-          lead("lead-1"),
+          lead("lead-1", {
+            firstContactedTime:
+              "2026-09-10T09:30:00.000Z",
+          }),
           lead("lead-2", {
             source: "Source B",
             timelineRecordIds: [],

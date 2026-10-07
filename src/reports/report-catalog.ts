@@ -78,8 +78,16 @@ export const REPORT_METRICS: Array<{
   },
   {
     key: "contacted",
-    label: "Observed contacted",
-    description: "Leads with a qualifying employee outbound communication.",
+    label: "CRM contacted",
+    description:
+      "Leads with a CRM First Contacted Time value; this is CRM state, not proof of qualifying outbound communication.",
+    format: "count",
+  },
+  {
+    key: "observedOutbound",
+    label: "Observed outbound",
+    description:
+      "Leads with at least one qualifying employee outbound communication observed in timeline evidence.",
     format: "count",
   },
   {
