@@ -256,7 +256,7 @@ export function buildDashboardAnalysis(
 
   const soldClosed = observations.filter(
     (observation) =>
-      observation.soldClosed,
+      observation.evidence.outcome.state === "observed",
   );
 
   const contactedAppointmentEvidence =
@@ -274,7 +274,7 @@ export function buildDashboardAnalysis(
   const contactedSoldClosed =
     contacted.filter(
       (observation) =>
-        observation.soldClosed,
+        observation.evidence.outcome.state === "observed",
     );
 
   const validFirstContactTimes =
@@ -510,12 +510,12 @@ function buildResponseSpeedRows(
         soldClosed:
           rows.filter(
             (observation) =>
-              observation.soldClosed,
+              observation.evidence.outcome.state === "observed",
           ).length,
         soldClosedRate: ratio(
           rows.filter(
             (observation) =>
-              observation.soldClosed,
+              observation.evidence.outcome.state === "observed",
           ).length,
           rows.length,
         ),
@@ -921,7 +921,7 @@ function buildInvestigationRows(
       appointmentEvidence:
         observation.appointmentEvidence,
       soldClosed:
-        observation.soldClosed,
+        observation.evidence.outcome.state === "observed",
     }));
 }
 
