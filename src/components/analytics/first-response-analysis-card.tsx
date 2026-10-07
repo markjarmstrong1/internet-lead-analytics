@@ -57,7 +57,7 @@ export function FirstResponseAnalysisCard({
             Response speed
           </h3>
 
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-[var(--muted)]">
             Distribution of first observed customer responses.
           </p>
 
@@ -70,14 +70,14 @@ export function FirstResponseAnalysisCard({
                       {row.label}
                     </span>
 
-                    <span className="tabular-nums text-slate-500">
+                    <span className="tabular-nums text-[var(--muted)]">
                       {row.responded} · {pct(row.rate)}
                     </span>
                   </div>
 
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
                     <div
-                      className="h-full rounded-full bg-slate-800"
+                      className="h-full rounded-full bg-[var(--accent)]"
                       style={{
                         width: `${Math.max(
                           Math.min(
@@ -100,13 +100,13 @@ export function FirstResponseAnalysisCard({
             First response channel
           </h3>
 
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-[var(--muted)]">
             The communication channel of the customer&apos;s first observed inbound.
           </p>
 
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[420px] text-sm">
-              <thead className="border-b border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              <thead className="border-b border-[var(--border)] text-left text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
                 <tr>
                   <th className="pb-3">Channel</th>
                   <th className="pb-3 text-right">Responses</th>
@@ -145,18 +145,18 @@ export function FirstResponseAnalysisCard({
           Action immediately before response
         </h3>
 
-        <p className="mt-1 text-xs leading-5 text-slate-500">
+        <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
           This is an observed association. It does not prove that the action caused the response.
         </p>
 
         {firstResponse.actions.length === 0 ? (
-          <div className="mt-4 rounded-lg bg-slate-50 p-4 text-sm text-slate-500">
+          <div className="mt-4 rounded-lg bg-[var(--surface-muted)] p-4 text-sm text-[var(--muted)]">
             No qualifying outbound action can currently be associated with an observed response.
           </div>
         ) : (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[850px] text-sm">
-              <thead className="border-b border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              <thead className="border-b border-[var(--border)] text-left text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
                 <tr>
                   <th className="pb-3">Action</th>
                   <th className="pb-3">Channel</th>
@@ -213,8 +213,8 @@ function Metric({
   detail?: string;
 }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-4">
-      <p className="text-xs font-medium text-slate-500">
+    <div className="rounded-[10px] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
+      <p className="text-xs font-medium text-[var(--muted)]">
         {label}
       </p>
 
@@ -223,7 +223,7 @@ function Metric({
       </p>
 
       {detail ? (
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-[var(--muted)]">
           {detail}
         </p>
       ) : null}

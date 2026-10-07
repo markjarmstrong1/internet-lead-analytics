@@ -15,7 +15,7 @@ export function AcquisitionPage({
 }) {
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Stat label="Leads" value={String(analysis.acquisition.leads)} />
         <Stat
           label="Timeline coverage"
@@ -45,7 +45,7 @@ export function ContactPage({
 }) {
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Stat
           label="Contact rate"
           value={pct(analysis.contact.contactRate)}
@@ -84,7 +84,7 @@ export function EngagementPage({
 }) {
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Stat
           label="Response rate"
           value={pct(analysis.engagement.responseRate)}
@@ -107,7 +107,7 @@ export function EngagementPage({
         title="Email engagement evidence"
         description="Open and click counts come directly from Tekion's Email Sent timeline evidence. Email-attributed first inbound is only counted when no later outbound communication occurs first. Tekion provides open counts, not reliable open timestamps."
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
             label="Email sends"
             value={String(analysis.engagement.email.sends)}
@@ -142,7 +142,7 @@ export function EngagementPage({
 
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[980px] text-sm">
-            <thead className="border-b border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            <thead className="border-b border-[var(--border)] text-left text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
               <tr>
                 <th className="pb-3">Template</th>
                 <th className="pb-3 text-right">Sends</th>
@@ -199,8 +199,8 @@ export function EngagementPage({
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <div className="rounded-xl border border-[var(--border)] p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
               Average first response
             </p>
             <p className="mt-2 text-2xl font-semibold tabular-nums">
@@ -211,8 +211,8 @@ export function EngagementPage({
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <div className="rounded-xl border border-[var(--border)] p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
               Median first response
             </p>
             <p className="mt-2 text-2xl font-semibold tabular-nums">
@@ -225,7 +225,7 @@ export function EngagementPage({
         </div>
       </Card>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         <Card
           title="Response speed"
           description="Response behavior among contacted leads."
@@ -252,7 +252,7 @@ export function EngagementPage({
                 <span className="font-medium capitalize">
                   {row.channel}
                 </span>
-                <span className="text-sm tabular-nums text-slate-500">
+                <span className="text-sm tabular-nums text-[var(--muted)]">
                   {row.contacted} contacted · {pct(row.responseRate)} response
                 </span>
               </div>
@@ -271,7 +271,7 @@ export function ProgressionPage({
 }) {
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Stat
           label="Appointment evidence"
           value={String(analysis.progression.appointmentEvidence)}
@@ -352,9 +352,9 @@ export function TrendsPage({
             <div key={row.month} className="grid grid-cols-[80px_1fr_260px] items-center gap-4">
               <span className="text-sm font-medium">{row.label}</span>
 
-              <div className="h-8 overflow-hidden rounded bg-slate-100">
+              <div className="h-8 overflow-hidden rounded bg-[var(--surface-muted)]">
                 <div
-                  className="flex h-full items-center rounded bg-slate-900 px-2 text-xs font-semibold text-white"
+                  className="flex h-full items-center rounded bg-[var(--accent)] px-2 text-xs font-semibold text-white"
                   style={{
                     width: `${Math.max((row.leads / max) * 100, row.leads ? 12 : 0)}%`,
                   }}
@@ -373,7 +373,7 @@ export function TrendsPage({
           ))}
         </div>
       ) : (
-        <p className="py-8 text-center text-sm text-slate-500">
+        <p className="py-8 text-center text-sm text-[var(--muted)]">
           No valid creation dates are available.
         </p>
       )}
@@ -391,7 +391,7 @@ function SourceTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[900px] text-sm">
-        <thead className="border-b border-slate-200 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        <thead className="border-b border-[var(--border)] text-left text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
           <tr>
             <th className="pb-3">Source</th>
             <th className="pb-3 text-right">Leads</th>
@@ -408,7 +408,7 @@ function SourceTable({
               <td className="py-3">
                 <div className="font-medium">{row.source}</div>
                 {detailed ? (
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-[var(--muted)]">
                     {row.sourceGroup}
                   </div>
                 ) : null}
@@ -446,13 +446,13 @@ function Outcome({
   detail: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 p-4">
-      <p className="text-xs text-slate-500">{label}</p>
+    <div className="rounded-[10px] border border-[var(--border)] bg-white p-4">
+      <p className="text-xs text-[var(--muted)]">{label}</p>
       <div className="mt-2 flex items-end justify-between gap-3">
         <span className="text-2xl font-semibold tabular-nums">{count}</span>
-        <span className="text-xs font-medium text-slate-500">{rate}</span>
+        <span className="text-xs font-medium text-[var(--muted)]">{rate}</span>
       </div>
-      <p className="mt-1 text-xs text-slate-400">{detail}</p>
+      <p className="mt-1 text-xs text-[var(--muted)]">{detail}</p>
     </div>
   );
 }
