@@ -3255,3 +3255,425 @@ textarea {
     border-bottom: 1px solid var(--border);
   }
 }
+
+
+/* ============================================================
+   MATURITY PASS 3 — OPERATIONS + ENGINEERING
+   Structure over decoration.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   PERFORMANCE
+   Operations desk: exception-first, compact, decisive.
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] {
+  --background: #eceeef;
+  --surface: #ffffff;
+  --surface-muted: #f1f3f4;
+  --surface-elevated: #ffffff;
+  --foreground: #171b1f;
+  --muted: #69737b;
+  --muted-strong: #3e474e;
+  --border: #c9ced2;
+  --border-strong: #9ea7ad;
+  --accent: #b94b30;
+  --accent-strong: #963a25;
+  --accent-soft: #f3e4df;
+  --success: #36785a;
+  --warning: #9a681b;
+  --danger: #b43f35;
+  --theme-panel-radius: 3px;
+  --theme-panel-shadow: 0 1px 2px rgba(20, 26, 31, 0.045);
+}
+
+/* Kill decorative atmosphere. */
+[data-theme="performance"] body {
+  background-image: none !important;
+}
+
+[data-theme="performance"] main::before,
+[data-theme="performance"] aside::after {
+  display: none !important;
+}
+
+/* Navigation becomes an operations rail. */
+[data-theme="performance"] aside {
+  background: #171c20 !important;
+  border-right: 1px solid #30373c !important;
+}
+
+[data-theme="performance"] aside a {
+  border-radius: 2px !important;
+}
+
+[data-theme="performance"] aside a[data-active="true"] {
+  background: #242b30 !important;
+  box-shadow: inset 3px 0 0 var(--accent) !important;
+}
+
+/* Workspace has a stronger grid rhythm. */
+[data-theme="performance"] main {
+  background: var(--background);
+}
+
+[data-theme="performance"] section,
+[data-theme="performance"] article {
+  border-radius: 3px !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--theme-panel-shadow) !important;
+}
+
+[data-theme="performance"] section > div:first-child h2 {
+  letter-spacing: -0.015em;
+}
+
+/* Page headers become operational rather than editorial. */
+[data-theme="performance"] .page-header {
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--border-strong) !important;
+}
+
+[data-theme="performance"] .page-header h1 {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+[data-theme="performance"] .page-header p {
+  color: var(--muted-strong);
+}
+
+/* KPI row becomes an instrument panel. */
+[data-theme="performance"] .dashboard-kpis {
+  gap: 1px !important;
+  padding: 0 !important;
+  background: var(--border-strong);
+  border: 1px solid var(--border-strong) !important;
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  min-height: 104px;
+  padding: 16px 18px !important;
+  border: 0 !important;
+  border-top: 3px solid transparent !important;
+  border-radius: 0 !important;
+  background: var(--surface) !important;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent) !important;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:hover {
+  background: #f8f9f9 !important;
+}
+
+[data-theme="performance"] .dashboard-kpis > *::after {
+  display: none !important;
+}
+
+/* Numeric hierarchy. */
+[data-theme="performance"] .dashboard-kpis [class*="text-3xl"],
+[data-theme="performance"] .dashboard-kpis [class*="text-4xl"] {
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Secondary panels are flatter and more utilitarian. */
+[data-theme="performance"] .dashboard-secondary {
+  gap: 10px;
+}
+
+[data-theme="performance"] .dashboard-secondary > * {
+  border-radius: 3px !important;
+}
+
+/* Tables should feel like operating data, not marketing cards. */
+[data-theme="performance"] table {
+  border-collapse: collapse;
+}
+
+[data-theme="performance"] table thead th {
+  height: 34px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  background: #e5e8e9 !important;
+  color: #4b555c !important;
+  border-bottom: 1px solid var(--border-strong) !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.075em !important;
+  text-transform: uppercase;
+}
+
+[data-theme="performance"] table tbody td {
+  height: 42px;
+  border-bottom: 1px solid #dde1e3;
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #f5f6f6 !important;
+}
+
+/* Use red as an exception signal, not a theme color everywhere. */
+[data-theme="performance"] .text-\[var\(--accent\)\] {
+  color: var(--accent-strong) !important;
+}
+
+/* Buttons become compact controls. */
+[data-theme="performance"] button {
+  min-height: 34px;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  font-weight: 600;
+}
+
+[data-theme="performance"] input,
+[data-theme="performance"] select,
+[data-theme="performance"] textarea {
+  border-radius: 3px !important;
+  background: #fff !important;
+}
+
+[data-theme="performance"] input:focus,
+[data-theme="performance"] select:focus,
+[data-theme="performance"] textarea:focus {
+  box-shadow: 0 0 0 1px var(--accent) !important;
+}
+
+/* Charts become measurement tools. */
+[data-theme="performance"] .theme-chart-bar {
+  border-radius: 1px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="performance"] .theme-signature {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------
+   TECH
+   F1 engineering workstation: telemetry hierarchy,
+   not "futuristic dashboard".
+   ------------------------------------------------------------ */
+
+[data-theme="tech"] {
+  --background: #090d11;
+  --surface: #10161b;
+  --surface-muted: #0c1217;
+  --surface-elevated: #151c22;
+  --foreground: #dce5e9;
+  --muted: #71808a;
+  --muted-strong: #aebbc2;
+  --border: #253038;
+  --border-strong: #39464f;
+  --accent: #67c9e5;
+  --accent-strong: #8bd8ed;
+  --accent-soft: rgba(103, 201, 229, 0.07);
+  --theme-panel-radius: 2px;
+}
+
+/* No sci-fi texture. */
+[data-theme="tech"] body {
+  background-image: none !important;
+}
+
+[data-theme="tech"] main::before,
+[data-theme="tech"] aside::after {
+  display: none !important;
+}
+
+/* Engineering workstation shell. */
+[data-theme="tech"] aside {
+  background: #080c10 !important;
+  border-right: 1px solid #202a31 !important;
+}
+
+[data-theme="tech"] aside a {
+  border-radius: 2px !important;
+}
+
+[data-theme="tech"] aside a[data-active="true"] {
+  background: #141c22 !important;
+  box-shadow: inset 2px 0 0 var(--accent) !important;
+}
+
+[data-theme="tech"] header {
+  background: #080c10 !important;
+  border-bottom-color: #202a31 !important;
+}
+
+/* Compact engineering page header. */
+[data-theme="tech"] .page-header {
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--border-strong) !important;
+}
+
+[data-theme="tech"] .page-header h1 {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+[data-theme="tech"] .page-header p {
+  color: #84929b;
+}
+
+/* Data panels. */
+[data-theme="tech"] section,
+[data-theme="tech"] article {
+  border-radius: 2px !important;
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="tech"] section::before,
+[data-theme="tech"] article::before {
+  display: none !important;
+}
+
+/* KPI strip: think sector timing / engineering readout. */
+[data-theme="tech"] .dashboard-kpis {
+  gap: 0 !important;
+  padding: 0 !important;
+  border: 1px solid var(--border-strong) !important;
+  background: var(--border-strong);
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  min-height: 94px;
+  padding: 14px 16px !important;
+  border: 0 !important;
+  border-right: 1px solid var(--border) !important;
+  border-top: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: var(--surface) !important;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent) !important;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:last-child {
+  border-right: 0 !important;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:hover {
+  background: #131b21 !important;
+}
+
+[data-theme="tech"] .dashboard-kpis > *::after {
+  display: none !important;
+}
+
+/* Engineering-grade numbers. */
+[data-theme="tech"] .dashboard-kpis [class*="text-3xl"],
+[data-theme="tech"] .dashboard-kpis [class*="text-4xl"],
+[data-theme="tech"] .dashboard-kpis [class*="text-2xl"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+}
+
+/* Compact section headers. */
+[data-theme="tech"] section h2 {
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.005em;
+}
+
+[data-theme="tech"] section p.text-xs,
+[data-theme="tech"] article p.text-xs {
+  font-size: 10px !important;
+}
+
+/* Telemetry tables. */
+[data-theme="tech"] table {
+  border-collapse: collapse;
+}
+
+[data-theme="tech"] table thead th {
+  height: 32px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  background: #0b1116 !important;
+  color: #74838d !important;
+  border-bottom: 1px solid var(--border-strong) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+}
+
+[data-theme="tech"] table tbody td {
+  height: 40px;
+  border-bottom: 1px solid #202a30;
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(103, 201, 229, 0.035) !important;
+}
+
+/* Inputs and controls feel like instrumentation. */
+[data-theme="tech"] button {
+  min-height: 32px;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  font-size: 12px;
+}
+
+[data-theme="tech"] input,
+[data-theme="tech"] select,
+[data-theme="tech"] textarea {
+  border-radius: 2px !important;
+  background: #0c1217 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="tech"] input:focus,
+[data-theme="tech"] select:focus,
+[data-theme="tech"] textarea:focus {
+  box-shadow: 0 0 0 1px var(--accent) !important;
+}
+
+/* Quiet telemetry bars. */
+[data-theme="tech"] .theme-chart-bar {
+  border-radius: 1px !important;
+  box-shadow: none !important;
+}
+
+/* Remove all fake status/cockpit copy from the signature component. */
+[data-theme="tech"] .theme-signature,
+[data-theme="performance"] .theme-signature {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------
+   Shared maturity rules
+   ------------------------------------------------------------ */
+
+[data-theme="tech"],
+[data-theme="performance"] {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] .rounded-2xl,
+[data-theme="performance"] .rounded-2xl {
+  border-radius: var(--theme-panel-radius) !important;
+}
+
+@media (max-width: 900px) {
+  [data-theme="performance"] .dashboard-kpis,
+  [data-theme="tech"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="performance"] .dashboard-kpis > *,
+  [data-theme="tech"] .dashboard-kpis > * {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+}
