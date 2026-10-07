@@ -25,6 +25,7 @@ type AppShellProps = {
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
+  const navigationLayout = useNavigationLayout();
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -98,8 +99,15 @@ export function AppShell({ children }: AppShellProps) {
         } as React.CSSProperties
       }
     >
+      {navigationLayout === "topbar" ? (
+        <TopBarNavigation pathname={pathname} />
+      ) : null}
+
       <aside
-        className="fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] lg:flex"
+        className={[
+          "fixed inset-y-0 left-0 z-40 hidden flex-col",
+          navigationLayout === "sidebar" ? "lg:flex" : "lg:hidden",
+        ].join(" ")} border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] lg:flex"
         style={{ width: "var(--sidebar-width)" }}
       >
         <div
@@ -206,7 +214,12 @@ export function AppShell({ children }: AppShellProps) {
 
       <div
         className="transition-[padding] duration-150"
-        style={{ paddingLeft: "var(--sidebar-width)" }}
+        style={{
+          paddingLeft:
+            navigationLayout === "sidebar"
+              ? "var(--sidebar-width)"
+              : "0px",
+        }}
       >
         <header className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur">
           <div className="flex min-h-16 items-center gap-4 px-5 lg:px-8">
@@ -302,5 +315,52 @@ function SidebarLink({
         item.label
       )}
     </Link>
+  );
+}
+
+
+function TopBarNavigation({ pathname }: { pathname: string }) {
+  return (
+    <nav
+      aria-label="Primary navigation"
+      className="sticky top-0 z-40 hidden h-16 border-b bg-[var(--sidebar)] lg:flex"
+    >
+      <div className="mx-auto flex w-full max-w-[1600px] items-center gap-8 px-6 lg:px-8">
+        <Link
+          href="/"
+          className="shrink-0 text-sm font-semibold tracking-tight text-white"
+        >
+          Internet Lead Analytics
+        </Link>
+
+        <div className="flex min-w-0 flex-1 items-center gap-1">
+          {navigation.map((item) => {
+            const isActive =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname === item.href ||
+                  pathname.startsWith(`${item.href}/`);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={[
+                  "relative rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-white/[0.08] text-white"
+                    : "text-[var(--sidebar-muted)] hover:bg-white/[0.05] hover:text-white",
+                ].join(" ")}
+              >
+                {isActive ? (
+                  <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[var(--accent)]" />
+                ) : null}
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </nav>
   );
 }
