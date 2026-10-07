@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
-import { buildLeadObservations } from "./analytics-observations";
+import { buildLeadObservations } from "@/analytics/observations/analytics-observations";
 import { buildFirstResponseAnalysis } from "./first-response-analysis";
 
 function event(

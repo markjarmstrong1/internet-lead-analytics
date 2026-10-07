@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
 import {
   buildLeadObservations,
-} from "./analytics-observations";
+} from "@/analytics/observations/analytics-observations";
 import { buildDashboardAnalysis } from "./dashboard";
 import { buildEngagementAnalysis } from "./engagement";
 

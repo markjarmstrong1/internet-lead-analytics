@@ -9,7 +9,7 @@ import {
   responseSpeedBucket,
   RESPONSE_SPEED_BUCKETS,
   type LeadObservation,
-} from "@/analytics/metrics/analytics-observations";
+} from "@/analytics/observations/analytics-observations";
 
 import type {
   ReportDefinition,

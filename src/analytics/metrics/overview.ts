@@ -2,7 +2,7 @@ import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
 import {
   buildLeadObservations,
   median,
-} from "./analytics-observations";
+} from "@/analytics/observations/analytics-observations";
 
 export type OverviewAnalysis = {
   totalLeads: number;

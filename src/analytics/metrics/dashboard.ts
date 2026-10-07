@@ -7,7 +7,7 @@ import {
   median,
   responseSpeedBucket,
   RESPONSE_SPEED_BUCKETS,
-} from "./analytics-observations";
+} from "@/analytics/observations/analytics-observations";
 import {
   buildEmailEngagementAnalysis,
   type EmailEngagementAnalysis,

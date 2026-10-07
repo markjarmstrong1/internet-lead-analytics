@@ -1,7 +1,7 @@
 import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
 import {
   buildLeadObservations,
-} from "./analytics-observations";
+} from "@/analytics/observations/analytics-observations";
 
 export type JourneyStageRow = {
   stage: string;

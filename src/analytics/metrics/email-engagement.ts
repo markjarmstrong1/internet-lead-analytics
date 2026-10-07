@@ -1,5 +1,5 @@
 import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
-import { average, median } from "./analytics-observations";
+import { average, median } from "@/analytics/observations/analytics-observations";
 import {
   buildEmailEvidence,
   type EmailEvidence,

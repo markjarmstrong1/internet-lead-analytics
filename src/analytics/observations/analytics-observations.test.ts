@@ -4,7 +4,7 @@ import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
 import {
   buildLeadObservations,
   responseSpeedBucket,
-} from "./analytics-observations";
+} from "@/analytics/observations/analytics-observations";
 
 function dataset(
   events: AnalyticsDataset["events"],

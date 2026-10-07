@@ -3,7 +3,7 @@ import {
   buildLeadObservations,
   RESPONSE_SPEED_BUCKETS,
   responseSpeedBucket,
-} from "./analytics-observations";
+} from "@/analytics/observations/analytics-observations";
 
 export type EngagementChannelRow = {
   channel: string;

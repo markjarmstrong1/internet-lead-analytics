@@ -1,10 +1,10 @@
-import type { LeadObservation } from "./analytics-observations";
+import type { LeadObservation } from "@/analytics/observations/analytics-observations";
 import {
   average,
   median,
   RESPONSE_SPEED_BUCKETS,
   responseSpeedBucket,
-} from "./analytics-observations";
+} from "@/analytics/observations/analytics-observations";
 
 export type FirstResponseSpeedRow = {
   key: string;
