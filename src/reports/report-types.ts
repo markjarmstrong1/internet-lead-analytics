@@ -2,6 +2,9 @@ export const REPORT_DEFINITION_VERSION = 1 as const;
 
 export type ReportDateBasis =
   | "lead_created"
+  | "first_contacted"
+  | "first_outbound"
+  | "first_response"
   | "timeline_activity"
   | "outcome_date";
 
@@ -17,6 +20,7 @@ export type ReportMetricKey =
   | "leads"
   | "timelineCovered"
   | "contacted"
+  | "observedOutbound"
   | "responded"
   | "responseWithin24h"
   | "appointments"

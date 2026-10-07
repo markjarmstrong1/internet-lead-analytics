@@ -191,6 +191,12 @@ function calculateMetric(
     case "contacted":
       return observations.filter(
         (observation) =>
+          observation.firstContactedTime !== null,
+      ).length;
+
+    case "observedOutbound":
+      return observations.filter(
+        (observation) =>
           observation.firstOutbound !== null,
       ).length;
 
@@ -279,6 +285,30 @@ function matchesDateRange(
   if (basis === "lead_created") {
     return isDateInRange(
       lead.creationTime,
+      start,
+      end,
+    );
+  }
+
+  if (basis === "first_contacted") {
+    return isDateInRange(
+      lead.firstContactedTime,
+      start,
+      end,
+    );
+  }
+
+  if (basis === "first_outbound") {
+    return isDateInRange(
+      observation?.firstOutbound?.occurredAt ?? null,
+      start,
+      end,
+    );
+  }
+
+  if (basis === "first_response") {
+    return isDateInRange(
+      observation?.firstInbound?.occurredAt ?? null,
       start,
       end,
     );
