@@ -30,7 +30,7 @@ export function buildOverviewAnalysis(
 
   const contactedLeads = observations.filter(
     (observation) =>
-      observation.firstOutbound !== null,
+      observation.evidence.outbound.state === "observed",
   ).length;
 
   const respondedLeads = observations.filter(

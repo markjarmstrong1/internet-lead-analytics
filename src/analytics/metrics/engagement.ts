@@ -59,7 +59,7 @@ export function buildEngagementAnalysis(
 
   const contacted = observations.filter(
     (observation) =>
-      observation.firstOutbound !== null,
+      observation.evidence.outbound.state === "observed",
   );
 
   const responded = contacted.filter(
