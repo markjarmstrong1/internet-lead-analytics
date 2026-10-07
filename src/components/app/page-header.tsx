@@ -14,7 +14,7 @@ export function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-6 border-b border-[var(--border)] pb-6">
+    <header className="theme-density flex flex-wrap items-end justify-between gap-6 border-b border-[var(--border)] pb-[calc(1.5rem*var(--content-density))]">
       <div>
         {eyebrow ? (
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-strong)]">

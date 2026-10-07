@@ -223,7 +223,7 @@ export function AppShell({ children }: AppShellProps) {
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={[
             "absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full",
-            "border border-[var(--border-strong)] bg-white text-xs font-semibold text-[var(--muted-strong)]",
+            "border border-[var(--border-strong)] bg-[var(--surface)] text-xs font-semibold text-[var(--muted-strong)]",
             "shadow-sm transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
           ].join(" ")}
         >
