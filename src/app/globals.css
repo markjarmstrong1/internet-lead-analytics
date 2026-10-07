@@ -544,3 +544,419 @@ textarea {
 .theme-density {
   --density-space: calc(1rem * var(--content-density));
 }
+
+/* ==========================================================================
+   THEME PERSONALITY LAYER
+   These styles intentionally override legacy utility styling so each theme
+   has a genuinely different visual language.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   PROFESSIONAL — management intelligence / financial BI
+   -------------------------------------------------------------------------- */
+
+[data-theme="professional"] main {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.35) 0%,
+      transparent 240px
+    );
+}
+
+[data-theme="professional"] section {
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme="professional"] table tbody tr {
+  transition:
+    background-color var(--motion-duration) ease,
+    box-shadow var(--motion-duration) ease;
+}
+
+[data-theme="professional"] table tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+[data-theme="professional"] .theme-density {
+  --density-space: calc(1rem * var(--content-density));
+}
+
+
+/* --------------------------------------------------------------------------
+   TECH — F1 / telemetry / engineering workstation
+   -------------------------------------------------------------------------- */
+
+[data-theme="tech"] {
+  --tech-line: rgba(37, 216, 255, 0.075);
+  --tech-glow: rgba(37, 216, 255, 0.18);
+  --tech-red: #ff4054;
+  --tech-yellow: #ffd166;
+}
+
+[data-theme="tech"] main {
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(37, 216, 255, 0.025),
+      transparent 180px
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(100% - 1px),
+      var(--tech-line) calc(100% - 1px)
+    );
+}
+
+[data-theme="tech"] main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 31px,
+      rgba(37, 216, 255, 0.018) 32px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 79px,
+      rgba(37, 216, 255, 0.014) 80px
+    );
+  mask-image: linear-gradient(to bottom, black, transparent 75%);
+}
+
+[data-theme="tech"] section {
+  border-color: #263641 !important;
+  border-radius: 4px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025),
+    0 8px 28px rgba(0,0,0,0.24) !important;
+}
+
+[data-theme="tech"] section > div:first-child {
+  border-color: #25333d !important;
+}
+
+[data-theme="tech"] section h2 {
+  font-family: var(--data-font);
+  font-size: 12px;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+[data-theme="tech"] article {
+  border-color: #263641 !important;
+  border-radius: 4px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.025),
+    0 6px 20px rgba(0,0,0,0.18) !important;
+}
+
+[data-theme="tech"] article p.text-3xl,
+[data-theme="tech"] article p.text-2xl,
+[data-theme="tech"] article p.text-xl {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+}
+
+[data-theme="tech"] table thead {
+  background: #090e13 !important;
+}
+
+[data-theme="tech"] table th {
+  color: #718894 !important;
+  border-bottom-color: #263641 !important;
+}
+
+[data-theme="tech"] table tbody tr {
+  border-color: #1c2830 !important;
+  transition:
+    background-color 80ms ease,
+    box-shadow 80ms ease;
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(37, 216, 255, 0.045) !important;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+[data-theme="tech"] button {
+  border-radius: 3px;
+}
+
+[data-theme="tech"] button:hover {
+  box-shadow: inset 0 0 0 1px rgba(37,216,255,0.08);
+}
+
+[data-theme="tech"] [class*="bg-white"] {
+  background-color: var(--surface) !important;
+}
+
+[data-theme="tech"] [class*="bg-white/"] {
+  background-color: color-mix(
+    in srgb,
+    var(--surface) 92%,
+    transparent
+  ) !important;
+}
+
+[data-theme="tech"] [class*="shadow-sm"] {
+  box-shadow: 0 0 0 1px #263641 !important;
+}
+
+[data-theme="tech"] [class*="border-b"] {
+  border-bottom-color: #263641;
+}
+
+[data-theme="tech"] .theme-technical {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="tech"] .theme-technical::after {
+  content: "LIVE // TELEMETRY";
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-family: var(--data-font);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+[data-theme="tech"] nav a,
+[data-theme="tech"] aside a {
+  border-radius: 3px !important;
+  font-family: var(--data-font);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="tech"] aside a:hover {
+  background: rgba(37,216,255,0.06) !important;
+  color: #dff9ff !important;
+}
+
+[data-theme="tech"] aside a[aria-current="page"],
+[data-theme="tech"] aside a[data-active="true"] {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(37,216,255,0.16),
+      rgba(37,216,255,0.025)
+    ) !important;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+[data-theme="tech"] aside {
+  border-right-color: #1d2a32 !important;
+}
+
+[data-theme="tech"] aside::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    transparent,
+    var(--accent),
+    transparent
+  );
+  opacity: 0.35;
+}
+
+[data-theme="tech"] input,
+[data-theme="tech"] select,
+[data-theme="tech"] textarea {
+  font-family: var(--data-font);
+  font-size: 12px;
+}
+
+[data-theme="tech"] input::placeholder,
+[data-theme="tech"] textarea::placeholder {
+  color: #52636e;
+}
+
+[data-theme="tech"] ::selection {
+  background: var(--accent);
+  color: #021015;
+}
+
+[data-theme="tech"] ::-webkit-scrollbar-thumb {
+  background: #31434e;
+}
+
+[data-theme="tech"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+
+/* --------------------------------------------------------------------------
+   EXECUTIVE — premium boardroom / financial intelligence
+   -------------------------------------------------------------------------- */
+
+[data-theme="executive"] main {
+  background:
+    radial-gradient(
+      circle at 85% 0%,
+      rgba(54,81,111,0.045),
+      transparent 420px
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.28),
+      transparent 280px
+    );
+}
+
+[data-theme="executive"] section {
+  box-shadow: var(--shadow-card) !important;
+}
+
+[data-theme="executive"] section h2 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+[data-theme="executive"] article {
+  box-shadow: var(--shadow-card) !important;
+}
+
+[data-theme="executive"] article p.text-3xl,
+[data-theme="executive"] article p.text-2xl {
+  font-family: var(--display-font);
+  font-weight: 500;
+}
+
+[data-theme="executive"] table th {
+  font-size: 10px;
+  letter-spacing: 0.11em;
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: rgba(54,81,111,0.035);
+}
+
+[data-theme="executive"] button {
+  letter-spacing: -0.005em;
+}
+
+[data-theme="executive"] aside {
+  border-right-color: #263546 !important;
+}
+
+
+/* --------------------------------------------------------------------------
+   PERFORMANCE — race control / operations center
+   -------------------------------------------------------------------------- */
+
+[data-theme="performance"] main {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.5),
+      transparent 180px
+    );
+}
+
+[data-theme="performance"] section {
+  border-radius: 5px !important;
+  box-shadow:
+    0 1px 2px rgba(17,26,34,0.08) !important;
+}
+
+[data-theme="performance"] section h2 {
+  font-family: var(--data-font);
+  font-size: 12px;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+[data-theme="performance"] article {
+  border-radius: 5px !important;
+}
+
+[data-theme="performance"] article p.text-3xl,
+[data-theme="performance"] article p.text-2xl,
+[data-theme="performance"] article p.text-xl {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="performance"] table {
+  font-size: 12px;
+}
+
+[data-theme="performance"] table th {
+  background: #edf1f3 !important;
+  color: #51616c !important;
+  font-family: var(--data-font);
+  font-size: 9px;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+[data-theme="performance"] table tbody tr {
+  border-color: #d7dee3 !important;
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #fff7eb !important;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+[data-theme="performance"] [class*="bg-white"] {
+  background-color: var(--surface) !important;
+}
+
+[data-theme="performance"] button {
+  border-radius: 4px;
+}
+
+[data-theme="performance"] aside {
+  border-right-color: #34414a !important;
+}
+
+[data-theme="performance"] aside a:hover {
+  background: rgba(239,139,34,0.08) !important;
+}
+
+[data-theme="performance"] input,
+[data-theme="performance"] select,
+[data-theme="performance"] textarea {
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+
+/* --------------------------------------------------------------------------
+   SHARED DATA LANGUAGE
+   -------------------------------------------------------------------------- */
+
+[data-theme="tech"] .tabular-nums,
+[data-theme="performance"] .tabular-nums {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] [class*="text-[11px]"],
+[data-theme="performance"] [class*="text-[11px]"] {
+  letter-spacing: 0.055em;
+}
+
+[data-theme="tech"] [class*="rounded-[10px]"],
+[data-theme="tech"] [class*="rounded-[14px]"],
+[data-theme="performance"] [class*="rounded-[10px]"],
+[data-theme="performance"] [class*="rounded-[14px]"] {
+  border-radius: 4px !important;
+}
