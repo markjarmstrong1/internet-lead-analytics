@@ -20,12 +20,12 @@ export async function LeadListPage() {
       <LeadsNavigation active="list" />
 
       <SectionPanel
-        title="All leads"
+        title="Lead queue"
         description={`${leads.length} canonical lead${
           leads.length === 1 ? "" : "s"
-        } loaded from Supabase.`}
+        } available for investigation.`}
       >
-        <div className="overflow-hidden rounded-lg border border-slate-200">
+        <div className="overflow-hidden rounded-[10px] border bg-white">
           <LeadListTable leads={leads} />
         </div>
       </SectionPanel>
