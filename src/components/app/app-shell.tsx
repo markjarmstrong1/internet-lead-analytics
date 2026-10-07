@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore, type ReactNode } from "react";
 import { useNavigationLayout } from "./navigation-preference";
+import { GlobalSearch } from "./global-search";
 
 const navigation = [
   { label: "Dashboard", href: "/" },
@@ -256,12 +257,9 @@ export function AppShell({ children }: AppShellProps) {
             </Link>
 
             <div className="flex min-w-0 flex-1 justify-center">
-              <input
-                type="search"
-                placeholder="Search leads, metrics, reports..."
-                aria-label="Smart search"
-                className="w-full max-w-xl rounded-lg border bg-[var(--surface-muted)] px-4 py-2 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:bg-white"
-              />
+              <div className="w-full max-w-xl">
+                <GlobalSearch />
+              </div>
             </div>
           </div>
 
@@ -359,12 +357,7 @@ function TopBarNavigation({ pathname }: { pathname: string }) {
         </Link>
 
         <div className="w-[min(30vw,420px)]">
-          <input
-            type="search"
-            placeholder="Search leads, metrics, reports..."
-            aria-label="Smart search"
-            className="w-full rounded-lg border border-white/10 bg-white/[0.08] px-4 py-2 text-sm text-white outline-none placeholder:text-[var(--sidebar-muted)] focus:border-[var(--accent)] focus:bg-white/[0.12]"
-          />
+          <GlobalSearch variant="dark" />
         </div>
 
         <div className="flex items-center justify-end gap-0.5 whitespace-nowrap lg:gap-1">
