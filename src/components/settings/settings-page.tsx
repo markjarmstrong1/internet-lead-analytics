@@ -136,6 +136,30 @@ export function SettingsPage() {
           </SectionPanel>
 
           <SectionPanel
+            title="Theme philosophy"
+            description="The theme changes the way information is presented, not the underlying analytics."
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ThemePrinciple
+                title="Professional"
+                text="Financial BI: evidence, hierarchy, and disciplined comparison."
+              />
+              <ThemePrinciple
+                title="Tech"
+                text="Telemetry: signals, system state, event density, and live status."
+              />
+              <ThemePrinciple
+                title="Executive"
+                text="Boardroom: fewer signals, stronger narrative, more whitespace."
+              />
+              <ThemePrinciple
+                title="Performance"
+                text="Race control: dense metrics, exceptions, and rapid scanning."
+              />
+            </div>
+          </SectionPanel>
+
+          <SectionPanel
             title="Visual controls"
             description="Fine-tune the interface without changing the underlying product."
           >
@@ -294,36 +318,48 @@ function ThemeOption({
     >
       <div
         className={[
-          "relative h-32 overflow-hidden rounded-[var(--radius-md)] border",
+          "theme-showroom relative h-36 overflow-hidden rounded-[var(--radius-md)] border",
           theme.className,
         ].join(" ")}
       >
-        <div className="absolute inset-y-0 left-0 w-9 bg-black/70" />
+        <div className="absolute inset-y-0 left-0 w-10 bg-black/70" />
 
-        <div className="absolute left-12 right-3 top-3 flex items-center justify-between">
-          <span className="text-[7px] font-bold uppercase tracking-[0.16em] text-black/50">
-            {theme.mode}
-          </span>
-          <span className="h-1.5 w-1.5 rounded-full bg-current opacity-40" />
+        <div className="absolute left-14 right-4 top-3 flex items-center justify-between">
+          <div>
+            <span className="block text-[7px] font-bold uppercase tracking-[0.16em] opacity-60">
+              {theme.mode}
+            </span>
+            <span className="mt-1 block text-[10px] font-semibold">
+              Internet Lead Intelligence
+            </span>
+          </div>
+
+          <span className="theme-showroom-status h-1.5 w-1.5 rounded-full" />
         </div>
 
-        <div className="absolute left-12 right-3 top-9 grid grid-cols-3 gap-1.5">
-          {theme.preview.map((color) => (
+        <div className="absolute left-14 right-4 top-12 grid grid-cols-3 gap-2">
+          {theme.preview.map((color, index) => (
             <span
               key={color}
-              className={`h-8 rounded-sm border border-black/5 ${color}`}
-            />
+              className={`theme-showroom-card h-9 rounded-sm border border-black/5 ${color}`}
+            >
+              <span className="block p-1.5 text-[6px] opacity-50">
+                {index === 0 ? "LEADS" : index === 1 ? "RESP" : "OUT"}
+              </span>
+            </span>
           ))}
         </div>
 
-        <div className="absolute bottom-3 left-12 right-3 flex items-end gap-1">
-          {[18, 27, 14, 34, 24, 40, 30, 44].map((height, index) => (
-            <span
-              key={index}
-              className="flex-1 rounded-t-sm bg-black/15"
-              style={{ height }}
-            />
-          ))}
+        <div className="absolute bottom-3 left-14 right-4 flex items-end gap-1">
+          {[18, 27, 14, 34, 24, 40, 30, 44, 31, 38].map(
+            (height, index) => (
+              <span
+                key={index}
+                className="theme-showroom-bar flex-1 rounded-t-sm"
+                style={{ height }}
+              />
+            ),
+          )}
         </div>
       </div>
 
@@ -343,6 +379,21 @@ function ThemeOption({
         {theme.description}
       </p>
     </button>
+  );
+}
+
+function ThemePrinciple({
+  title,
+  text,
+}: {
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="rounded-[var(--radius-md)] border bg-[var(--surface-muted)] p-4">
+      <p className="text-sm font-semibold">{title}</p>
+      <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{text}</p>
+    </div>
   );
 }
 

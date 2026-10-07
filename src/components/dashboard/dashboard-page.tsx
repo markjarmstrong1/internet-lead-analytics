@@ -4,6 +4,7 @@ import { EvidenceState } from "@/components/app/evidence-state";
 import { MetricCard } from "@/components/app/metric-card";
 import { PageHeader } from "@/components/app/page-header";
 import { SectionPanel } from "@/components/app/section-panel";
+import { ThemeSignature } from "@/components/app/theme-signature";
 import { getDashboardMetrics } from "./dashboard-repository";
 
 export async function DashboardPage() {
@@ -39,8 +40,14 @@ export async function DashboardPage() {
         description="A concise view of lead volume, engagement, conversations, appointments, and observed sales evidence."
       />
 
+      <ThemeSignature
+        primary={String(metrics.totalLeads)}
+        secondary={`${responseCoverage}%`}
+        tertiary={String(metrics.sales)}
+      />
+
       <section>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="dashboard-kpis grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <MetricCard
             label="Active leads"
             value={String(metrics.activeLeads)}
@@ -74,7 +81,7 @@ export async function DashboardPage() {
         </div>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[1.45fr_0.55fr]">
+      <div className="dashboard-secondary grid gap-6 xl:grid-cols-[1.45fr_0.55fr]">
         <SectionPanel
           title="What needs attention?"
           description="The dashboard highlights observable gaps rather than pretending to reconstruct a perfect funnel."

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
 import { Card, minutes, pct } from "./analytics-section-page";
+import { ThemeSignature } from "@/components/app/theme-signature";
 
 const links = [
   {
@@ -106,6 +107,12 @@ export function AnalyticsOverview({
           />
         </div>
       </div>
+
+      <ThemeSignature
+        primary={String(analysis.acquisition.leads)}
+        secondary={pct(analysis.engagement.responseRate)}
+        tertiary={pct(analysis.progression.soldClosedRateOfAll)}
+      />
 
       <Card
         title="Where are we losing leads?"
@@ -626,7 +633,7 @@ function MetricBar({
 
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
         <div
-          className="h-full rounded-full bg-slate-800 transition-all"
+          className="theme-chart-bar h-full rounded-full bg-[var(--accent)] transition-all"
           style={{ width: `${width}%` }}
         />
       </div>

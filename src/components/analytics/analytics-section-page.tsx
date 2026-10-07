@@ -175,7 +175,7 @@ export function Bars({
 
           <div className="h-1.5 overflow-hidden rounded-full bg-[var(--surface-muted)]">
             <div
-              className="h-full rounded-full bg-[var(--accent)]"
+              className="theme-chart-bar h-full rounded-full bg-[var(--accent)]"
               style={{ width: `${(row.value / max) * 100}%` }}
             />
           </div>

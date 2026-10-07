@@ -1235,3 +1235,477 @@ textarea {
 [data-chart="minimal"] {
   --chart-grid: transparent;
 }
+
+/* ==========================================================================
+   THEME EXPERIENCES
+   Same product architecture. Different operating environments.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Signature components
+   -------------------------------------------------------------------------- */
+
+.theme-signature {
+  overflow: hidden;
+}
+
+.theme-signature-professional,
+.theme-signature-tech,
+.theme-signature-executive,
+.theme-signature-performance {
+  min-height: 68px;
+}
+
+[data-theme="professional"] .theme-signature-professional,
+[data-theme="tech"] .theme-signature-tech,
+[data-theme="executive"] .theme-signature-executive,
+[data-theme="performance"] .theme-signature-performance {
+  display: flex;
+}
+
+.theme-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--tech-green);
+  box-shadow: 0 0 12px rgba(38, 227, 154, 0.7);
+}
+
+.theme-performance-marker {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent);
+  color: var(--accent-strong);
+  font: 700 10px var(--data-font);
+}
+
+.theme-performance-rule {
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0 18px,
+    transparent 18px 24px
+  );
+  opacity: 0.55;
+}
+
+/* --------------------------------------------------------------------------
+   Shared theme-aware chart language
+   -------------------------------------------------------------------------- */
+
+.theme-chart-bar {
+  transition:
+    width var(--motion-duration) ease,
+    opacity var(--motion-duration) ease;
+}
+
+[data-theme="professional"] .theme-chart-bar {
+  background: var(--accent) !important;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  background: linear-gradient(
+    90deg,
+    var(--tech-cyan),
+    #7ef2ff
+  ) !important;
+  box-shadow: 0 0 10px rgba(40, 217, 255, 0.18);
+}
+
+[data-theme="executive"] .theme-chart-bar {
+  background: var(--accent) !important;
+  border-radius: 2px !important;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  background: var(--accent) !important;
+  border-radius: 1px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard composition
+   -------------------------------------------------------------------------- */
+
+.dashboard-kpis {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+[data-theme="executive"] .dashboard-kpis {
+  grid-template-columns:
+    minmax(180px, 1.35fr)
+    repeat(4, minmax(0, 1fr));
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 2px !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+[data-theme="performance"] .dashboard-kpis article {
+  border-radius: 3px !important;
+}
+
+[data-theme="executive"] .dashboard-secondary {
+  max-width: 1100px;
+}
+
+[data-theme="tech"] .dashboard-secondary {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="performance"] .dashboard-secondary {
+  font-size: 0.92em;
+}
+
+[data-theme="performance"] .dashboard-secondary section > div:last-child {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Professional: financial intelligence
+   -------------------------------------------------------------------------- */
+
+[data-theme="professional"] .dashboard-kpis article {
+  position: relative;
+}
+
+[data-theme="professional"] .dashboard-kpis article::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.35;
+}
+
+[data-theme="professional"] .theme-signature {
+  border-top: 2px solid var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Tech: engineering workstation / telemetry
+   -------------------------------------------------------------------------- */
+
+[data-theme="tech"] {
+  --tech-cyan: #28d9ff;
+  --tech-cyan-soft: rgba(40, 217, 255, 0.09);
+  --tech-green: #26e39a;
+  --tech-yellow: #ffd166;
+  --tech-red: #ff5364;
+  --tech-grid: rgba(40, 217, 255, 0.045);
+  --tech-grid-fine: rgba(40, 217, 255, 0.018);
+}
+
+[data-theme="tech"] body {
+  background:
+    radial-gradient(
+      circle at 70% -10%,
+      rgba(40, 217, 255, 0.07),
+      transparent 34rem
+    ),
+    var(--background);
+}
+
+[data-theme="tech"] main {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(40, 217, 255, 0.025),
+      transparent 240px
+    );
+}
+
+[data-theme="tech"] main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--tech-grid-fine) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tech-grid-fine) 1px, transparent 1px),
+    linear-gradient(var(--tech-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tech-grid) 1px, transparent 1px);
+  background-size:
+    8px 8px,
+    8px 8px,
+    80px 80px,
+    80px 80px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+[data-theme="tech"] aside a {
+  border-radius: 3px !important;
+  font-family: var(--data-font);
+  font-size: 11px;
+  letter-spacing: 0.025em;
+}
+
+[data-theme="tech"] aside a[aria-current="page"] {
+  position: relative;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(40, 217, 255, 0.16),
+      rgba(40, 217, 255, 0.025)
+    ) !important;
+  color: #e8fbff !important;
+  box-shadow: inset 2px 0 0 var(--tech-cyan);
+}
+
+[data-theme="tech"] section,
+[data-theme="tech"] article {
+  position: relative;
+  overflow: hidden;
+  border-color: #23343e !important;
+  border-radius: 5px !important;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.018),
+      transparent 42%
+    ),
+    var(--surface) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 10px 30px rgba(0, 0, 0, 0.22) !important;
+}
+
+[data-theme="tech"] section::before,
+[data-theme="tech"] article::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 1px;
+  background: var(--tech-cyan);
+  opacity: 0.75;
+}
+
+[data-theme="tech"] section h2 {
+  font-family: var(--data-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+[data-theme="tech"] article p.text-3xl,
+[data-theme="tech"] article p.text-2xl,
+[data-theme="tech"] article p.text-xl {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="tech"] .theme-signature {
+  border-color: #294450 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(40, 217, 255, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="tech"] .theme-signature-tech {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(40, 217, 255, 0.045),
+      transparent 70%
+    );
+}
+
+[data-theme="tech"] .theme-live {
+  color: var(--tech-green);
+}
+
+[data-theme="tech"] .theme-warning {
+  color: var(--tech-yellow);
+}
+
+[data-theme="tech"] .theme-danger {
+  color: var(--tech-red);
+}
+
+[data-theme="tech"] a:hover,
+[data-theme="tech"] button:hover {
+  text-shadow: 0 0 10px rgba(40, 217, 255, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   Executive: boardroom / editorial
+   -------------------------------------------------------------------------- */
+
+[data-theme="executive"] main {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.35),
+      transparent 360px
+    );
+}
+
+[data-theme="executive"] .theme-signature {
+  border-left: 3px solid var(--accent);
+}
+
+[data-theme="executive"] .theme-signature-executive {
+  min-height: 84px;
+}
+
+[data-theme="executive"] .dashboard-kpis article {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="executive"] .dashboard-kpis article:first-child {
+  border-top: 2px solid var(--accent) !important;
+}
+
+[data-theme="executive"] .dashboard-kpis article p.text-3xl {
+  font-family: var(--display-font);
+  font-size: 2.15rem;
+  font-weight: 500;
+}
+
+[data-theme="executive"] .dashboard-secondary section {
+  box-shadow: none !important;
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: transparent;
+}
+
+[data-theme="executive"] a:hover,
+[data-theme="executive"] button:hover {
+  box-shadow: 0 1px 0 var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Performance: race control / operations
+   -------------------------------------------------------------------------- */
+
+[data-theme="performance"] .dashboard-kpis article {
+  box-shadow: none !important;
+  padding: 0.9rem !important;
+}
+
+[data-theme="performance"] .dashboard-kpis article p.text-3xl {
+  font-family: var(--data-font);
+  font-size: 1.65rem;
+  font-weight: 600;
+}
+
+[data-theme="performance"] .theme-signature {
+  border-top: 3px solid var(--accent);
+  border-radius: 3px !important;
+}
+
+[data-theme="performance"] table th {
+  font-family: var(--data-font);
+}
+
+[data-theme="performance"] table td {
+  font-family: var(--data-font);
+  font-size: 0.78rem;
+}
+
+[data-theme="performance"] .dashboard-secondary section {
+  border-radius: 4px !important;
+}
+
+[data-theme="performance"] a:hover,
+[data-theme="performance"] button:hover {
+  transform: translateY(-1px);
+}
+
+[data-theme="performance"] .theme-data {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Chart personalities
+   -------------------------------------------------------------------------- */
+
+[data-theme="professional"] .theme-chart-bar {
+  background: var(--accent) !important;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  background:
+    linear-gradient(
+      90deg,
+      var(--tech-cyan),
+      #7ef2ff
+    ) !important;
+  box-shadow: 0 0 10px rgba(40, 217, 255, 0.18);
+}
+
+[data-theme="executive"] .theme-chart-bar {
+  background: var(--accent) !important;
+  border-radius: 2px !important;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  background: var(--accent) !important;
+  border-radius: 1px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive / accessibility
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1279px) {
+  .dashboard-kpis,
+  [data-theme="executive"] .dashboard-kpis,
+  [data-theme="performance"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="tech"] .theme-live-dot {
+    box-shadow: none;
+  }
+
+  [data-theme="performance"] a:hover,
+  [data-theme="performance"] button:hover {
+    transform: none;
+  }
+}
+
+.theme-showroom {
+  color: var(--foreground);
+}
+
+.theme-showroom-status {
+  background: var(--accent);
+}
+
+.theme-showroom-bar {
+  background: var(--accent);
+  opacity: 0.72;
+}
+
+[data-theme="tech"] .theme-showroom-bar {
+  background: var(--tech-cyan);
+  box-shadow: 0 0 8px rgba(40, 217, 255, 0.22);
+}
+
+[data-theme="performance"] .theme-showroom-bar {
+  background: var(--accent);
+}
+
+[data-theme="executive"] .theme-showroom-bar {
+  background: var(--accent);
+}
+
