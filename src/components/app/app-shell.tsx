@@ -241,7 +241,12 @@ export function AppShell({ children }: AppShellProps) {
               : "0px",
         }}
       >
-        <header className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur">
+        <header
+          className={[
+            "border-b bg-white/95 backdrop-blur",
+            navigationLayout === "topbar" ? "lg:hidden" : "",
+          ].join(" ")}
+        >
           <div className="flex min-h-16 items-center gap-4 px-5 lg:px-8">
             <Link
               href="/"
@@ -345,24 +350,24 @@ function TopBarNavigation({ pathname }: { pathname: string }) {
       aria-label="Primary navigation"
       className="sticky top-0 z-40 hidden h-16 border-b bg-[var(--sidebar)] lg:flex"
     >
-      <div className="mx-auto grid w-full max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-6 lg:px-8">
+      <div className="relative mx-auto flex w-full max-w-[1600px] items-center justify-between px-6 lg:px-8">
         <Link
           href="/"
-          className="justify-self-start text-sm font-semibold tracking-tight text-white"
+          className="shrink-0 text-sm font-semibold tracking-tight text-white"
         >
           Internet Lead Analytics
         </Link>
 
-        <div className="w-[min(42vw,560px)]">
+        <div className="pointer-events-none absolute left-1/2 top-1/2 w-[min(36vw,520px)] -translate-x-1/2 -translate-y-1/2">
           <input
             type="search"
             placeholder="Search leads, metrics, reports..."
             aria-label="Smart search"
-            className="w-full rounded-lg border border-white/10 bg-white/[0.08] px-4 py-2 text-sm text-white outline-none placeholder:text-[var(--sidebar-muted)] focus:border-[var(--accent)] focus:bg-white/[0.12]"
+            className="pointer-events-auto w-full rounded-lg border border-white/10 bg-white/[0.08] px-4 py-2 text-sm text-white outline-none placeholder:text-[var(--sidebar-muted)] focus:border-[var(--accent)] focus:bg-white/[0.12]"
           />
         </div>
 
-        <div className="flex min-w-0 items-center justify-self-end gap-1">
+        <div className="flex min-w-0 items-center gap-1">
           {navigation.map((item) => {
             const isActive =
               item.href === "/"
