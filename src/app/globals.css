@@ -2516,3 +2516,479 @@ textarea {
     border-right: 0;
   }
 }
+
+
+/* ============================================================
+   THEME REFINEMENT 2.2
+   Distinct product personalities.
+   Tech = F1 engineering / pit wall.
+   Professional = institutional intelligence.
+   Executive = editorial boardroom.
+   Performance = operations / race control.
+   ============================================================ */
+
+
+/* ============================================================
+   TECH / F1 ENGINEERING
+   ============================================================ */
+
+[data-theme="tech"] {
+  --background: #0a0e12;
+  --surface: #10151a;
+  --surface-muted: #0d1217;
+  --foreground: #e6ebee;
+  --muted: #7c878f;
+  --muted-strong: #b2bcc2;
+  --border: #242c32;
+  --border-strong: #39434b;
+  --accent: #6bc9e6;
+  --accent-strong: #8bd9ee;
+  --accent-soft: rgba(107, 201, 230, .075);
+
+  --theme-panel-radius: 3px;
+}
+
+[data-theme="tech"] body {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] h1,
+[data-theme="tech"] h2,
+[data-theme="tech"] h3 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+[data-theme="tech"] .dashboard-kpis {
+  position: relative;
+  display: grid;
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis::before {
+  content: "PERFORMANCE";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .16em;
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  position: relative;
+  min-height: 104px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 17px 18px;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="tech"] .dashboard-kpis > *::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 2px;
+  background: var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > *:first-child::after {
+  background: var(--accent);
+}
+
+[data-theme="tech"] .theme-signature {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  padding: 14px 16px;
+}
+
+[data-theme="tech"] .theme-signature-label {
+  grid-column: 1 / -1;
+  margin-bottom: 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  color: var(--muted);
+}
+
+[data-theme="tech"] .theme-signature-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -.02em;
+}
+
+[data-theme="tech"] .theme-signature-meta {
+  align-self: end;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+}
+
+[data-theme="tech"] .theme-signature-track {
+  grid-column: 1 / -1;
+  margin-top: 11px;
+  gap: 2px;
+}
+
+[data-theme="tech"] .theme-signature-track span {
+  height: 3px;
+  background: #20272d;
+}
+
+[data-theme="tech"] .theme-signature-track span.is-active {
+  background: var(--accent);
+}
+
+[data-theme="tech"] .dashboard-secondary {
+  position: relative;
+}
+
+[data-theme="tech"] .dashboard-secondary::before {
+  content: "SYSTEM STATUS";
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .16em;
+}
+
+[data-theme="tech"] table {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] table thead th {
+  background: #0c1115;
+  border-bottom: 1px solid var(--border-strong);
+  color: #89949c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+[data-theme="tech"] table tbody tr {
+  border-bottom: 1px solid rgba(57, 67, 75, .55);
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(107, 201, 230, .035);
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  border-radius: 1px;
+  box-shadow: none;
+}
+
+[data-theme="tech"] button,
+[data-theme="tech"] input,
+[data-theme="tech"] select {
+  border-radius: 3px;
+}
+
+[data-theme="tech"] button {
+  font-size: 12px;
+}
+
+[data-theme="tech"] .page-header {
+  border-bottom-color: var(--border-strong);
+}
+
+[data-theme="tech"] .page-header h1 {
+  letter-spacing: -.035em;
+}
+
+
+/* ============================================================
+   PROFESSIONAL / INSTITUTIONAL
+   ============================================================ */
+
+[data-theme="professional"] {
+  --theme-panel-radius: 7px;
+  --theme-panel-shadow: 0 1px 2px rgba(23, 32, 51, .025);
+}
+
+[data-theme="professional"] .dashboard-kpis {
+  gap: 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="professional"] .dashboard-kpis > * {
+  min-height: 104px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 18px 20px;
+}
+
+[data-theme="professional"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="professional"] .theme-signature {
+  border-left: 2px solid var(--accent);
+  padding-left: 15px;
+}
+
+[data-theme="professional"] .theme-signature-label {
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+
+[data-theme="professional"] .theme-signature-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="professional"] .theme-chart-bar {
+  border-radius: 2px;
+}
+
+[data-theme="professional"] table thead th {
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 9px;
+  letter-spacing: .11em;
+}
+
+[data-theme="professional"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="professional"] table tbody tr:hover {
+  background: var(--surface-muted);
+}
+
+
+/* ============================================================
+   EXECUTIVE / EDITORIAL
+   ============================================================ */
+
+[data-theme="executive"] {
+  --background: #f6f4f0;
+  --surface: #fbfaf7;
+  --surface-muted: #efede8;
+  --foreground: #202328;
+  --muted: #77746d;
+  --muted-strong: #4d4c48;
+  --border: #ddd9d1;
+  --border-strong: #c3beb5;
+  --accent: #82653a;
+  --accent-strong: #664e2c;
+  --accent-soft: #eee7db;
+  --theme-panel-radius: 0;
+  --theme-panel-shadow: none;
+}
+
+[data-theme="executive"] h1 {
+  max-width: 820px;
+  font-size: clamp(2.5rem, 4.5vw, 4rem);
+  font-weight: 500;
+  line-height: .98;
+  letter-spacing: -.06em;
+}
+
+[data-theme="executive"] h2 {
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -.035em;
+}
+
+[data-theme="executive"] .dashboard-kpis {
+  gap: 0;
+  margin-top: 12px;
+  border-top: 1px solid var(--foreground);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="executive"] .dashboard-kpis > * {
+  min-height: 116px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 25px 22px;
+}
+
+[data-theme="executive"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="executive"] .theme-signature {
+  display: none;
+}
+
+[data-theme="executive"] .page-header {
+  padding-bottom: 34px;
+}
+
+[data-theme="executive"] .page-header p {
+  max-width: 600px;
+  margin-top: 15px;
+  line-height: 1.8;
+}
+
+[data-theme="executive"] table thead th {
+  border-bottom: 1px solid var(--foreground);
+  background: transparent;
+  font-size: 9px;
+  letter-spacing: .14em;
+}
+
+[data-theme="executive"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: transparent;
+}
+
+[data-theme="executive"] .theme-chart-bar {
+  border-radius: 0;
+}
+
+
+/* ============================================================
+   PERFORMANCE / OPERATIONS
+   ============================================================ */
+
+[data-theme="performance"] {
+  --background: #eceeef;
+  --surface: #fff;
+  --surface-muted: #e3e6e8;
+  --foreground: #181c20;
+  --muted: #68717a;
+  --muted-strong: #3d464e;
+  --border: #c9ced2;
+  --border-strong: #aab2b8;
+  --accent: #d94c26;
+  --accent-strong: #b83d1e;
+  --accent-soft: #f7e4de;
+  --theme-panel-radius: 5px;
+  --theme-panel-shadow: 0 1px 2px rgba(24, 28, 32, .07);
+}
+
+[data-theme="performance"] h1,
+[data-theme="performance"] h2,
+[data-theme="performance"] h3 {
+  font-weight: 700;
+  letter-spacing: -.045em;
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 6px;
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  min-height: 100px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--border-strong);
+  border-radius: 5px;
+  background: var(--surface);
+  box-shadow: var(--theme-panel-shadow);
+  padding: 16px 17px;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent);
+}
+
+[data-theme="performance"] .theme-signature {
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: var(--surface);
+  padding: 12px 15px;
+}
+
+[data-theme="performance"] .theme-signature-label {
+  font-size: 8px;
+  letter-spacing: .12em;
+}
+
+[data-theme="performance"] .theme-signature-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  border-radius: 1px;
+}
+
+[data-theme="performance"] table thead th {
+  background: #dfe3e6;
+  border-bottom: 1px solid var(--border-strong);
+  color: #3d464e;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+[data-theme="performance"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #f1f3f4;
+}
+
+[data-theme="performance"] .page-header {
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--foreground);
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+  [data-theme="tech"] .dashboard-kpis,
+  [data-theme="professional"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="tech"] .dashboard-kpis > *,
+  [data-theme="professional"] .dashboard-kpis > * {
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 640px) {
+  [data-theme="tech"] .dashboard-kpis,
+  [data-theme="professional"] .dashboard-kpis,
+  [data-theme="executive"] .dashboard-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  [data-theme="tech"] .dashboard-kpis > *:nth-child(2n),
+  [data-theme="professional"] .dashboard-kpis > *:nth-child(2n),
+  [data-theme="executive"] .dashboard-kpis > *:nth-child(2n) {
+    border-right: 0;
+  }
+}
