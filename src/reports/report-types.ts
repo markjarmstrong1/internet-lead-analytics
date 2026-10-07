@@ -36,11 +36,20 @@ export type ReportDateRange = {
   end: string | null;
 };
 
+export type ReportEvidenceFilters = {
+  outbound: "any" | "observed" | "not_observed";
+  response: "any" | "observed" | "not_observed";
+  appointment: "any" | "observed" | "not_observed";
+  outcome: "any" | "observed" | "not_observed";
+  responseWithin24h: "any" | "yes" | "no";
+};
+
 export type ReportFilters = {
   sources: string[];
   sourceGroups: string[];
   stages: string[];
   statuses: string[];
+  evidence: ReportEvidenceFilters;
 };
 
 export type ReportDefinition = {
