@@ -1709,3 +1709,443 @@ textarea {
   background: var(--accent);
 }
 
+
+
+/* ============================================================
+   THEME REFINEMENT 2.0
+   Each personality gets its own visual grammar.
+   ============================================================ */
+
+/* ---------- Shared composition ---------- */
+
+.dashboard-kpis {
+  position: relative;
+}
+
+.dashboard-secondary {
+  position: relative;
+}
+
+.dashboard-kpis > *,
+.dashboard-secondary > * {
+  min-width: 0;
+}
+
+/* ---------- Professional
+   Financial intelligence / institutional / precise ---------- */
+
+[data-theme="professional"] {
+  --theme-heading-spacing: -0.035em;
+  --theme-panel-radius: 10px;
+  --theme-panel-shadow: 0 1px 2px rgba(23, 32, 51, 0.035);
+  --theme-grid-opacity: 0;
+  --theme-rule: var(--border);
+}
+
+[data-theme="professional"] h1,
+[data-theme="professional"] h2,
+[data-theme="professional"] h3 {
+  letter-spacing: var(--theme-heading-spacing);
+}
+
+[data-theme="professional"] .dashboard-kpis {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+[data-theme="professional"] .dashboard-kpis > * {
+  border-radius: var(--theme-panel-radius);
+  box-shadow: var(--theme-panel-shadow);
+}
+
+[data-theme="professional"] .dashboard-kpis > *:first-child {
+  border-top: 2px solid var(--accent);
+}
+
+[data-theme="professional"] .theme-signature {
+  border-left: 3px solid var(--accent);
+  padding-left: 18px;
+}
+
+[data-theme="professional"] .theme-signature-label {
+  letter-spacing: 0.16em;
+}
+
+[data-theme="professional"] .theme-chart-bar {
+  border-radius: 2px;
+}
+
+[data-theme="professional"] table thead th {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+[data-theme="professional"] table tbody tr {
+  transition: background-color 120ms ease;
+}
+
+[data-theme="professional"] table tbody tr:hover {
+  background: var(--surface-muted);
+}
+
+
+/* ---------- Tech
+   Engineering workstation / telemetry / instrument panel ---------- */
+
+[data-theme="tech"] {
+  --background: #0b1015;
+  --surface: #10171e;
+  --surface-muted: #0d141b;
+  --foreground: #e7edf2;
+  --muted: #82909d;
+  --muted-strong: #aeb9c2;
+  --border: #26323d;
+  --border-strong: #354452;
+  --accent: #35d4ff;
+  --accent-strong: #65e0ff;
+  --accent-soft: rgba(53, 212, 255, 0.08);
+  --theme-panel-radius: 4px;
+  --theme-panel-shadow: none;
+  --theme-heading-spacing: -0.02em;
+}
+
+[data-theme="tech"] body {
+  background:
+    linear-gradient(rgba(53, 212, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(53, 212, 255, 0.025) 1px, transparent 1px),
+    var(--background);
+  background-size: 32px 32px;
+}
+
+[data-theme="tech"] .dashboard-kpis {
+  gap: 1px;
+  padding: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  border-radius: 2px;
+  box-shadow: none;
+  background: var(--surface);
+}
+
+[data-theme="tech"] .dashboard-kpis > *::before {
+  content: "";
+  display: block;
+  height: 2px;
+  margin: -1px 0 10px;
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    transparent 75%
+  );
+  opacity: 0.7;
+}
+
+[data-theme="tech"] .theme-signature {
+  position: relative;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(90deg, rgba(53,212,255,.06), transparent 55%),
+    var(--surface);
+  border-radius: 3px;
+  padding: 14px 16px;
+}
+
+[data-theme="tech"] .theme-signature::after {
+  content: "LIVE";
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+}
+
+[data-theme="tech"] .theme-signature-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+}
+
+[data-theme="tech"] .theme-signature-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  border-radius: 1px;
+  box-shadow: 0 0 12px rgba(53, 212, 255, 0.18);
+}
+
+[data-theme="tech"] table thead th {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+[data-theme="tech"] table tbody td {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(53, 212, 255, 0.045);
+}
+
+[data-theme="tech"] .panel,
+[data-theme="tech"] [class*="rounded"] {
+  border-radius: var(--theme-panel-radius);
+}
+
+[data-theme="tech"] .page-header {
+  position: relative;
+}
+
+[data-theme="tech"] .page-header::before {
+  content: "SYSTEM / ANALYTICS";
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+}
+
+
+/* ---------- Executive
+   Editorial / boardroom / premium restraint ---------- */
+
+[data-theme="executive"] {
+  --background: #f5f3ef;
+  --surface: #fbfaf7;
+  --surface-muted: #efede8;
+  --foreground: #20242a;
+  --muted: #74736f;
+  --muted-strong: #4e4e4a;
+  --border: #dcd9d1;
+  --border-strong: #c8c4bb;
+  --accent: #8d6b37;
+  --accent-strong: #72552d;
+  --accent-soft: #eee7da;
+  --theme-panel-radius: 0;
+  --theme-panel-shadow: none;
+}
+
+[data-theme="executive"] h1 {
+  font-size: clamp(2.25rem, 4vw, 3.8rem);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="executive"] h2 {
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+[data-theme="executive"] .dashboard-kpis {
+  gap: 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="executive"] .dashboard-kpis > * {
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 22px 24px;
+}
+
+[data-theme="executive"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="executive"] .theme-signature {
+  display: none;
+}
+
+[data-theme="executive"] table thead th {
+  border-bottom: 1px solid var(--foreground);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--muted-strong);
+}
+
+[data-theme="executive"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: transparent;
+}
+
+[data-theme="executive"] .theme-chart-bar {
+  border-radius: 0;
+}
+
+[data-theme="executive"] .page-header {
+  padding-bottom: 28px;
+}
+
+[data-theme="executive"] .page-header p {
+  max-width: 620px;
+}
+
+
+/* ---------- Performance
+   Race control / operational / fast decisions ---------- */
+
+[data-theme="performance"] {
+  --background: #eef0f1;
+  --surface: #ffffff;
+  --surface-muted: #e3e6e8;
+  --foreground: #171b20;
+  --muted: #69727b;
+  --muted-strong: #39424b;
+  --border: #cbd0d4;
+  --border-strong: #aeb5bb;
+  --accent: #e4572e;
+  --accent-strong: #bd3f1d;
+  --accent-soft: #f9e8e3;
+  --theme-panel-radius: 5px;
+  --theme-panel-shadow: 0 2px 0 rgba(23, 27, 32, 0.08);
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 8px;
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  border-radius: 5px;
+  border-top: 3px solid var(--foreground);
+  box-shadow: var(--theme-panel-shadow);
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent);
+}
+
+[data-theme="performance"] .theme-signature {
+  border: 1px solid var(--border-strong);
+  border-left: 5px solid var(--accent);
+  background: var(--surface);
+  padding: 12px 15px;
+  box-shadow: var(--theme-panel-shadow);
+}
+
+[data-theme="performance"] .theme-signature-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+[data-theme="performance"] .theme-signature-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  border-radius: 1px;
+}
+
+[data-theme="performance"] table thead th {
+  background: #dfe3e6;
+  color: #3b444d;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-theme="performance"] table tbody td {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #f1f3f4;
+}
+
+[data-theme="performance"] .page-header {
+  border-bottom: 2px solid var(--foreground);
+}
+
+[data-theme="performance"] .page-header h1 {
+  font-weight: 750;
+  letter-spacing: -0.045em;
+}
+
+
+/* ---------- Shared theme signature ---------- */
+
+.theme-signature {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px 18px;
+  align-items: center;
+}
+
+.theme-signature-label {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.theme-signature-value {
+  color: var(--foreground);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.theme-signature-meta {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.theme-signature-track {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 3px;
+}
+
+.theme-signature-track span {
+  height: 4px;
+  background: var(--border);
+}
+
+.theme-signature-track span.is-active {
+  background: var(--accent);
+}
+
+@media (max-width: 900px) {
+  [data-theme="professional"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="executive"] h1 {
+    font-size: 2.4rem;
+  }
+
+  [data-theme="executive"] .dashboard-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  [data-theme="executive"] .dashboard-kpis > * {
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="professional"] table tbody tr,
+  [data-theme="tech"] table tbody tr,
+  [data-theme="performance"] table tbody tr {
+    transition: none;
+  }
+}
