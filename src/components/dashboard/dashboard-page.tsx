@@ -53,30 +53,35 @@ export async function DashboardPage() {
             value={String(metrics.activeLeads)}
             detail={`${activeCoverage}% of ${metrics.totalLeads} total leads`}
             state={<EvidenceState kind="calculated" />}
+            variant="primary"
           />
           <MetricCard
             label="Engaged"
             value={String(metrics.engagedLeads)}
             detail={`${responseCoverage}% of communicated leads have inbound response evidence`}
             state={<EvidenceState kind="calculated" />}
+            variant="supporting"
           />
           <MetricCard
             label="In conversation"
             value={String(metrics.inConversation)}
             detail={`${conversationCoverage}% of active leads`}
             state={<EvidenceState kind="calculated" />}
+            variant="supporting"
           />
           <MetricCard
             label="Appointments"
             value={String(metrics.upcomingAppointments)}
             detail={`${metrics.totalAppointmentsBooked} booked · ${metrics.totalAppointmentsShown} shown`}
             state={<EvidenceState kind="calculated" />}
+            variant="supporting"
           />
           <MetricCard
             label="Sales"
             value={String(metrics.sales)}
             detail="Observed sold / closed evidence"
             state={<EvidenceState kind="calculated" />}
+            variant="outcome"
           />
         </div>
       </section>

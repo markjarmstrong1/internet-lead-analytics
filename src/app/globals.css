@@ -3677,3 +3677,346 @@ textarea {
     border-bottom: 1px solid var(--border) !important;
   }
 }
+
+/* ============================================================
+   METRIC PRESENTATION SYSTEM
+   Same evidence. Different reading experience.
+   ============================================================ */
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card-header {
+  min-height: 18px;
+}
+
+.metric-card-label {
+  line-height: 1.2;
+}
+
+.metric-card-reading {
+  position: relative;
+}
+
+.metric-card-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-card-detail {
+  max-width: 30rem;
+}
+
+.metric-card[data-metric-variant="primary"] {
+  border-color: var(--border-strong);
+}
+
+.metric-card[data-metric-variant="primary"] .metric-card-value {
+  font-size: 2.15rem;
+}
+
+.metric-card[data-metric-variant="outcome"] {
+  border-color: color-mix(in srgb, var(--success) 25%, var(--border));
+}
+
+.metric-card[data-metric-variant="outcome"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--success);
+}
+
+.metric-card-state {
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   PROFESSIONAL
+   Financial / institutional intelligence.
+   ------------------------------------------------------------ */
+
+[data-theme="professional"] .metric-card {
+  background: var(--surface);
+  box-shadow: none;
+}
+
+[data-theme="professional"] .metric-card[data-metric-variant="primary"] {
+  border-top: 2px solid var(--accent);
+}
+
+[data-theme="professional"] .metric-card[data-metric-variant="primary"]
+  .metric-card-value {
+  font-size: 2.25rem;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="professional"] .metric-card[data-metric-variant="supporting"]
+  .metric-card-value {
+  font-size: 1.95rem;
+}
+
+[data-theme="professional"] .metric-card[data-metric-variant="outcome"] {
+  border-top: 2px solid var(--success);
+}
+
+[data-theme="professional"] .metric-card-detail {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+/* ------------------------------------------------------------
+   EXECUTIVE
+   Editorial hierarchy. Fewer visual interruptions.
+   ------------------------------------------------------------ */
+
+[data-theme="executive"] .metric-card {
+  min-height: 142px;
+  padding: 22px !important;
+  border-color: transparent;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(25, 30, 35, 0.035);
+}
+
+[data-theme="executive"] .metric-card-label {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+}
+
+[data-theme="executive"] .metric-card-value {
+  margin-top: 18px;
+  font-size: 2.35rem;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="executive"] .metric-card-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted-strong);
+}
+
+[data-theme="executive"] .metric-card[data-metric-variant="primary"] {
+  border-left: 2px solid var(--accent);
+}
+
+[data-theme="executive"] .metric-card[data-metric-variant="outcome"] {
+  border-left: 2px solid var(--success);
+}
+
+/* ------------------------------------------------------------
+   TECH
+   Engineering readout / telemetry hierarchy.
+   ------------------------------------------------------------ */
+
+[data-theme="tech"] .metric-card {
+  min-height: 94px;
+  padding: 13px 16px !important;
+  border-radius: 2px !important;
+  border-color: var(--border);
+  background: #10161b !important;
+  box-shadow: none !important;
+}
+
+[data-theme="tech"] .metric-card-header {
+  align-items: baseline;
+}
+
+[data-theme="tech"] .metric-card-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+  letter-spacing: 0.095em;
+}
+
+[data-theme="tech"] .metric-card-value {
+  margin-top: 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.065em;
+}
+
+[data-theme="tech"] .metric-card-detail {
+  margin-top: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #71808a;
+}
+
+[data-theme="tech"] .metric-card[data-metric-variant="primary"] {
+  border-top: 2px solid var(--accent);
+}
+
+[data-theme="tech"] .metric-card[data-metric-variant="primary"]
+  .metric-card-value {
+  color: var(--accent-strong);
+}
+
+[data-theme="tech"] .metric-card[data-metric-variant="outcome"] {
+  border-left: 2px solid #5fae83;
+}
+
+[data-theme="tech"] .metric-card[data-metric-variant="outcome"]::before {
+  display: none;
+}
+
+[data-theme="tech"] .metric-card-state {
+  transform: scale(0.85);
+  transform-origin: right center;
+}
+
+/* ------------------------------------------------------------
+   PERFORMANCE
+   Operations / exception management.
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] .metric-card {
+  min-height: 104px;
+  padding: 15px 17px !important;
+  border-radius: 2px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+[data-theme="performance"] .metric-card-label {
+  font-size: 9px;
+  letter-spacing: 0.085em;
+  color: #59636a;
+}
+
+[data-theme="performance"] .metric-card-value {
+  margin-top: 8px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+}
+
+[data-theme="performance"] .metric-card-detail {
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #68737b;
+}
+
+[data-theme="performance"] .metric-card[data-metric-variant="primary"] {
+  border-top: 3px solid var(--accent);
+}
+
+[data-theme="performance"] .metric-card[data-metric-variant="supporting"] {
+  border-top: 3px solid #8e989e;
+}
+
+[data-theme="performance"] .metric-card[data-metric-variant="outcome"] {
+  border-top: 3px solid var(--success);
+  border-left: 0;
+}
+
+[data-theme="performance"] .metric-card[data-metric-variant="outcome"]::before {
+  display: none;
+}
+
+/* ------------------------------------------------------------
+   ATTENTION / EXCEPTION PRESENTATION
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] .dashboard-secondary section > div > div,
+[data-theme="tech"] .dashboard-secondary section > div > div {
+  border-radius: 2px !important;
+}
+
+[data-theme="performance"] .dashboard-secondary section {
+  box-shadow: none !important;
+}
+
+[data-theme="performance"] .dashboard-secondary
+  [class*="bg-\[var\(--warning-soft\)\]"] {
+  border-left: 3px solid var(--warning) !important;
+}
+
+[data-theme="performance"] .dashboard-secondary
+  [class*="bg-\[var\(--success-soft\)\]"] {
+  border-left: 3px solid var(--success) !important;
+}
+
+/* ------------------------------------------------------------
+   COVERAGE / MEASUREMENT TRACKS
+   ------------------------------------------------------------ */
+
+[data-theme="tech"] .dashboard-secondary .rounded-full {
+  border-radius: 1px !important;
+}
+
+[data-theme="performance"] .dashboard-secondary .rounded-full {
+  border-radius: 1px !important;
+}
+
+[data-theme="performance"] .dashboard-secondary .h-1\.5 {
+  height: 5px !important;
+  background: #dfe3e5 !important;
+}
+
+[data-theme="tech"] .dashboard-secondary .h-1\.5 {
+  height: 3px !important;
+  background: #202a30 !important;
+}
+
+/* ------------------------------------------------------------
+   OPERATING SIGNALS
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] .dashboard-secondary + section > div > div {
+  border-radius: 2px !important;
+  background: #f5f6f6 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="performance"] .dashboard-secondary + section
+  [class*="text-2xl"] {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+[data-theme="tech"] .dashboard-secondary + section > div > div {
+  border-radius: 2px !important;
+  background: #0d1318 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="tech"] .dashboard-secondary + section
+  [class*="text-2xl"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.65rem;
+  color: var(--accent-strong);
+}
+
+/* ------------------------------------------------------------
+   DENSITY
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] .metric-card,
+[data-theme="tech"] .metric-card {
+  transition:
+    border-color 100ms ease,
+    background-color 100ms ease;
+}
+
+[data-theme="performance"] .metric-card:hover {
+  border-color: #8f999f !important;
+}
+
+[data-theme="tech"] .metric-card:hover {
+  border-color: #4b5a64 !important;
+}
+
+@media (max-width: 900px) {
+  [data-theme="executive"] .metric-card {
+    min-height: 125px;
+  }
+
+  [data-theme="tech"] .metric-card,
+  [data-theme="performance"] .metric-card {
+    min-height: 92px;
+  }
+}
