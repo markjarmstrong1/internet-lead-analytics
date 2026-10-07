@@ -64,7 +64,7 @@ export function buildFirstResponseAnalysis(
   const responded = eligible.filter(
     (observation) =>
       observation.responseMinutes !== null &&
-      observation.firstInbound !== null,
+      observation.evidence.response.state === "observed",
   );
 
   const responseTimes = responded
