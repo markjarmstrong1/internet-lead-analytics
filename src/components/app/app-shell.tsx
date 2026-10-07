@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import { useNavigationLayout } from "./navigation-preference";
 
 const navigation = [
   { label: "Dashboard", href: "/" },
@@ -105,9 +106,9 @@ export function AppShell({ children }: AppShellProps) {
 
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-40 hidden flex-col",
+          "fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)]",
           navigationLayout === "sidebar" ? "lg:flex" : "lg:hidden",
-        ].join(" ")} border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] lg:flex"
+        ].join(" ")}
         style={{ width: "var(--sidebar-width)" }}
       >
         <div
