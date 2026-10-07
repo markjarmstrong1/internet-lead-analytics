@@ -4,8 +4,6 @@ import type {
 } from "@/analytics/data/analytics-repository";
 import {
   buildLeadObservations,
-  isSoldClosedStage,
-  median,
   responseSpeedBucket,
   RESPONSE_SPEED_BUCKETS,
   type LeadObservation,
@@ -18,6 +16,7 @@ import type {
   ReportResult,
   ReportRow,
 } from "./report-types";
+import { calculateReportMeasure } from "./calculations/report-measures";
 
 export function buildReport(
   dataset: AnalyticsDataset,
@@ -201,116 +200,10 @@ function calculateMetric(
   leads: AnalyticsLead[],
   observations: LeadObservation[],
 ): number | null {
-  switch (metric) {
-    case "leads":
-      return leads.length;
-
-    case "timelineCovered":
-      return leads.filter(
-        (lead) =>
-          lead.timelineRecordIds.length > 0,
-      ).length;
-
-    case "contacted":
-      return observations.filter(
-        (observation) =>
-          observation.firstContactedTime !== null,
-      ).length;
-
-    case "observedOutbound":
-      return observations.filter(
-        (observation) =>
-          observation.firstOutbound !== null,
-      ).length;
-
-    case "responded":
-      return observations.filter(
-        (observation) =>
-          observation.responseMinutes !== null,
-      ).length;
-
-    case "responseWithin24h":
-      return observations.filter(
-        (observation) =>
-          observation.respondedWithin24h,
-      ).length;
-
-    case "appointments":
-      return observations.filter(
-        (observation) =>
-          observation.appointmentEvidence,
-      ).length;
-
-    case "soldClosed":
-      return leads.filter((lead) =>
-        isSoldClosedStage(lead.stage),
-      ).length;
-
-    case "responseRate": {
-      const outboundPopulation =
-        observedOutboundPopulation(observations);
-      const respondedPopulation =
-        respondedPopulationFrom(outboundPopulation);
-
-      return ratio(
-        respondedPopulation.length,
-        outboundPopulation.length,
-      );
-    }
-
-    case "responseWithin24hRate": {
-      const outboundPopulation =
-        observedOutboundPopulation(observations);
-      const respondedWithin24h =
-        outboundPopulation.filter(
-          (observation) =>
-            observation.respondedWithin24h,
-        );
-
-      return ratio(
-        respondedWithin24h.length,
-        outboundPopulation.length,
-      );
-    }
-
-    case "medianResponseMinutes": {
-      const values = observations
-        .map(
-          (observation) =>
-            observation.responseMinutes,
-        )
-        .filter(
-          (value): value is number =>
-            value !== null,
-        );
-
-      return median(values);
-    }
-
-    case "outboundAttempts":
-      return observations.reduce(
-        (total, observation) =>
-          total + observation.outboundCount,
-        0,
-      );
-  }
-}
-
-function observedOutboundPopulation(
-  observations: LeadObservation[],
-): LeadObservation[] {
-  return observations.filter(
-    (observation) =>
-      observation.evidence.outbound.state === "observed",
-  );
-}
-
-function respondedPopulationFrom(
-  outboundPopulation: LeadObservation[],
-): LeadObservation[] {
-  return outboundPopulation.filter(
-    (observation) =>
-      observation.evidence.response.state === "observed",
+  return calculateReportMeasure(
+    metric,
+    leads,
+    observations,
   );
 }
 
