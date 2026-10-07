@@ -2149,3 +2149,370 @@ textarea {
     transition: none;
   }
 }
+
+
+/* ============================================================
+   THEME REFINEMENT 2.1
+   Restraint pass — personality through design, not decoration.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Global restraint
+   ------------------------------------------------------------ */
+
+.theme-signature::after,
+[data-theme="tech"] .page-header::before {
+  display: none !important;
+}
+
+[data-theme="tech"] body {
+  background: var(--background);
+}
+
+[data-theme="tech"] .theme-signature {
+  background: var(--surface);
+}
+
+
+/* ------------------------------------------------------------
+   PROFESSIONAL
+   Quiet institutional intelligence.
+   Think: serious financial software, not SaaS marketing.
+   ------------------------------------------------------------ */
+
+[data-theme="professional"] {
+  --theme-panel-radius: 8px;
+  --theme-panel-shadow: 0 1px 2px rgba(23, 32, 51, 0.025);
+}
+
+[data-theme="professional"] .dashboard-kpis {
+  gap: 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="professional"] .dashboard-kpis > * {
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 18px 20px;
+}
+
+[data-theme="professional"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="professional"] .dashboard-kpis > *:first-child {
+  border-top: 0;
+}
+
+[data-theme="professional"] .theme-signature {
+  border-left: 2px solid var(--accent);
+  padding-left: 16px;
+}
+
+[data-theme="professional"] .theme-signature-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+[data-theme="professional"] .theme-signature-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+[data-theme="professional"] .theme-signature-track {
+  gap: 2px;
+}
+
+[data-theme="professional"] .theme-signature-track span {
+  height: 3px;
+}
+
+[data-theme="professional"] .panel,
+[data-theme="professional"] [class*="shadow"] {
+  box-shadow: var(--theme-panel-shadow);
+}
+
+
+/* ------------------------------------------------------------
+   TECH
+   Engineering workstation.
+   No sci-fi theater. No fake telemetry.
+   Precision, hierarchy and data density create the personality.
+   ------------------------------------------------------------ */
+
+[data-theme="tech"] {
+  --background: #0d1217;
+  --surface: #121920;
+  --surface-muted: #10161c;
+  --border: #26313a;
+  --border-strong: #34414c;
+  --accent: #55c7e8;
+  --accent-strong: #78d6ef;
+  --accent-soft: rgba(85, 199, 232, 0.07);
+}
+
+[data-theme="tech"] body {
+  background: var(--background);
+}
+
+[data-theme="tech"] h1,
+[data-theme="tech"] h2,
+[data-theme="tech"] h3 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+[data-theme="tech"] .dashboard-kpis {
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  position: relative;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 17px 18px;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="tech"] .dashboard-kpis > *::before {
+  display: none;
+}
+
+[data-theme="tech"] .theme-signature {
+  border: 0;
+  border-left: 1px solid var(--border-strong);
+  border-radius: 0;
+  background: transparent;
+  padding: 8px 0 8px 16px;
+}
+
+[data-theme="tech"] .theme-signature-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+[data-theme="tech"] .theme-signature-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.2rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] .theme-signature-track {
+  gap: 2px;
+}
+
+[data-theme="tech"] .theme-signature-track span {
+  height: 2px;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  box-shadow: none;
+}
+
+[data-theme="tech"] table thead th {
+  background: transparent;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="tech"] table tbody tr {
+  border-bottom: 1px solid rgba(38, 49, 58, 0.65);
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(85, 199, 232, 0.035);
+}
+
+
+/* ------------------------------------------------------------
+   EXECUTIVE
+   Editorial restraint.
+   Large type, quiet rules, generous space.
+   Nothing tries to look impressive.
+   ------------------------------------------------------------ */
+
+[data-theme="executive"] {
+  --background: #f6f4f0;
+  --surface: #faf9f6;
+  --surface-muted: #efede8;
+  --border: #dedbd3;
+  --border-strong: #c7c3ba;
+  --accent: #806337;
+  --accent-strong: #664d2a;
+}
+
+[data-theme="executive"] .dashboard-kpis {
+  margin-top: 8px;
+  border-top: 1px solid var(--foreground);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="executive"] .dashboard-kpis > * {
+  min-height: 112px;
+  padding: 24px 22px;
+}
+
+[data-theme="executive"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="executive"] .stat-card-value,
+[data-theme="executive"] [class*="text-3xl"],
+[data-theme="executive"] [class*="text-4xl"] {
+  letter-spacing: -0.05em;
+  font-weight: 500;
+}
+
+[data-theme="executive"] .theme-signature {
+  display: none;
+}
+
+[data-theme="executive"] .page-header {
+  padding-bottom: 32px;
+}
+
+[data-theme="executive"] .page-header h1 {
+  max-width: 780px;
+}
+
+[data-theme="executive"] .page-header p {
+  margin-top: 14px;
+  line-height: 1.8;
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: transparent;
+}
+
+
+/* ------------------------------------------------------------
+   PERFORMANCE
+   Operational precision.
+   Motorsport influence comes from hierarchy and density,
+   not checkered flags and orange everywhere.
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] {
+  --background: #eceeef;
+  --surface: #ffffff;
+  --surface-muted: #e4e7e9;
+  --border: #cbd0d4;
+  --border-strong: #aeb5ba;
+  --accent: #d94b25;
+  --accent-strong: #b93c1d;
+  --accent-soft: #f7e5df;
+}
+
+[data-theme="performance"] h1,
+[data-theme="performance"] h2,
+[data-theme="performance"] h3 {
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 6px;
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  border-top: 2px solid var(--border-strong);
+  box-shadow: 0 1px 2px rgba(20, 26, 31, 0.06);
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent);
+}
+
+[data-theme="performance"] .theme-signature {
+  border-left-width: 3px;
+  box-shadow: none;
+}
+
+[data-theme="performance"] .theme-signature-label {
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+[data-theme="performance"] .theme-signature-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+[data-theme="performance"] .theme-signature-track {
+  gap: 2px;
+}
+
+[data-theme="performance"] .theme-signature-track span {
+  height: 3px;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  box-shadow: none;
+}
+
+[data-theme="performance"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="performance"] .page-header {
+  padding-bottom: 18px;
+}
+
+
+/* ------------------------------------------------------------
+   Responsive corrections
+   ------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  [data-theme="professional"] .dashboard-kpis,
+  [data-theme="tech"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="professional"] .dashboard-kpis > *,
+  [data-theme="tech"] .dashboard-kpis > * {
+    border-bottom: 1px solid var(--border);
+  }
+
+  [data-theme="executive"] .dashboard-kpis > * {
+    min-height: 96px;
+    padding: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  [data-theme="professional"] .dashboard-kpis,
+  [data-theme="tech"] .dashboard-kpis,
+  [data-theme="executive"] .dashboard-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  [data-theme="professional"] .dashboard-kpis > *,
+  [data-theme="tech"] .dashboard-kpis > *,
+  [data-theme="executive"] .dashboard-kpis > * {
+    border-right: 1px solid var(--border);
+  }
+
+  [data-theme="professional"] .dashboard-kpis > *:nth-child(2n),
+  [data-theme="tech"] .dashboard-kpis > *:nth-child(2n),
+  [data-theme="executive"] .dashboard-kpis > *:nth-child(2n) {
+    border-right: 0;
+  }
+}
