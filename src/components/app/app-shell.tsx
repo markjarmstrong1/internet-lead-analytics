@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore, type ReactNode } from "react";
 import { useNavigationLayout } from "./navigation-preference";
+import { useAppearancePreferences } from "./appearance-preference";
 import { GlobalSearch } from "./global-search";
 
 const navigation = [
@@ -61,6 +62,7 @@ type AppShellProps = {
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const navigationLayout = useNavigationLayout();
+  const appearance = useAppearancePreferences();
   const sidebarWidth = useSyncExternalStore(
     subscribeSidebarPreference,
     getStoredSidebarWidth,
@@ -107,6 +109,12 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div
+      data-theme={appearance.theme}
+      data-accent={appearance.accent}
+      data-density={appearance.density}
+      data-radius={appearance.radius}
+      data-motion={appearance.motion}
+      data-chart={appearance.chart}
       className="min-h-screen bg-[var(--background)] text-[var(--foreground)]"
       style={
         {
