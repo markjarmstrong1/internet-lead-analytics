@@ -3,6 +3,10 @@ import type {
   AnalyticsLead,
 } from "@/analytics/data/analytics-repository";
 import type { AnalyticsEvent } from "@/analytics/data/analytics-types";
+import {
+  buildEvidenceAssessments,
+  type ObservationEvidenceAssessments,
+} from "./evidence-assessments";
 
 const RESPONSE_WINDOW_MINUTES = 24 * 60;
 
@@ -58,6 +62,8 @@ export type LeadObservation = {
 
   appointmentAt: string | null;
   soldClosedAt: string | null;
+
+  evidence: ObservationEvidenceAssessments;
 
   respondedWithin24h: boolean;
   outboundCount: number;
@@ -178,6 +184,15 @@ export function buildLeadObservations(
           ).length
         : null;
 
+    const evidence = buildEvidenceAssessments({
+      hasTimelineEvents: events.length > 0,
+      firstContactedTime,
+      firstOutbound,
+      firstInbound,
+      appointmentAt,
+      soldClosed,
+    });
+
     return {
       lead,
       events,
@@ -197,6 +212,7 @@ export function buildLeadObservations(
         actionsBeforeResponse,
       appointmentAt,
       soldClosedAt,
+      evidence,
       respondedWithin24h:
         responseMinutes !== null &&
         responseMinutes <= RESPONSE_WINDOW_MINUTES,
