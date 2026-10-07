@@ -2992,3 +2992,266 @@ textarea {
     border-right: 0;
   }
 }
+
+/* ============================================================
+   MATURITY PASS — TECH + PERFORMANCE
+   Less costume. More professional software.
+   ============================================================ */
+
+/* TECH — engineering workstation, not sci-fi dashboard */
+[data-theme="tech"] {
+  --background: #0b0f13;
+  --surface: #11171c;
+  --surface-muted: #0e1419;
+  --surface-elevated: #151c22;
+  --foreground: #dce5ea;
+  --muted: #74828c;
+  --muted-strong: #aab7bf;
+  --border: #263139;
+  --border-strong: #3a464f;
+  --accent: #62c7e3;
+  --accent-strong: #83d7ec;
+  --accent-soft: rgba(98, 199, 227, 0.075);
+  --theme-panel-radius: 3px;
+  --theme-panel-shadow: none;
+}
+
+[data-theme="tech"] body,
+[data-theme="tech"] main {
+  background: var(--background);
+}
+
+[data-theme="tech"] body {
+  background-image: none;
+}
+
+[data-theme="tech"] main::before {
+  display: none;
+}
+
+[data-theme="tech"] header {
+  background: #090d11 !important;
+  backdrop-filter: none;
+}
+
+[data-theme="tech"] aside {
+  background: #080c10 !important;
+  box-shadow: none;
+}
+
+[data-theme="tech"] aside::after {
+  display: none;
+}
+
+[data-theme="tech"] section,
+[data-theme="tech"] article {
+  border-radius: 3px !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+[data-theme="tech"] section::before,
+[data-theme="tech"] article::before {
+  display: none;
+}
+
+[data-theme="tech"] .theme-signature-tech,
+[data-theme="tech"] .theme-signature-performance {
+  display: none !important;
+}
+
+[data-theme="tech"] .dashboard-kpis {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  min-height: 96px;
+  padding: 15px 17px;
+  border-right: 1px solid var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > *::after {
+  left: 17px;
+  right: 17px;
+  height: 1px;
+  background: var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > *:first-child::after {
+  background: var(--accent);
+}
+
+[data-theme="tech"] .dashboard-kpis > *:hover {
+  background: rgba(98, 199, 227, 0.025);
+}
+
+[data-theme="tech"] .dashboard-secondary::before {
+  display: none;
+}
+
+[data-theme="tech"] section h2 {
+  font-family: var(--font-geist-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+[data-theme="tech"] section p.text-xs,
+[data-theme="tech"] article p.text-xs {
+  font-size: 11px;
+}
+
+[data-theme="tech"] table thead th {
+  background: #0d1318;
+  color: #81909a;
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(98, 199, 227, 0.028);
+}
+
+[data-theme="tech"] button {
+  box-shadow: none !important;
+}
+
+[data-theme="tech"] input:focus,
+[data-theme="tech"] select:focus,
+[data-theme="tech"] textarea:focus {
+  box-shadow: 0 0 0 1px var(--accent) !important;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  border-radius: 1px;
+  box-shadow: none;
+}
+
+/* PERFORMANCE — mature operations console */
+[data-theme="performance"] {
+  --background: #eef0f1;
+  --surface: #ffffff;
+  --surface-muted: #e7e9ea;
+  --surface-elevated: #ffffff;
+  --foreground: #1b2024;
+  --muted: #68737b;
+  --muted-strong: #424b52;
+  --border: #cdd2d5;
+  --border-strong: #aeb6bb;
+  --accent: #c95132;
+  --accent-strong: #a84027;
+  --accent-soft: #f5e6e1;
+  --theme-panel-radius: 4px;
+  --theme-panel-shadow: 0 1px 1px rgba(27, 32, 36, 0.04);
+}
+
+[data-theme="performance"] body,
+[data-theme="performance"] main {
+  background: var(--background);
+}
+
+[data-theme="performance"] header {
+  background: #ffffff !important;
+  backdrop-filter: none;
+}
+
+[data-theme="performance"] aside {
+  background: #171d22 !important;
+  box-shadow: none;
+}
+
+[data-theme="performance"] .theme-signature-tech,
+[data-theme="performance"] .theme-signature-performance {
+  display: none !important;
+}
+
+[data-theme="performance"] section,
+[data-theme="performance"] article {
+  border-radius: 4px !important;
+  box-shadow: var(--theme-panel-shadow) !important;
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 4px;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  min-height: 98px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-top: 3px solid var(--border-strong);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 15px 17px;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent);
+}
+
+[data-theme="performance"] .dashboard-kpis > *:hover {
+  background: #fafafa;
+}
+
+[data-theme="performance"] section h2 {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+[data-theme="performance"] table thead th {
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #f7f8f8;
+}
+
+[data-theme="performance"] .page-header {
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  border-radius: 1px;
+  box-shadow: none;
+}
+
+[data-theme="performance"] button {
+  box-shadow: none !important;
+}
+
+/* Both: make the two dense themes feel like working tools rather than demos. */
+[data-theme="tech"] .dashboard-kpis,
+[data-theme="performance"] .dashboard-kpis {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] .dashboard-kpis > *,
+[data-theme="performance"] .dashboard-kpis > * {
+  transition: background-color 100ms ease, border-color 100ms ease;
+}
+
+@media (max-width: 900px) {
+  [data-theme="performance"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="performance"] .dashboard-kpis > * {
+    border-bottom: 1px solid var(--border);
+  }
+}
