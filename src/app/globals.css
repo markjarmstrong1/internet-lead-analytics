@@ -26,6 +26,9 @@
   --warning-soft: #fff4dc;
   --danger: #c2413b;
   --danger-soft: #fcebea;
+  --button-primary: var(--foreground);
+  --button-primary-foreground: #ffffff;
+  --button-primary-hover: color-mix(in srgb, var(--foreground) 88%, black);
 
   --radius-sm: 6px;
   --radius-md: 10px;

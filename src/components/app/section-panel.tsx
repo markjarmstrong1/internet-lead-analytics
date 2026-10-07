@@ -14,7 +14,7 @@ export function SectionPanel({
   compact = false,
 }: SectionPanelProps) {
   return (
-    <section className="rounded-[10px] border bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+    <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-card)]">
       <div
         className={
           compact
