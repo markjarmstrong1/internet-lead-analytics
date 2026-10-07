@@ -29,8 +29,6 @@ export function GlobalSearch({
     const value = query.trim();
 
     if (value.length < 2) {
-      setResults([]);
-      setLoading(false);
       return;
     }
 
@@ -135,13 +133,9 @@ export function GlobalSearch({
         placeholder="Search leads..."
         aria-label="Search leads"
         role="combobox"
-      role="combobox"
-      aria-expanded={open}
-      aria-controls="global-search-results"
-      aria-autocomplete="list"
-      aria-controls="global-search-results"
-      aria-autocomplete="list"
+        aria-expanded={open}
         aria-controls="global-search-results"
+        aria-autocomplete="list"
         className={[
           "w-full rounded-lg border px-4 py-2 text-sm outline-none",
           isDark
