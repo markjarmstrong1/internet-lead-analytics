@@ -428,6 +428,193 @@ describe("buildReport", () => {
     });
   });
 
+  it("groups response speed using observed response evidence", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("fast"),
+          lead("medium", {
+            leadId: "medium",
+            timelineRecordIds: ["record-2"],
+          }),
+          lead("no-response", {
+            leadId: "no-response",
+            timelineRecordIds: ["record-3"],
+          }),
+          lead("not-exposed", {
+            leadId: "not-exposed",
+            timelineRecordIds: [],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "fast-outbound",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "fast-inbound",
+            occurredAt:
+              "2026-09-10T10:04:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "medium-outbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "medium-inbound",
+            occurredAt:
+              "2026-09-10T11:00:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-3",
+            sourceEventId: "no-response-outbound",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        groupBy: "responseSpeed",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(result.rows).toEqual([
+      {
+        key: "< 5 minutes",
+        label: "< 5 minutes",
+        values: { leads: 1 },
+      },
+      {
+        key: "15–60 minutes",
+        label: "15–60 minutes",
+        values: { leads: 1 },
+      },
+      {
+        key: "No observed response",
+        label: "No observed response",
+        values: { leads: 2 },
+      },
+    ]);
+  });
+
+  it("preserves response-speed bucket boundaries", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("five"),
+          lead("fifteen", {
+            leadId: "fifteen",
+            timelineRecordIds: ["record-2"],
+          }),
+          lead("sixty", {
+            leadId: "sixty",
+            timelineRecordIds: ["record-3"],
+          }),
+          lead("four-hours", {
+            leadId: "four-hours",
+            timelineRecordIds: ["record-4"],
+          }),
+          lead("twenty-four-hours", {
+            leadId: "twenty-four-hours",
+            timelineRecordIds: ["record-5"],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "five-outbound",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "five-inbound",
+            occurredAt:
+              "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "fifteen-outbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "fifteen-inbound",
+            occurredAt:
+              "2026-09-10T10:15:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-3",
+            sourceEventId: "sixty-outbound",
+          }),
+          event({
+            timelineRecordId: "record-3",
+            sourceEventId: "sixty-inbound",
+            occurredAt:
+              "2026-09-10T11:00:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-4",
+            sourceEventId: "four-hours-outbound",
+          }),
+          event({
+            timelineRecordId: "record-4",
+            sourceEventId: "four-hours-inbound",
+            occurredAt:
+              "2026-09-10T14:00:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-5",
+            sourceEventId: "twenty-four-hours-outbound",
+          }),
+          event({
+            timelineRecordId: "record-5",
+            sourceEventId: "twenty-four-hours-inbound",
+            occurredAt:
+              "2026-09-11T10:00:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        groupBy: "responseSpeed",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(
+      Object.fromEntries(
+        result.rows.map((row) => [
+          row.key,
+          row.values.leads,
+        ]),
+      ),
+    ).toEqual({
+      "5–15 minutes": 2,
+      "15–60 minutes": 1,
+      "1–4 hours": 1,
+      "4–24 hours": 1,
+    });
+  });
+
   it("filters by lead creation date", () => {
     const result = buildReport(
       dataset(

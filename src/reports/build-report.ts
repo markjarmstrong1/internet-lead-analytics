@@ -559,19 +559,24 @@ function dimensionValue(
       return lead.status.trim() || "Unknown status";
 
     case "responseSpeed":
-      return observation
-        ? responseSpeedBucketLabel(
-            observation.responseMinutes,
-          )
-        : "No observed response";
+      return responseSpeedDimensionValue(observation);
   }
 }
 
-function responseSpeedBucketLabel(
-  minutes: number | null,
+function responseSpeedDimensionValue(
+  observation: LeadObservation | null,
 ): string {
+  if (
+    !observation ||
+    observation.evidence.response.state !== "observed"
+  ) {
+    return "No observed response";
+  }
+
   const key =
-    responseSpeedBucket(minutes);
+    responseSpeedBucket(
+      observation.responseMinutes,
+    );
 
   return (
     RESPONSE_SPEED_BUCKETS.find(
