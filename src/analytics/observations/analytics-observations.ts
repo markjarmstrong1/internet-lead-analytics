@@ -7,6 +7,10 @@ import {
   buildEvidenceAssessments,
   type ObservationEvidenceAssessments,
 } from "./evidence-assessments";
+import {
+  findFirstInboundCommunication,
+  isEmployeeOutboundCommunication,
+} from "./communication-evidence";
 
 const RESPONSE_WINDOW_MINUTES = 24 * 60;
 
@@ -311,43 +315,6 @@ export function findFirstOutboundEmployeeCommunication(
     events.find(
       isEmployeeOutboundCommunication,
     ) ?? null
-  );
-}
-
-export function isEmployeeOutboundCommunication(
-  event: AnalyticsEvent,
-): boolean {
-  return (
-    event.category === "communication" &&
-    event.actorType === "employee" &&
-    event.direction === "outbound" &&
-    event.channel !== null
-  );
-}
-
-export function findFirstInboundCommunication(
-  events: AnalyticsEvent[],
-  exposureAt: string,
-): AnalyticsEvent | null {
-  const exposureTime = Date.parse(exposureAt);
-
-  if (!Number.isFinite(exposureTime)) {
-    return null;
-  }
-
-  return (
-    events.find((event) => {
-      const occurredAt = Date.parse(
-        event.occurredAt,
-      );
-
-      return (
-        event.category === "communication" &&
-        event.direction === "inbound" &&
-        Number.isFinite(occurredAt) &&
-        occurredAt >= exposureTime
-      );
-    }) ?? null
   );
 }
 
