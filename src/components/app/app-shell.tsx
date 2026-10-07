@@ -350,24 +350,24 @@ function TopBarNavigation({ pathname }: { pathname: string }) {
       aria-label="Primary navigation"
       className="sticky top-0 z-40 hidden h-16 border-b bg-[var(--sidebar)] lg:flex"
     >
-      <div className="relative mx-auto flex w-full max-w-[1600px] items-center justify-between px-6 lg:px-8">
+      <div className="mx-auto grid h-16 w-full max-w-[1600px] grid-cols-[minmax(180px,1fr)_minmax(280px,420px)_minmax(500px,1fr)] items-center gap-6 px-6 lg:px-8">
         <Link
           href="/"
-          className="shrink-0 text-sm font-semibold tracking-tight text-white"
+          className="min-w-0 truncate text-sm font-semibold tracking-tight text-white"
         >
           Internet Lead Analytics
         </Link>
 
-        <div className="pointer-events-none absolute left-1/2 top-1/2 w-[min(36vw,520px)] -translate-x-1/2 -translate-y-1/2">
+        <div className="w-full">
           <input
             type="search"
             placeholder="Search leads, metrics, reports..."
             aria-label="Smart search"
-            className="pointer-events-auto w-full rounded-lg border border-white/10 bg-white/[0.08] px-4 py-2 text-sm text-white outline-none placeholder:text-[var(--sidebar-muted)] focus:border-[var(--accent)] focus:bg-white/[0.12]"
+            className="w-full rounded-lg border border-white/10 bg-white/[0.08] px-4 py-2 text-sm text-white outline-none placeholder:text-[var(--sidebar-muted)] focus:border-[var(--accent)] focus:bg-white/[0.12]"
           />
         </div>
 
-        <div className="flex min-w-0 items-center gap-1">
+        <div className="flex min-w-0 items-center justify-end gap-1 overflow-hidden">
           {navigation.map((item) => {
             const isActive =
               item.href === "/"
