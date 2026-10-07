@@ -345,15 +345,24 @@ function TopBarNavigation({ pathname }: { pathname: string }) {
       aria-label="Primary navigation"
       className="sticky top-0 z-40 hidden h-16 border-b bg-[var(--sidebar)] lg:flex"
     >
-      <div className="mx-auto flex w-full max-w-[1600px] items-center gap-8 px-6 lg:px-8">
+      <div className="mx-auto grid w-full max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-6 lg:px-8">
         <Link
           href="/"
-          className="shrink-0 text-sm font-semibold tracking-tight text-white"
+          className="justify-self-start text-sm font-semibold tracking-tight text-white"
         >
           Internet Lead Analytics
         </Link>
 
-        <div className="flex min-w-0 flex-1 items-center gap-1">
+        <div className="w-[min(42vw,560px)]">
+          <input
+            type="search"
+            placeholder="Search leads, metrics, reports..."
+            aria-label="Smart search"
+            className="w-full rounded-lg border border-white/10 bg-white/[0.08] px-4 py-2 text-sm text-white outline-none placeholder:text-[var(--sidebar-muted)] focus:border-[var(--accent)] focus:bg-white/[0.12]"
+          />
+        </div>
+
+        <div className="flex min-w-0 items-center justify-self-end gap-1">
           {navigation.map((item) => {
             const isActive =
               item.href === "/"
