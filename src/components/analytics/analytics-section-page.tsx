@@ -40,27 +40,27 @@ export function AnalyticsSectionPage({
 }: Props) {
   return (
     <AppShell>
-      <div className="mx-auto max-w-[1500px] space-y-6 px-6 py-7 lg:px-8">
+      <div className="mx-auto max-w-[1600px] space-y-6 px-6 py-7 lg:px-8">
         <PageHeader
-          eyebrow="Analytics"
+          eyebrow="Management analytics"
           title={title}
           description={description}
           actions={
             <Link
               href="/reports"
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              className="rounded-[8px] border bg-white px-4 py-2.5 text-sm font-semibold transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
             >
               Build a report
             </Link>
           }
         />
 
-        <nav className="flex gap-1 overflow-x-auto border-b border-slate-200">
+        <nav className="flex gap-1 overflow-x-auto border-b border-[var(--border)]">
           {sections.map(([label, href]) => (
             <Link
               key={href}
               href={href}
-              className="whitespace-nowrap px-3 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-950"
+              className="whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-xs font-semibold text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--foreground)]"
             >
               {label}
             </Link>
@@ -71,11 +71,14 @@ export function AnalyticsSectionPage({
 
         {children}
 
-        <footer className="border-t border-slate-200 pt-4 text-xs leading-5 text-slate-400">
+        <footer className="border-t border-[var(--border)] pt-4 text-xs leading-5 text-[var(--muted)]">
+          <span className="font-medium text-[var(--muted-strong)]">
+            Evidence definitions:
+          </span>{" "}
           Contact = qualifying employee outbound. Response = observed inbound
-          at or after first qualifying outbound. Sold/Closed = current observed
-          lead state, not a reconstructed transaction record. Source differences
-          are associations, not causal findings.
+          at or after first qualifying outbound. Sold / Closed = current
+          observed lead state, not a reconstructed transaction record. Source
+          differences are associations, not causal findings.
         </footer>
       </div>
     </AppShell>
@@ -88,6 +91,7 @@ export function pct(value: number | null) {
 
 export function minutes(value: number | null) {
   if (value === null) return "—";
+
   return value < 60
     ? `${value.toFixed(1)} min`
     : `${(value / 60).toFixed(1)} hr`;
@@ -103,13 +107,17 @@ export function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5">
-      <h2 className="text-base font-semibold">{title}</h2>
-      {description ? (
-        <p className="mt-1 text-sm leading-5 text-slate-500">
-          {description}
-        </p>
-      ) : null}
+    <section className="rounded-[10px] border bg-white p-5">
+      <div>
+        <h2 className="text-sm font-semibold">{title}</h2>
+
+        {description ? (
+          <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
+            {description}
+          </p>
+        ) : null}
+      </div>
+
       <div className="mt-5">{children}</div>
     </section>
   );
@@ -125,15 +133,17 @@ export function Stat({
   detail?: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+    <div className="rounded-[10px] border bg-white p-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
         {label}
       </p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight tabular-nums">
+
+      <p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums">
         {value}
       </p>
+
       {detail ? (
-        <p className="mt-1 text-xs leading-5 text-slate-500">
+        <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
           {detail}
         </p>
       ) : null}
@@ -153,24 +163,24 @@ export function Bars({
   const max = Math.max(...rows.map((row) => row.value), 1);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {rows.map((row) => (
         <div
           key={row.label}
-          className="grid grid-cols-[120px_minmax(0,1fr)_90px] items-center gap-3"
+          className="grid grid-cols-[120px_minmax(0,1fr)_100px] items-center gap-3"
         >
-          <span className="truncate text-xs font-medium text-slate-600">
+          <span className="truncate text-xs font-medium text-[var(--muted-strong)]">
             {row.label}
           </span>
 
-          <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+          <div className="h-1.5 overflow-hidden rounded-full bg-[var(--surface-muted)]">
             <div
-              className="h-full rounded-full bg-slate-900"
+              className="h-full rounded-full bg-[var(--accent)]"
               style={{ width: `${(row.value / max) * 100}%` }}
             />
           </div>
 
-          <span className="text-right text-xs tabular-nums text-slate-500">
+          <span className="text-right text-xs tabular-nums text-[var(--muted)]">
             {row.value} · {row.detail}
           </span>
         </div>

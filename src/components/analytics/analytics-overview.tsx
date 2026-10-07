@@ -62,8 +62,8 @@ export function AnalyticsOverview({
 
   return (
     <>
-      <div className="rounded-2xl border border-slate-900 bg-slate-950 p-6 text-white shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+      <div className="rounded-[12px] border border-[var(--sidebar-border)] bg-[var(--sidebar)] p-6 text-white">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
           Internet Lead Intelligence
         </p>
 
@@ -71,7 +71,7 @@ export function AnalyticsOverview({
           What actually happens after an Internet lead arrives?
         </h1>
 
-        <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">
+        <p className="mt-4 max-w-3xl text-sm leading-6 text-[#c2c8ce]">
           This view turns lead and timeline evidence into management-level
           answers about contact speed, customer response, communication
           behavior, sources, and observed outcomes.
@@ -109,7 +109,7 @@ export function AnalyticsOverview({
 
       <Card
         title="Where are we losing leads?"
-        description="A management view of the biggest observable gaps in the Internet-lead process."
+        description="The largest observable gaps in the Internet-lead process."
       >
         <div className="grid gap-3 md:grid-cols-4">
           <StoryStep
@@ -159,7 +159,7 @@ export function AnalyticsOverview({
           />
         </div>
 
-        <p className="mt-4 text-xs leading-5 text-slate-400">
+        <p className="mt-4 text-xs leading-5 text-[var(--muted)]">
           Appointment evidence is shown separately rather than treated as a
           strict funnel stage because the current timeline evidence does not
           prove that every appointment came after an observed response.
@@ -244,7 +244,7 @@ export function AnalyticsOverview({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[650px] text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+              <tr className="border-b border-[var(--border)] text-left text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
                 <th className="pb-3 pr-4">Channel</th>
                 <th className="pb-3 pr-4">Contacted</th>
                 <th className="pb-3 pr-4">Responded</th>
@@ -258,7 +258,7 @@ export function AnalyticsOverview({
                 .map((row) => (
                   <tr
                     key={row.channel}
-                    className="border-b border-slate-100 last:border-0"
+                    className="border-b border-[var(--border)] last:border-0"
                   >
                     <td className="py-3 pr-4 font-medium capitalize">
                       {row.channel}
@@ -292,7 +292,7 @@ export function AnalyticsOverview({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+                <tr className="border-b border-[var(--border)] text-left text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
                   <th className="pb-3 pr-4">Outbound action</th>
                   <th className="pb-3 pr-4">Channel</th>
                   <th className="pb-3 pr-4">Responses</th>
@@ -305,7 +305,7 @@ export function AnalyticsOverview({
                 {soldLeadAnalytics.responseActions.map((row) => (
                   <tr
                     key={`${row.action}-${row.channel ?? "none"}`}
-                    className="border-b border-slate-100 last:border-0"
+                    className="border-b border-[var(--border)] last:border-0"
                   >
                     <td className="py-3 pr-4 font-medium">
                       {row.action}
@@ -324,7 +324,7 @@ export function AnalyticsOverview({
                     </td>
                     <td className="py-3 tabular-nums">
                       {row.appointmentEvidence}{" "}
-                      <span className="text-slate-400">
+                      <span className="text-[var(--muted)]">
                         ({pct(row.appointmentRate)})
                       </span>
                     </td>
@@ -335,7 +335,7 @@ export function AnalyticsOverview({
           </div>
         )}
 
-        <p className="mt-4 text-xs leading-5 text-slate-400">
+        <p className="mt-4 text-xs leading-5 text-[var(--muted)]">
           These are observed associations, not causal findings. A response
           action appearing alongside faster responses does not prove that the
           action caused the response.
@@ -350,7 +350,7 @@ export function AnalyticsOverview({
           <div className="overflow-x-auto">
             <table className="w-full min-w-[650px] text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+                <tr className="border-b border-[var(--border)] text-left text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
                   <th className="pb-3 pr-4">Source</th>
                   <th className="pb-3 pr-4">Leads</th>
                   <th className="pb-3 pr-4">Contact</th>
@@ -363,7 +363,7 @@ export function AnalyticsOverview({
                 {analysis.sources.slice(0, 10).map((row) => (
                   <tr
                     key={row.source}
-                    className="border-b border-slate-100 last:border-0"
+                    className="border-b border-[var(--border)] last:border-0"
                   >
                     <td className="max-w-[220px] truncate py-3 pr-4 font-medium">
                       {row.source}
@@ -389,7 +389,7 @@ export function AnalyticsOverview({
             </table>
           </div>
 
-          <p className="mt-4 text-xs leading-5 text-slate-400">
+          <p className="mt-4 text-xs leading-5 text-[var(--muted)]">
             Source differences are associations in the observed dataset, not
             evidence that the source itself caused the outcome.
           </p>
@@ -472,7 +472,7 @@ export function AnalyticsOverview({
           </div>
 
           {soldLeadAnalytics.timelineCovered === 0 ? (
-            <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-800">
+            <p className="mt-4 rounded-lg border border-[var(--warning)]/30 bg-[var(--warning-soft)] px-4 py-3 text-xs leading-5 text-[var(--warning)]">
               The current Sold / Closed population has no linked timeline
               evidence. Communication behavior, response speed, actions, and
               message/template associations cannot be evaluated for these
@@ -504,7 +504,7 @@ export function AnalyticsOverview({
           />
         </div>
 
-        <p className="mt-4 text-xs leading-5 text-slate-400">
+        <p className="mt-4 text-xs leading-5 text-[var(--muted)]">
           Contact and response metrics describe observed timeline evidence.
           Sold / Closed describes the lead&apos;s current observed state; it is not
           a reconstructed sales transaction history.
@@ -520,10 +520,10 @@ export function AnalyticsOverview({
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg border border-slate-200 p-4 transition hover:border-slate-400 hover:bg-slate-50"
+              className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--accent)] hover:bg-[var(--surface-muted)]"
             >
               <p className="font-medium">{item.title}</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
+              <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
                 {item.description}
               </p>
             </Link>
@@ -535,10 +535,10 @@ export function AnalyticsOverview({
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg border border-slate-200 p-4 transition hover:border-slate-400 hover:bg-slate-50"
+              className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--accent)] hover:bg-[var(--surface-muted)]"
             >
               <p className="font-medium">{item.title}</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
+              <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
                 {item.description}
               </p>
             </Link>
@@ -560,10 +560,10 @@ function HeroMetric({
 }) {
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-      <p className="text-xs font-medium text-slate-400">{label}</p>
+      <p className="text-xs font-medium text-[var(--muted)]">{label}</p>
       <p className="mt-2 text-2xl font-semibold tabular-nums">{value}</p>
       {detail ? (
-        <p className="mt-1 text-xs text-slate-400">{detail}</p>
+        <p className="mt-1 text-xs text-[var(--muted)]">{detail}</p>
       ) : null}
     </div>
   );
@@ -586,16 +586,16 @@ function StoryStep({
     <div
       className={`rounded-xl border p-4 ${
         warning
-          ? "border-amber-200 bg-amber-50"
-          : "border-slate-200 bg-slate-50"
+          ? "border-[var(--warning)]/30 bg-[var(--warning-soft)]"
+          : "border-[var(--border)] bg-[var(--surface-muted)]"
       }`}
     >
-      <p className="text-xs font-semibold tracking-wide text-slate-400">
+      <p className="text-xs font-semibold tracking-wide text-[var(--muted)]">
         {number}
       </p>
-      <p className="mt-3 text-sm font-medium text-slate-700">{label}</p>
+      <p className="mt-3 text-sm font-medium text-[var(--muted-strong)]">{label}</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-      <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
+      <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{detail}</p>
     </div>
   );
 }
@@ -617,14 +617,14 @@ function MetricBar({
     <div>
       <div className="flex items-center justify-between gap-4 text-sm">
         <span className="font-medium">{label}</span>
-        <span className="tabular-nums text-slate-500">
+        <span className="tabular-nums text-[var(--muted)]">
           {count}
           {denominator !== undefined ? ` / ${denominator}` : ""}
           {rate !== null ? ` · ${pct(rate)}` : ""}
         </span>
       </div>
 
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
         <div
           className="h-full rounded-full bg-slate-800 transition-all"
           style={{ width: `${width}%` }}
@@ -644,11 +644,11 @@ function MiniMetric({
   detail?: string;
 }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-4">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
+    <div className="rounded-lg bg-[var(--surface-muted)] p-4">
+      <p className="text-xs font-medium text-[var(--muted)]">{label}</p>
       <p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
       {detail ? (
-        <p className="mt-1 text-xs text-slate-400">{detail}</p>
+        <p className="mt-1 text-xs text-[var(--muted)]">{detail}</p>
       ) : null}
     </div>
   );
@@ -664,17 +664,17 @@ function Signal({
   detail: string;
 }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-4">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
+    <div className="rounded-lg bg-[var(--surface-muted)] p-4">
+      <p className="text-xs font-medium text-[var(--muted)]">{label}</p>
       <p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
-      <p className="mt-1 text-xs text-slate-400">{detail}</p>
+      <p className="mt-1 text-xs text-[var(--muted)]">{detail}</p>
     </div>
   );
 }
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-5 text-sm text-slate-500">
+    <div className="rounded-lg bg-[var(--surface-muted)] p-5 text-sm text-[var(--muted)]">
       {text}
     </div>
   );
