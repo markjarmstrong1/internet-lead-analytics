@@ -34,6 +34,6 @@ export function useNavigationLayout() {
   return useSyncExternalStore(
     subscribe,
     getNavigationLayout,
-    () => "sidebar",
+    () => "sidebar" as NavigationLayout,
   );
 }
