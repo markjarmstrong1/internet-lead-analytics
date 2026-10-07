@@ -350,7 +350,7 @@ function TopBarNavigation({ pathname }: { pathname: string }) {
       aria-label="Primary navigation"
       className="sticky top-0 z-40 hidden h-16 border-b bg-[var(--sidebar)] lg:flex"
     >
-      <div className="mx-auto grid h-16 w-full max-w-[1600px] grid-cols-[minmax(180px,1fr)_minmax(280px,420px)_minmax(500px,1fr)] items-center gap-6 px-6 lg:px-8">
+      <div className="mx-auto grid h-16 w-full max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 lg:gap-6 lg:px-8">
         <Link
           href="/"
           className="min-w-0 truncate text-sm font-semibold tracking-tight text-white"
@@ -358,7 +358,7 @@ function TopBarNavigation({ pathname }: { pathname: string }) {
           Internet Lead Analytics
         </Link>
 
-        <div className="w-full">
+        <div className="w-[min(30vw,420px)]">
           <input
             type="search"
             placeholder="Search leads, metrics, reports..."
@@ -367,7 +367,7 @@ function TopBarNavigation({ pathname }: { pathname: string }) {
           />
         </div>
 
-        <div className="flex min-w-0 items-center justify-end gap-1 overflow-hidden">
+        <div className="flex items-center justify-end gap-0.5 whitespace-nowrap lg:gap-1">
           {navigation.map((item) => {
             const isActive =
               item.href === "/"
