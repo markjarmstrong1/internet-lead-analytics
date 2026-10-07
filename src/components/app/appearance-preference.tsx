@@ -177,11 +177,16 @@ function readPreferences(): AppearancePreferences {
 }
 
 export function setAppearancePreferences(
-  preferences: AppearancePreferences,
+  updates: Partial<AppearancePreferences>,
 ) {
-  const serialized = JSON.stringify(preferences);
+  const nextPreferences: AppearancePreferences = {
+    ...cachedPreferences,
+    ...updates,
+  };
 
-  cachedPreferences = preferences;
+  const serialized = JSON.stringify(nextPreferences);
+
+  cachedPreferences = nextPreferences;
   cachedStorageValue = serialized;
 
   window.localStorage.setItem(STORAGE_KEY, serialized);
