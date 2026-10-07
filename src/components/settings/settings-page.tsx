@@ -36,34 +36,39 @@ const themes: {
   description: string;
   className: string;
   preview: string[];
+  mode: string;
 }[] = [
   {
     value: "professional",
     title: "Professional",
-    description: "Clean management analytics with restrained executive styling.",
+    description: "Management intelligence with disciplined BI styling and restrained hierarchy.",
     className: "bg-[#f7f7f4]",
     preview: ["bg-[#151a20]", "bg-[#b28a3b]", "bg-white"],
+    mode: "MANAGEMENT INTELLIGENCE",
   },
   {
     value: "tech",
     title: "Tech",
-    description: "Dark telemetry-inspired interface built for modern data work.",
-    className: "bg-[#0a0d11]",
-    preview: ["bg-[#07090c]", "bg-[#36d1ff]", "bg-[#11161c]"],
+    description: "Engineering-style telemetry for a modern, high-signal analytical workspace.",
+    className: "bg-[#06080b]",
+    preview: ["bg-[#030507]", "bg-[#28d9ff]", "bg-[#0d1217]"],
+    mode: "TELEMETRY / LIVE",
   },
   {
     value: "executive",
     title: "Executive",
-    description: "Premium, restrained and presentation-ready for leadership.",
-    className: "bg-[#f5f5f2]",
-    preview: ["bg-[#17202b]", "bg-[#344b68]", "bg-white"],
+    description: "Editorial, premium and deliberately spacious for leadership review.",
+    className: "bg-[#f3f1ec]",
+    preview: ["bg-[#101a27]", "bg-[#304a66]", "bg-[#fbfaf7]"],
+    mode: "BOARDROOM / REVIEW",
   },
   {
     value: "performance",
     title: "Performance",
-    description: "Dense operational interface optimized for daily analytics.",
-    className: "bg-[#eef1f3]",
-    preview: ["bg-[#20272e]", "bg-[#d17d21]", "bg-white"],
+    description: "Dense race-control styling for fast operational decisions and monitoring.",
+    className: "bg-[#e9edf0]",
+    preview: ["bg-[#151c22]", "bg-[#ef8b22]", "bg-white"],
+    mode: "RACE CONTROL / OPS",
   },
 ];
 
@@ -289,17 +294,34 @@ function ThemeOption({
     >
       <div
         className={[
-          "relative h-28 overflow-hidden rounded-[var(--radius-md)] border",
+          "relative h-32 overflow-hidden rounded-[var(--radius-md)] border",
           theme.className,
         ].join(" ")}
       >
-        <div className="absolute inset-y-0 left-0 w-8 bg-black/70" />
-        <div className="absolute left-12 right-3 top-4 h-3 rounded bg-black/10" />
-        <div className="absolute left-12 top-12 flex gap-2">
+        <div className="absolute inset-y-0 left-0 w-9 bg-black/70" />
+
+        <div className="absolute left-12 right-3 top-3 flex items-center justify-between">
+          <span className="text-[7px] font-bold uppercase tracking-[0.16em] text-black/50">
+            {theme.mode}
+          </span>
+          <span className="h-1.5 w-1.5 rounded-full bg-current opacity-40" />
+        </div>
+
+        <div className="absolute left-12 right-3 top-9 grid grid-cols-3 gap-1.5">
           {theme.preview.map((color) => (
             <span
               key={color}
-              className={`h-7 w-12 rounded ${color}`}
+              className={`h-8 rounded-sm border border-black/5 ${color}`}
+            />
+          ))}
+        </div>
+
+        <div className="absolute bottom-3 left-12 right-3 flex items-end gap-1">
+          {[18, 27, 14, 34, 24, 40, 30, 44].map((height, index) => (
+            <span
+              key={index}
+              className="flex-1 rounded-t-sm bg-black/15"
+              style={{ height }}
             />
           ))}
         </div>
