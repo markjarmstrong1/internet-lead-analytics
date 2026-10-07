@@ -24,6 +24,13 @@ export const DEFAULT_REPORT_DEFINITION: ReportDefinition = {
     sourceGroups: [],
     stages: [],
     statuses: [],
+    evidence: {
+      outbound: "any",
+      response: "any",
+      appointment: "any",
+      outcome: "any",
+      responseWithin24h: "any",
+    },
   },
   groupBy: "source",
   metrics: [
@@ -68,6 +75,32 @@ export function normalizeReportDefinition(
       ),
       stages: unique(asStringArray(filters.stages)),
       statuses: unique(asStringArray(filters.statuses)),
+      evidence: {
+        outbound:
+          getEvidenceStateFilter(
+            filters.evidence,
+            "outbound",
+          ),
+        response:
+          getEvidenceStateFilter(
+            filters.evidence,
+            "response",
+          ),
+        appointment:
+          getEvidenceStateFilter(
+            filters.evidence,
+            "appointment",
+          ),
+        outcome:
+          getEvidenceStateFilter(
+            filters.evidence,
+            "outcome",
+          ),
+        responseWithin24h:
+          getResponseWithin24hFilter(
+            filters.evidence,
+          ),
+      },
     },
     groupBy: isReportDimension(input.groupBy)
       ? input.groupBy
@@ -130,12 +163,58 @@ export function reportDefinitionFromSearchParams(
       sourceGroups: values("sourceGroup"),
       stages: values("stage"),
       statuses: values("status"),
+      evidence: {
+        outbound:
+          first("evidenceOutbound") ?? "any",
+        response:
+          first("evidenceResponse") ?? "any",
+        appointment:
+          first("evidenceAppointment") ?? "any",
+        outcome:
+          first("evidenceOutcome") ?? "any",
+        responseWithin24h:
+          first("evidenceResponseWithin24h") ?? "any",
+      },
     },
     groupBy:
       first("groupBy") ??
       DEFAULT_REPORT_DEFINITION.groupBy,
     metrics: values("metric"),
   });
+}
+
+function getEvidenceStateFilter(
+  value: unknown,
+  key:
+    | "outbound"
+    | "response"
+    | "appointment"
+    | "outcome",
+): "any" | "observed" | "not_observed" {
+  if (!isRecord(value)) {
+    return "any";
+  }
+
+  const selected = value[key];
+
+  return selected === "observed" ||
+    selected === "not_observed"
+    ? selected
+    : "any";
+}
+
+function getResponseWithin24hFilter(
+  value: unknown,
+): "any" | "yes" | "no" {
+  if (!isRecord(value)) {
+    return "any";
+  }
+
+  const selected = value.responseWithin24h;
+
+  return selected === "yes" || selected === "no"
+    ? selected
+    : "any";
 }
 
 function normalizeName(

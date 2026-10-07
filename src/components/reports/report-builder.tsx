@@ -25,7 +25,13 @@ type ReportBuilderProps = {
   };
 };
 
-type FilterKey = keyof ReportDefinition["filters"];
+type FilterKey = Exclude<
+  keyof ReportDefinition["filters"],
+  "evidence"
+>;
+
+type EvidenceFilterKey =
+  keyof ReportDefinition["filters"]["evidence"];
 
 export function ReportBuilder({
   definition,
@@ -64,6 +70,27 @@ export function ReportBuilder({
         },
       };
     });
+  }
+
+  function updateEvidenceFilter(
+    key: EvidenceFilterKey,
+    value:
+      | "any"
+      | "observed"
+      | "not_observed"
+      | "yes"
+      | "no",
+  ) {
+    setDraft((current) => ({
+      ...current,
+      filters: {
+        ...current.filters,
+        evidence: {
+          ...current.filters.evidence,
+          [key]: value,
+        },
+      },
+    }));
   }
 
   function toggleMetric(
@@ -303,6 +330,93 @@ export function ReportBuilder({
         <div>
           <div className="mb-3">
             <p className="text-sm font-semibold">
+              Evidence filters
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Filter the population using observed evidence rather than
+              assuming missing evidence means the event did not happen.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <EvidenceSelect
+              name="evidenceOutbound"
+              label="Outbound"
+              value={draft.filters.evidence.outbound}
+              onChange={(value) =>
+                updateEvidenceFilter("outbound", value)
+              }
+              options={[
+                ["any", "Any"],
+                ["observed", "Observed"],
+                ["not_observed", "Not observed"],
+              ]}
+            />
+
+            <EvidenceSelect
+              name="evidenceResponse"
+              label="Response"
+              value={draft.filters.evidence.response}
+              onChange={(value) =>
+                updateEvidenceFilter("response", value)
+              }
+              options={[
+                ["any", "Any"],
+                ["observed", "Observed"],
+                ["not_observed", "Not observed"],
+              ]}
+            />
+
+            <EvidenceSelect
+              name="evidenceAppointment"
+              label="Appointment"
+              value={draft.filters.evidence.appointment}
+              onChange={(value) =>
+                updateEvidenceFilter("appointment", value)
+              }
+              options={[
+                ["any", "Any"],
+                ["observed", "Observed"],
+                ["not_observed", "Not observed"],
+              ]}
+            />
+
+            <EvidenceSelect
+              name="evidenceOutcome"
+              label="Outcome"
+              value={draft.filters.evidence.outcome}
+              onChange={(value) =>
+                updateEvidenceFilter("outcome", value)
+              }
+              options={[
+                ["any", "Any"],
+                ["observed", "Observed"],
+                ["not_observed", "Not observed"],
+              ]}
+            />
+
+            <EvidenceSelect
+              name="evidenceResponseWithin24h"
+              label="Response within 24h"
+              value={draft.filters.evidence.responseWithin24h}
+              onChange={(value) =>
+                updateEvidenceFilter(
+                  "responseWithin24h",
+                  value,
+                )
+              }
+              options={[
+                ["any", "Any"],
+                ["yes", "Yes"],
+                ["no", "No"],
+              ]}
+            />
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-3">
+            <p className="text-sm font-semibold">
               Metrics
             </p>
             <p className="mt-1 text-xs leading-5 text-slate-500">
@@ -444,6 +558,70 @@ function Field({
       <span className="mt-2 block">
         {children}
       </span>
+    </label>
+  );
+}
+
+function EvidenceSelect({
+  name,
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  name: string;
+  label: string;
+  value:
+    | "any"
+    | "observed"
+    | "not_observed"
+    | "yes"
+    | "no";
+  onChange: (
+    value:
+      | "any"
+      | "observed"
+      | "not_observed"
+      | "yes"
+      | "no",
+  ) => void;
+  options: Array<
+    [
+      "any" | "observed" | "not_observed" | "yes" | "no",
+      string,
+    ]
+  >;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-semibold">
+        {label}
+      </span>
+
+      <select
+        name={name}
+        value={value}
+        onChange={(event) =>
+          onChange(
+            event.target.value as
+              | "any"
+              | "observed"
+              | "not_observed"
+              | "yes"
+              | "no",
+          )
+        }
+        className={inputClass}
+      >
+        {options.map(([optionValue, optionLabel]) => (
+          <option
+            key={optionValue}
+            value={optionValue}
+          >
+            {optionLabel}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

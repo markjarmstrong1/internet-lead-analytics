@@ -73,6 +73,40 @@ describe("report definition normalization", () => {
     );
   });
 
+  it("defaults evidence filters to any", () => {
+    expect(
+      normalizeReportDefinition({}).filters.evidence,
+    ).toEqual({
+      outbound: "any",
+      response: "any",
+      appointment: "any",
+      outcome: "any",
+      responseWithin24h: "any",
+    });
+  });
+
+  it("normalizes evidence filters from a report definition", () => {
+    expect(
+      normalizeReportDefinition({
+        filters: {
+          evidence: {
+            outbound: "observed",
+            response: "not_observed",
+            appointment: "observed",
+            outcome: "any",
+            responseWithin24h: "yes",
+          },
+        },
+      }).filters.evidence,
+    ).toEqual({
+      outbound: "observed",
+      response: "not_observed",
+      appointment: "observed",
+      outcome: "any",
+      responseWithin24h: "yes",
+    });
+  });
+
   it("rejects reversed date ranges", () => {
     expect(() =>
       normalizeReportDefinition({
@@ -134,6 +168,108 @@ describe("buildReport", () => {
     });
   });
 
+
+  it("filters population by observed outbound evidence", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("outbound"),
+          lead("no-outbound", {
+            timelineRecordIds: [],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "outbound",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          evidence: {
+            outbound: "observed",
+          },
+        },
+        groupBy: "none",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.rows[0]?.values.leads).toBe(1);
+  });
+
+  it("filters population by not-observed response evidence", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("responded"),
+          lead("no-response", {
+            leadId: "no-response",
+            timelineRecordIds: ["record-2"],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "outbound-1",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "inbound-1",
+            occurredAt:
+              "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "outbound-2",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          evidence: {
+            response: "not_observed",
+          },
+        },
+        groupBy: "none",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.rows[0]?.values.leads).toBe(1);
+  });
+
+  it("filters population by observed CRM outcome evidence", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("sold", {
+            stage: "Sold",
+          }),
+          lead("active"),
+        ],
+        [],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          evidence: {
+            outcome: "observed",
+          },
+        },
+        groupBy: "none",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.rows[0]?.values.leads).toBe(1);
+  });
 
   it("groups leads by source and calculates selected metrics", () => {
     const result = buildReport(

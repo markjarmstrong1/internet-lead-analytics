@@ -40,7 +40,11 @@ export function buildReport(
         definition,
         observationsByLead.get(lead.leadId),
       ) &&
-      matchesFilters(lead, definition),
+      matchesFilters(lead, definition) &&
+      matchesEvidenceFilters(
+        observationsByLead.get(lead.leadId),
+        definition,
+      ),
   );
 
   const populationIds = new Set(
@@ -407,6 +411,73 @@ function matchesFilters(
       statuses,
     )
   );
+}
+
+function matchesEvidenceFilters(
+  observation: LeadObservation | undefined,
+  definition: ReportDefinition,
+): boolean {
+  const filters = definition.filters.evidence;
+
+  if (!observation) {
+    return (
+      filters.outbound === "any" &&
+      filters.response === "any" &&
+      filters.appointment === "any" &&
+      filters.outcome === "any" &&
+      filters.responseWithin24h === "any"
+    );
+  }
+
+  return (
+    matchesEvidenceState(
+      observation.evidence.outbound.state,
+      filters.outbound,
+    ) &&
+    matchesEvidenceState(
+      observation.evidence.response.state,
+      filters.response,
+    ) &&
+    matchesEvidenceState(
+      observation.evidence.appointment.state,
+      filters.appointment,
+    ) &&
+    matchesEvidenceState(
+      observation.evidence.outcome.state,
+      filters.outcome,
+    ) &&
+    matchesResponseWithin24h(
+      observation,
+      filters.responseWithin24h,
+    )
+  );
+}
+
+function matchesEvidenceState(
+  state: LeadObservation["evidence"]["outbound"]["state"],
+  filter:
+    | "any"
+    | "observed"
+    | "not_observed",
+): boolean {
+  if (filter === "any") {
+    return true;
+  }
+
+  return state === filter;
+}
+
+function matchesResponseWithin24h(
+  observation: LeadObservation,
+  filter: "any" | "yes" | "no",
+): boolean {
+  if (filter === "any") {
+    return true;
+  }
+
+  return filter === "yes"
+    ? observation.respondedWithin24h
+    : !observation.respondedWithin24h;
 }
 
 function matchesStringFilter(
