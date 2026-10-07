@@ -337,6 +337,97 @@ describe("buildReport", () => {
     ]);
   });
 
+  it("returns a null response rate when no outbound evidence exists", () => {
+    const result = buildReport(
+      dataset(
+        [lead("no-outbound")],
+        [],
+      ),
+      normalizeReportDefinition({
+        groupBy: "none",
+        metrics: ["responseRate", "responseWithin24hRate"],
+      }),
+    );
+
+    expect(result.summary).toEqual({
+      responseRate: null,
+      responseWithin24hRate: null,
+    });
+  });
+
+  it("returns zero response rates when outbound evidence exists without a response", () => {
+    const result = buildReport(
+      dataset(
+        [lead("no-response")],
+        [event({ sourceEventId: "outbound" })],
+      ),
+      normalizeReportDefinition({
+        groupBy: "none",
+        metrics: ["responseRate", "responseWithin24hRate"],
+      }),
+    );
+
+    expect(result.summary).toEqual({
+      responseRate: 0,
+      responseWithin24hRate: 0,
+    });
+  });
+
+  it("uses observed outbound leads as the denominator for response rates", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("responded"),
+          lead("no-response", {
+            leadId: "no-response",
+            timelineRecordIds: ["record-2"],
+          }),
+          lead("never-contacted", {
+            leadId: "never-contacted",
+            timelineRecordIds: [],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "outbound-1",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "inbound-1",
+            occurredAt:
+              "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "outbound-2",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        groupBy: "none",
+        metrics: [
+          "leads",
+          "observedOutbound",
+          "responded",
+          "responseRate",
+          "responseWithin24hRate",
+        ],
+      }),
+    );
+
+    expect(result.summary).toEqual({
+      leads: 3,
+      observedOutbound: 2,
+      responded: 1,
+      responseRate: 0.5,
+      responseWithin24hRate: 0.5,
+    });
+  });
+
   it("filters by lead creation date", () => {
     const result = buildReport(
       dataset(

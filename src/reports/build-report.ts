@@ -33,32 +33,17 @@ export function buildReport(
     ]),
   );
 
-  const filteredLeads = dataset.leads.filter(
-    (lead) =>
-      matchesDateRange(
-        lead,
-        definition,
-        observationsByLead.get(lead.leadId),
-      ) &&
-      matchesFilters(lead, definition) &&
-      matchesEvidenceFilters(
-        observationsByLead.get(lead.leadId),
-        definition,
-      ),
+  const population = buildPopulation(
+    dataset.leads,
+    observations,
+    observationsByLead,
+    definition,
   );
 
-  const populationIds = new Set(
-    filteredLeads.map(
-      (lead) => lead.leadId,
-    ),
-  );
-
-  const filteredObservations =
-    observations.filter((observation) =>
-      populationIds.has(
-        observation.lead.leadId,
-      ),
-    );
+  const {
+    leads: filteredLeads,
+    observations: filteredObservations,
+  } = population;
 
   const grouped = groupObservations(
     filteredLeads,
@@ -97,10 +82,44 @@ export function buildReport(
   };
 }
 
-type ReportGroup = {
+type ReportPopulation = {
   leads: AnalyticsLead[];
   observations: LeadObservation[];
 };
+
+type ReportGroup = ReportPopulation;
+
+function buildPopulation(
+  leads: AnalyticsLead[],
+  observations: LeadObservation[],
+  observationsByLead: Map<string, LeadObservation>,
+  definition: ReportDefinition,
+): ReportPopulation {
+  const filteredLeads = leads.filter(
+    (lead) =>
+      matchesDateRange(
+        lead,
+        definition,
+        observationsByLead.get(lead.leadId),
+      ) &&
+      matchesFilters(lead, definition) &&
+      matchesEvidenceFilters(
+        observationsByLead.get(lead.leadId),
+        definition,
+      ),
+  );
+
+  const populationIds = new Set(
+    filteredLeads.map((lead) => lead.leadId),
+  );
+
+  return {
+    leads: filteredLeads,
+    observations: observations.filter((observation) =>
+      populationIds.has(observation.lead.leadId),
+    ),
+  };
+}
 
 function groupObservations(
   leads: AnalyticsLead[],
@@ -227,29 +246,32 @@ function calculateMetric(
         isSoldClosedStage(lead.stage),
       ).length;
 
-    case "responseRate":
-      return ratio(
-        observations.filter(
-          (observation) =>
-            observation.responseMinutes !== null,
-        ).length,
-        observations.filter(
-          (observation) =>
-            observation.firstOutbound !== null,
-        ).length,
-      );
+    case "responseRate": {
+      const outboundPopulation =
+        observedOutboundPopulation(observations);
+      const respondedPopulation =
+        respondedPopulationFrom(outboundPopulation);
 
-    case "responseWithin24hRate":
       return ratio(
-        observations.filter(
+        respondedPopulation.length,
+        outboundPopulation.length,
+      );
+    }
+
+    case "responseWithin24hRate": {
+      const outboundPopulation =
+        observedOutboundPopulation(observations);
+      const respondedWithin24h =
+        outboundPopulation.filter(
           (observation) =>
             observation.respondedWithin24h,
-        ).length,
-        observations.filter(
-          (observation) =>
-            observation.firstOutbound !== null,
-        ).length,
+        );
+
+      return ratio(
+        respondedWithin24h.length,
+        outboundPopulation.length,
       );
+    }
 
     case "medianResponseMinutes": {
       const values = observations
@@ -272,6 +294,24 @@ function calculateMetric(
         0,
       );
   }
+}
+
+function observedOutboundPopulation(
+  observations: LeadObservation[],
+): LeadObservation[] {
+  return observations.filter(
+    (observation) =>
+      observation.evidence.outbound.state === "observed",
+  );
+}
+
+function respondedPopulationFrom(
+  outboundPopulation: LeadObservation[],
+): LeadObservation[] {
+  return outboundPopulation.filter(
+    (observation) =>
+      observation.evidence.response.state === "observed",
+  );
 }
 
 function matchesDateRange(
