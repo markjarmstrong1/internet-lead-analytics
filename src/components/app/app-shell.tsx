@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 import { useNavigationLayout } from "./navigation-preference";
 
 const navigation = [
@@ -19,6 +19,39 @@ const DEFAULT_WIDTH = 208;
 const MIN_WIDTH = 180;
 const MAX_WIDTH = 320;
 const COLLAPSED_WIDTH = 64;
+const SIDEBAR_WIDTH_KEY = "ila-sidebar-width";
+const SIDEBAR_COLLAPSED_KEY = "ila-sidebar-collapsed";
+const SIDEBAR_PREFERENCE_EVENT = "ila-sidebar-preference-change";
+
+function subscribeSidebarPreference(callback: () => void) {
+  window.addEventListener(SIDEBAR_PREFERENCE_EVENT, callback);
+  window.addEventListener("storage", callback);
+
+  return () => {
+    window.removeEventListener(SIDEBAR_PREFERENCE_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function getStoredSidebarWidth() {
+  if (typeof window === "undefined") return DEFAULT_WIDTH;
+
+  const stored = Number(window.localStorage.getItem(SIDEBAR_WIDTH_KEY));
+
+  return Number.isFinite(stored)
+    ? Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, stored))
+    : DEFAULT_WIDTH;
+}
+
+function getStoredSidebarCollapsed() {
+  if (typeof window === "undefined") return false;
+
+  return window.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
+}
+
+function emitSidebarPreferenceChange() {
+  window.dispatchEvent(new Event(SIDEBAR_PREFERENCE_EVENT));
+}
 
 type AppShellProps = {
   children: ReactNode;
@@ -27,41 +60,17 @@ type AppShellProps = {
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const navigationLayout = useNavigationLayout();
-  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
-  const [collapsed, setCollapsed] = useState(false);
+  const sidebarWidth = useSyncExternalStore(
+    subscribeSidebarPreference,
+    getStoredSidebarWidth,
+    () => DEFAULT_WIDTH,
+  );
+  const collapsed = useSyncExternalStore(
+    subscribeSidebarPreference,
+    getStoredSidebarCollapsed,
+    () => false,
+  );
 
-  useEffect(() => {
-    const storedWidth = window.localStorage.getItem("ila-sidebar-width");
-    const storedCollapsed = window.localStorage.getItem("ila-sidebar-collapsed");
-
-    if (storedWidth) {
-      const width = Number(storedWidth);
-
-      if (Number.isFinite(width)) {
-        setSidebarWidth(
-          Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, width)),
-        );
-      }
-    }
-
-    if (storedCollapsed === "true") {
-      setCollapsed(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      "ila-sidebar-width",
-      String(sidebarWidth),
-    );
-  }, [sidebarWidth]);
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      "ila-sidebar-collapsed",
-      String(collapsed),
-    );
-  }, [collapsed]);
 
   function startResize(event: React.PointerEvent<HTMLDivElement>) {
     if (collapsed) return;
@@ -77,7 +86,11 @@ export function AppShell({ children }: AppShellProps) {
         Math.max(MIN_WIDTH, startWidth + moveEvent.clientX - startX),
       );
 
-      setSidebarWidth(nextWidth);
+      window.localStorage.setItem(
+        SIDEBAR_WIDTH_KEY,
+        String(nextWidth),
+      );
+      emitSidebarPreferenceChange();
     }
 
     function handleUp() {
@@ -190,7 +203,13 @@ export function AppShell({ children }: AppShellProps) {
 
         <button
           type="button"
-          onClick={() => setCollapsed((value) => !value)}
+          onClick={() => {
+            window.localStorage.setItem(
+              SIDEBAR_COLLAPSED_KEY,
+              String(!collapsed),
+            );
+            emitSidebarPreferenceChange();
+          }}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className={[

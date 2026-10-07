@@ -1,11 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 export type NavigationLayout = "sidebar" | "topbar";
 
 const STORAGE_KEY = "ila-navigation-layout";
 const CHANGE_EVENT = "ila-navigation-layout-change";
+
+function subscribe(callback: () => void) {
+  window.addEventListener(CHANGE_EVENT, callback);
+  window.addEventListener("storage", callback);
+
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
 
 export function getNavigationLayout(): NavigationLayout {
   if (typeof window === "undefined") return "sidebar";
@@ -17,39 +27,13 @@ export function getNavigationLayout(): NavigationLayout {
 
 export function setNavigationLayout(layout: NavigationLayout) {
   window.localStorage.setItem(STORAGE_KEY, layout);
-  window.dispatchEvent(
-    new CustomEvent(CHANGE_EVENT, { detail: layout }),
-  );
+  window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
 export function useNavigationLayout() {
-  const [layout, setLayout] = useState<NavigationLayout>("sidebar");
-
-  useEffect(() => {
-    setLayout(getNavigationLayout());
-
-    function handleChange(event: Event) {
-      const detail = (event as CustomEvent<NavigationLayout>).detail;
-
-      if (detail === "sidebar" || detail === "topbar") {
-        setLayout(detail);
-      }
-    }
-
-    function handleStorage(event: StorageEvent) {
-      if (event.key === STORAGE_KEY) {
-        setLayout(getNavigationLayout());
-      }
-    }
-
-    window.addEventListener(CHANGE_EVENT, handleChange);
-    window.addEventListener("storage", handleStorage);
-
-    return () => {
-      window.removeEventListener(CHANGE_EVENT, handleChange);
-      window.removeEventListener("storage", handleStorage);
-    };
-  }, []);
-
-  return layout;
+  return useSyncExternalStore(
+    subscribe,
+    getNavigationLayout,
+    () => "sidebar",
+  );
 }
