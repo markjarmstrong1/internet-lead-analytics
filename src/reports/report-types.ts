@@ -16,6 +16,12 @@ export type ReportDimensionKey =
   | "status"
   | "responseSpeed";
 
+export type ReportDimension = {
+  key: ReportDimensionKey;
+  label: string;
+  description: string;
+};
+
 export type ReportMetricKey =
   | "leads"
   | "timelineCovered"
@@ -29,6 +35,13 @@ export type ReportMetricKey =
   | "responseWithin24hRate"
   | "medianResponseMinutes"
   | "outboundAttempts";
+
+export type ReportMeasure = {
+  key: ReportMetricKey;
+  label: string;
+  description: string;
+  format: "count" | "percent" | "minutes";
+};
 
 export type ReportDateRange = {
   basis: ReportDateBasis;

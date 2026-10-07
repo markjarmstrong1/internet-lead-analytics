@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   REPORT_DATE_BASES,
   REPORT_DIMENSIONS,
-  REPORT_METRICS,
+  REPORT_MEASURES,
 } from "@/reports/report-catalog";
 import { saveReportAction } from "@/reports/actions";
 import type {
@@ -427,7 +427,7 @@ export function ReportBuilder({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {REPORT_METRICS.map(
+            {REPORT_MEASURES.map(
               (metric) => {
                 const selected =
                   draft.metrics.includes(
