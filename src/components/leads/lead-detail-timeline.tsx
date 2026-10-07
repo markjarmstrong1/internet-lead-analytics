@@ -81,7 +81,7 @@ function EventDetails({
         role="dialog"
         aria-modal="true"
         aria-labelledby="lead-event-title"
-        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-2xl"
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-[12px] border bg-white shadow-2xl"
       >
         <div className="sticky top-0 flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
           <div className="min-w-0">
@@ -209,7 +209,7 @@ export function LeadDetailTimeline({
     <>
       <SectionPanel
         title="Timeline"
-        description="Select an activity to inspect the underlying evidence."
+        description="A chronological record of imported activity. Select an event to inspect its evidence."
       >
         {events.length === 0 ? (
           <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5">
@@ -230,24 +230,24 @@ export function LeadDetailTimeline({
             </div>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="relative ml-2 divide-y divide-[var(--border)] border-l border-[var(--border)]">
             {events.map((event) => (
               <button
                 key={eventKey(event)}
                 type="button"
                 onClick={() => setSelectedEvent(event)}
-                className="group flex w-full items-center gap-4 px-2 py-3 text-left hover:bg-slate-50"
+                className="group relative flex w-full items-center gap-4 px-3 py-3.5 text-left hover:bg-[var(--accent-soft)]"
               >
                 <time
                   dateTime={event.occurred_at}
-                  className="w-28 shrink-0 text-xs text-slate-400"
+                  className="w-28 shrink-0 text-[11px] tabular-nums text-[var(--muted)]"
                 >
                   {formatDateTime(event.occurred_at)}
                 </time>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex min-w-0 items-center gap-2">
-                    <p className="truncate text-sm font-medium text-slate-900">
+                    <p className="truncate text-sm font-medium text-[var(--foreground)]">
                       {event.raw_type || "Timeline event"}
                     </p>
 
@@ -261,7 +261,7 @@ export function LeadDetailTimeline({
 
                 <span
                   aria-hidden="true"
-                  className="shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-500"
+                  className="shrink-0 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:text-[var(--accent-strong)]"
                 >
                   →
                 </span>

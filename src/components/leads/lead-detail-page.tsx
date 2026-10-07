@@ -4,9 +4,7 @@ import { EvidenceState } from "@/components/app/evidence-state";
 import { PageHeader } from "@/components/app/page-header";
 
 import { getLeadDetail } from "@/integrations/tekion/lead/lead-detail-repository";
-import {
-  buildLeadDetailViewModel,
-} from "@/integrations/tekion/lead/lead-detail-view-model";
+import { buildLeadDetailViewModel } from "@/integrations/tekion/lead/lead-detail-view-model";
 
 import { LeadDetailSummary } from "./lead-detail-summary";
 import { LeadDetailTimeline } from "./lead-detail-timeline";
@@ -25,19 +23,23 @@ export async function LeadDetailPage({
       <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-8">
         <Link
           href="/leads/list"
-          className="text-sm font-medium text-slate-500 hover:text-slate-950"
+          className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)]"
         >
           ← Back to Leads
         </Link>
 
-        <div className="mt-8 rounded-xl border border-slate-200 bg-white p-8">
+        <div className="mt-8 rounded-[10px] border bg-white p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-semibold text-slate-950">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                Lead detail
+              </p>
+
+              <h1 className="mt-2 text-xl font-semibold">
                 Lead not found
               </h1>
 
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-[var(--muted)]">
                 No canonical lead exists for this lead ID.
               </p>
             </div>
@@ -58,15 +60,15 @@ export async function LeadDetailPage({
     <div className="mx-auto max-w-[1600px] space-y-6 px-6 py-8 lg:px-8">
       <Link
         href="/leads/list"
-        className="text-sm font-medium text-slate-500 hover:text-slate-950"
+        className="inline-flex text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)]"
       >
         ← Back to Leads
       </Link>
 
       <PageHeader
-        eyebrow="Lead detail"
+        eyebrow="Lead investigation"
         title={result.lead.contact_name || "Unnamed lead"}
-        description={`Canonical lead ${result.lead.external_record_id}`}
+        description={`${result.lead.external_record_id} · ${result.lead.source || "Unknown source"}`}
       />
 
       <LeadDetailSummary
@@ -74,7 +76,7 @@ export async function LeadDetailPage({
         model={model}
       />
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(360px,0.8fr)]">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.65fr)]">
         <LeadDetailTimeline events={model.events} />
 
         <LeadDetailSummary.Analytics
