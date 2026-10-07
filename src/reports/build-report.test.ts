@@ -88,6 +88,20 @@ describe("report definition normalization", () => {
 });
 
 describe("buildReport", () => {
+
+  it("keeps CRM contacted and observed outbound as distinct metrics", () => {
+    const result = buildReport(
+      makeReportDefinition({
+        metrics: ["contacted", "observedOutbound"],
+      }),
+      FIXTURES,
+    );
+
+    expect(result.summary.contacted).toBe(1);
+    expect(result.summary.observedOutbound).toBe(2);
+  });
+
+
   it("groups leads by source and calculates selected metrics", () => {
     const result = buildReport(
       dataset(
