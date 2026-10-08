@@ -417,12 +417,12 @@ export function ReportBuilder({
         <div>
           <div className="mb-3">
             <p className="text-sm font-semibold">
-              Metrics
+              Measures
             </p>
             <p className="mt-1 text-xs leading-5 text-slate-500">
-              Select the measures that should appear
-              in the generated report. At least one
-              metric must remain selected.
+              Select the measures that should appear in the generated
+              report. Each measure carries an explicit population,
+              evidence requirement, and denominator definition.
             </p>
           </div>
 

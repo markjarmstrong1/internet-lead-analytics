@@ -46,6 +46,14 @@ describe("report catalog", () => {
     });
   });
 
+  it("makes every measure executable", () => {
+    for (const measure of REPORT_MEASURES) {
+      expect(measure.calculate).toEqual(
+        expect.any(Function),
+      );
+    }
+  });
+
   it("keeps the legacy metric catalog alias compatible", async () => {
     const { REPORT_METRICS } = await import("./report-catalog");
 

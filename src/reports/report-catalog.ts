@@ -6,6 +6,21 @@ import type {
   ReportMetricKey,
 } from "./report-types";
 
+import {
+  calculateAppointments,
+  calculateContacted,
+  calculateLeads,
+  calculateMedianResponseMinutes,
+  calculateObservedOutbound,
+  calculateOutboundAttempts,
+  calculateResponseRate,
+  calculateResponseWithin24h,
+  calculateResponseWithin24hRate,
+  calculateResponded,
+  calculateSoldClosed,
+  calculateTimelineCovered,
+} from "./calculations/report-measures";
+
 export const REPORT_DATE_BASES: Array<{
   key: ReportDateBasis;
   label: string;
@@ -91,6 +106,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "none",
     denominator: null,
+    calculate: calculateLeads,
   },
   {
     key: "timelineCovered",
@@ -100,6 +116,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "none",
     denominator: null,
+    calculate: calculateTimelineCovered,
   },
   {
     key: "contacted",
@@ -110,6 +127,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "crm_state",
     denominator: null,
+    calculate: calculateContacted,
   },
   {
     key: "observedOutbound",
@@ -120,6 +138,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "observed_outbound",
     denominator: null,
+    calculate: calculateObservedOutbound,
   },
   {
     key: "responded",
@@ -130,6 +149,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "observed_response",
     denominator: null,
+    calculate: calculateResponded,
   },
   {
     key: "responseWithin24h",
@@ -140,6 +160,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "observed_response",
     denominator: null,
+    calculate: calculateResponseWithin24h,
   },
   {
     key: "appointments",
@@ -150,6 +171,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "observed_appointment",
     denominator: null,
+    calculate: calculateAppointments,
   },
   {
     key: "soldClosed",
@@ -160,6 +182,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "crm_outcome",
     denominator: null,
+    calculate: calculateSoldClosed,
   },
   {
     key: "responseRate",
@@ -170,6 +193,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "observed_outbound_population",
     evidence: "observed_response",
     denominator: "observedOutbound",
+    calculate: calculateResponseRate,
   },
   {
     key: "responseWithin24hRate",
@@ -180,6 +204,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "observed_outbound_population",
     evidence: "observed_response",
     denominator: "observedOutbound",
+    calculate: calculateResponseWithin24hRate,
   },
   {
     key: "medianResponseMinutes",
@@ -190,6 +215,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "responding_population",
     evidence: "observed_response",
     denominator: null,
+    calculate: calculateMedianResponseMinutes,
   },
   {
     key: "outboundAttempts",
@@ -200,6 +226,7 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     population: "report_population",
     evidence: "observed_outbound",
     denominator: null,
+    calculate: calculateOutboundAttempts,
   },
 ];
 

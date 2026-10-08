@@ -49,6 +49,11 @@ export type ReportMeasurePopulation =
   | "observed_outbound_population"
   | "responding_population";
 
+export type ReportMeasureCalculationContext = {
+  leads: import("@/analytics/data/analytics-repository").AnalyticsLead[];
+  observations: import("@/analytics/observations/analytics-observations").LeadObservation[];
+};
+
 export type ReportMeasure = {
   key: ReportMetricKey;
   label: string;
@@ -57,6 +62,9 @@ export type ReportMeasure = {
   population: ReportMeasurePopulation;
   evidence: ReportMeasureEvidence;
   denominator: ReportMetricKey | null;
+  calculate: (
+    context: ReportMeasureCalculationContext,
+  ) => number | null;
 };
 
 export type ReportDateRange = {

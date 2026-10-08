@@ -5,105 +5,134 @@ import {
   type LeadObservation,
 } from "@/analytics/observations/analytics-observations";
 
-import type { ReportMetricKey } from "../report-types";
+export type ReportMeasureCalculationContext = {
+  leads: AnalyticsLead[];
+  observations: LeadObservation[];
+};
 
-export function calculateReportMeasure(
-  metric: ReportMetricKey,
-  leads: AnalyticsLead[],
-  observations: LeadObservation[],
+export function calculateLeads(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.leads.length;
+}
+
+export function calculateTimelineCovered(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.leads.filter(
+    (lead) => lead.timelineRecordIds.length > 0,
+  ).length;
+}
+
+export function calculateContacted(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.observations.filter(
+    (observation) =>
+      observation.firstContactedTime !== null,
+  ).length;
+}
+
+export function calculateObservedOutbound(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.observations.filter(
+    (observation) =>
+      observation.evidence.outbound.state === "observed",
+  ).length;
+}
+
+export function calculateResponded(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.observations.filter(
+    (observation) =>
+      observation.evidence.response.state === "observed",
+  ).length;
+}
+
+export function calculateResponseWithin24h(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.observations.filter(
+    (observation) =>
+      observation.respondedWithin24h,
+  ).length;
+}
+
+export function calculateAppointments(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.observations.filter(
+    (observation) =>
+      observation.appointmentEvidence,
+  ).length;
+}
+
+export function calculateSoldClosed(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.leads.filter((lead) =>
+    isSoldClosedStage(lead.stage),
+  ).length;
+}
+
+export function calculateResponseRate(
+  context: ReportMeasureCalculationContext,
 ): number | null {
-  switch (metric) {
-    case "leads":
-      return leads.length;
+  const outbound =
+    observedOutboundPopulation(context.observations);
+  const responded =
+    respondedPopulationFrom(outbound);
 
-    case "timelineCovered":
-      return leads.filter(
-        (lead) =>
-          lead.timelineRecordIds.length > 0,
-      ).length;
+  return ratio(
+    responded.length,
+    outbound.length,
+  );
+}
 
-    case "contacted":
-      return observations.filter(
-        (observation) =>
-          observation.firstContactedTime !== null,
-      ).length;
+export function calculateResponseWithin24hRate(
+  context: ReportMeasureCalculationContext,
+): number | null {
+  const outbound =
+    observedOutboundPopulation(context.observations);
 
-    case "observedOutbound":
-      return observations.filter(
-        (observation) =>
-          observation.firstOutbound !== null,
-      ).length;
+  const respondedWithin24h =
+    outbound.filter(
+      (observation) =>
+        observation.respondedWithin24h,
+    );
 
-    case "responded":
-      return observations.filter(
-        (observation) =>
-          observation.responseMinutes !== null,
-      ).length;
+  return ratio(
+    respondedWithin24h.length,
+    outbound.length,
+  );
+}
 
-    case "responseWithin24h":
-      return observations.filter(
-        (observation) =>
-          observation.respondedWithin24h,
-      ).length;
+export function calculateMedianResponseMinutes(
+  context: ReportMeasureCalculationContext,
+): number | null {
+  const values = context.observations
+    .map(
+      (observation) =>
+        observation.responseMinutes,
+    )
+    .filter(
+      (value): value is number =>
+        value !== null,
+    );
 
-    case "appointments":
-      return observations.filter(
-        (observation) =>
-          observation.appointmentEvidence,
-      ).length;
+  return median(values);
+}
 
-    case "soldClosed":
-      return leads.filter((lead) =>
-        isSoldClosedStage(lead.stage),
-      ).length;
-
-    case "responseRate": {
-      const outboundPopulation =
-        observedOutboundPopulation(observations);
-      const respondedPopulation =
-        respondedPopulationFrom(outboundPopulation);
-
-      return ratio(
-        respondedPopulation.length,
-        outboundPopulation.length,
-      );
-    }
-
-    case "responseWithin24hRate": {
-      const outboundPopulation =
-        observedOutboundPopulation(observations);
-      const respondedWithin24h = outboundPopulation.filter(
-        (observation) =>
-          observation.respondedWithin24h,
-      );
-
-      return ratio(
-        respondedWithin24h.length,
-        outboundPopulation.length,
-      );
-    }
-
-    case "medianResponseMinutes": {
-      const values = observations
-        .map(
-          (observation) =>
-            observation.responseMinutes,
-        )
-        .filter(
-          (value): value is number =>
-            value !== null,
-        );
-
-      return median(values);
-    }
-
-    case "outboundAttempts":
-      return observations.reduce(
-        (total, observation) =>
-          total + observation.outboundCount,
-        0,
-      );
-  }
+export function calculateOutboundAttempts(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.observations.reduce(
+    (total, observation) =>
+      total + observation.outboundCount,
+    0,
+  );
 }
 
 function observedOutboundPopulation(
@@ -116,9 +145,9 @@ function observedOutboundPopulation(
 }
 
 function respondedPopulationFrom(
-  outboundPopulation: LeadObservation[],
+  observations: LeadObservation[],
 ): LeadObservation[] {
-  return outboundPopulation.filter(
+  return observations.filter(
     (observation) =>
       observation.evidence.response.state === "observed",
   );

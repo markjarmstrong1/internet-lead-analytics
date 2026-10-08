@@ -9,6 +9,9 @@ import {
   type LeadObservation,
 } from "@/analytics/observations/analytics-observations";
 
+import {
+  measureDefinition,
+} from "./report-catalog";
 import type {
   ReportDefinition,
   ReportDimensionKey,
@@ -16,7 +19,6 @@ import type {
   ReportResult,
   ReportRow,
 } from "./report-types";
-import { calculateReportMeasure } from "./calculations/report-measures";
 
 export function buildReport(
   dataset: AnalyticsDataset,
@@ -200,11 +202,16 @@ function calculateMetric(
   leads: AnalyticsLead[],
   observations: LeadObservation[],
 ): number | null {
-  return calculateReportMeasure(
-    metric,
+  const measure = measureDefinition(metric);
+
+  if (!measure) {
+    return null;
+  }
+
+  return measure.calculate({
     leads,
     observations,
-  );
+  });
 }
 
 function matchesDateRange(
