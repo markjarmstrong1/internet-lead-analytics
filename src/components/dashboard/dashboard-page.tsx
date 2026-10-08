@@ -100,8 +100,7 @@ export async function DashboardPage() {
               label="Communication → response"
               value={responseCoverage === null ? "—" : `${responseCoverage}%`}
               detail="Share of leads with observed outbound evidence that also show observed response."
-              tone={responseCoverage >= 50 ? "positive" : "warning"}
-            />
+              tone={responseCoverage !== null && responseCoverage >= 50 ? "positive" : "warning"}            />
             <AttentionItem
               label="Active → conversation"
               value={`${conversationCoverage}%`}
