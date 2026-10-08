@@ -3,18 +3,7 @@
 import "server-only";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server-client";
-import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
-import {
-  buildLeadObservation,
-} from "@/analytics/observations/analytics-observations";
 import type { LeadPersistenceRow } from "./lead-persistence-row";
-
-export type LeadListEvidence = {
-  outbound: "observed" | "not_observed" | "unknown" | "insufficient_evidence" | "unresolved";
-  response: "observed" | "not_observed" | "unknown" | "insufficient_evidence" | "unresolved";
-  appointment: "observed" | "not_observed" | "unknown" | "insufficient_evidence" | "unresolved";
-  outcome: "observed" | "not_observed" | "unknown" | "insufficient_evidence" | "unresolved";
-};
 
 export type LeadListItem = LeadPersistenceRow & {
   id: string;
@@ -22,7 +11,6 @@ export type LeadListItem = LeadPersistenceRow & {
   updated_at: string;
   last_engaged_at: string | null;
   last_contacted_at: string | null;
-  evidence: LeadListEvidence;
 };
 
 type TimelineEventRow = {
@@ -116,45 +104,11 @@ export async function listLeads(
     activityByLead.set(record.lead_id, activity);
   }
 
-  const leadRows = (data ?? []).map((lead) => ({
+  return (data ?? []).map((lead) => ({
     ...lead,
     last_engaged_at:
       activityByLead.get(lead.id)?.last_engaged_at ?? null,
     last_contacted_at:
       activityByLead.get(lead.id)?.last_contacted_at ?? null,
   }));
-
-  const observations = new Map(
-    leadRows.map((lead) => [
-      lead.id,
-      {
-        outbound: "insufficient_evidence" as const,
-        response: "insufficient_evidence" as const,
-        appointment: "insufficient_evidence" as const,
-        outcome:
-          ["sold", "closed"].some((value) =>
-            (lead.stage ?? "")
-              .trim()
-              .toLowerCase()
-              .includes(value),
-          )
-            ? "observed" as const
-            : "not_observed" as const,
-      },
-    ]),
-  );
-
-  return leadRows.map((lead) => {
-    const observation = observations.get(lead.id);
-
-    return {
-      ...lead,
-      evidence: observation?.evidence ?? {
-        outbound: "insufficient_evidence",
-        response: "insufficient_evidence",
-        appointment: "insufficient_evidence",
-        outcome: "unknown",
-      },
-    };
-  });
 }
