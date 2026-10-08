@@ -1,15 +1,14 @@
+import type { LeadObservation } from "@/analytics/observations/analytics-observations";
 import type {
   LeadDetail,
   LeadTimelineEvent,
   LeadTimelineRecord,
 } from "./lead-detail-repository";
-  buildLeadDetailObservation,
-  findLeadDetailAppointmentEvidenceEvent,
-} from "./lead-detail-observation";
 import {
   buildLeadDetailObservation,
   findLeadDetailAppointmentEvidenceEvent,
 } from "./lead-detail-observation";
+
 
 export type LeadDetailViewModel = {
   events: LeadTimelineEvent[];
