@@ -121,12 +121,25 @@ export type ReportRow = {
   >;
 };
 
+export type ReportMetricDiagnostic = {
+  population: ReportMeasurePopulation;
+  evidence: ReportMeasureEvidence;
+  denominatorMetric: ReportMetricKey | null;
+  eligibleLeadCount: number;
+  timelineCoveredLeadCount: number;
+  numerator: number | null;
+  denominator: number | null;
+};
+
 export type ReportResult = {
   definition: ReportDefinition;
   populationCount: number;
   leadIds: string[];
   summary: Partial<
     Record<ReportMetricKey, ReportMetricValue>
+  >;
+  summaryDiagnostics: Partial<
+    Record<ReportMetricKey, ReportMetricDiagnostic>
   >;
   rows: ReportRow[];
 };
