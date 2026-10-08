@@ -24,6 +24,7 @@ type ReportsPageProps = {
     sourceGroups: string[];
     stages: string[];
     statuses: string[];
+    templates: string[];
   };
 };
 
