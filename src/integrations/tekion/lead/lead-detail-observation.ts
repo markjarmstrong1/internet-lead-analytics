@@ -128,7 +128,7 @@ export function findLeadDetailAppointmentEvidenceEvent(
 ): LeadTimelineEvent | null {
   const analyticsEvents = events.map(toAnalyticsEvent);
 
-  const appointmentEvent = analyticsEvents.find((event, index) => {
+  const appointmentEvent = analyticsEvents.find((event) => {
     if (
       event.rawType !== "Stage Changed" ||
       !event.details.toLowerCase().includes("appt. created") ||
