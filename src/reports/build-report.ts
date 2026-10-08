@@ -80,6 +80,7 @@ export function buildReport(
         comparisonGroup?.leads ?? [],
         comparisonGroup?.observations ?? [],
         definition.metrics,
+        definition.groupBy,
       );
     })
     .sort((left, right) =>
@@ -217,10 +218,22 @@ function buildRow(
   comparisonLeads: AnalyticsLead[],
   comparisonObservations: LeadObservation[],
   metrics: ReportMetricKey[],
+  dimension: ReportDimensionKey,
 ): ReportRow {
   const values: ReportRow["values"] = {};
 
   for (const metric of metrics) {
+    // Response speed is defined by the response outcome itself.
+    // A response rate within those buckets would be circular.
+    if (
+      dimension === "responseSpeed" &&
+      (metric === "responseRate" ||
+        metric === "responseWithin24hRate")
+    ) {
+      values[metric] = null;
+      continue;
+    }
+
     const measure = measureDefinition(metric);
     const useComparisonPopulation =
       measure?.population !== "report_population";

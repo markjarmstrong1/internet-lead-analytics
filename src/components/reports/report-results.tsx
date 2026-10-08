@@ -106,6 +106,19 @@ export function ReportResults({
 
       <ManagementReadout result={result} />
 
+      {result.definition.groupBy === "responseSpeed" &&
+      (metrics.includes("responseRate") ||
+        metrics.includes("responseWithin24hRate")) ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          <p className="font-semibold">Response rates are not comparable within response-speed groups</p>
+          <p className="mt-1">
+            Response speed is defined by whether and how quickly a lead responded.
+            Showing a response rate inside those groups would make the comparison circular.
+            The overall response rates above still use the observed-outbound population.
+          </p>
+        </div>
+      ) : null}
+
       <ComparisonReadout result={result} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

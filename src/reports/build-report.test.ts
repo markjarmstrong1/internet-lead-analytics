@@ -802,6 +802,61 @@ describe("buildReport", () => {
     ]);
   });
 
+  it("does not calculate response rates within outcome-defined response-speed groups", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("responded", {
+            timelineRecordIds: ["record-responded"],
+          }),
+          lead("no-response", {
+            timelineRecordIds: ["record-no-response"],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-responded",
+            sourceEventId: "outbound-responded",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+          }),
+          event({
+            timelineRecordId: "record-responded",
+            sourceEventId: "inbound-responded",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-no-response",
+            sourceEventId: "outbound-no-response",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          evidence: {
+            response: "observed",
+          },
+        },
+        groupBy: "responseSpeed",
+        metrics: [
+          "leads",
+          "responseRate",
+          "responseWithin24hRate",
+        ],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.summary.responseRate).toBe(0.5);
+    expect(result.summary.responseWithin24hRate).toBe(0.5);
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0]?.values.responseRate).toBeNull();
+    expect(result.rows[0]?.values.responseWithin24hRate).toBeNull();
+  });
+
   it("preserves response-speed bucket boundaries", () => {
     const result = buildReport(
       dataset(
