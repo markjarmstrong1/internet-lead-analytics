@@ -56,9 +56,9 @@ export function buildFirstResponseAnalysis(
       observation.firstContactedTime !== null,
   );
 
-  const eligible = contacted.filter(
+  const eligible = observations.filter(
     (observation) =>
-      observation.lead.timelineRecordIds.length > 0,
+      observation.evidence.outbound.state === "observed",
   );
 
   const responded = eligible.filter(

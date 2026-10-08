@@ -139,21 +139,21 @@ export function AnalyticsOverview({
 
           <StoryStep
             number="03"
-            label="Contacted, no response"
+            label="Observed outbound, no observed response"
             value={String(
               Math.max(
-                analysis.engagement.contacted -
+                analysis.engagement.responseEligible -
                   analysis.engagement.responded,
                 0,
               ),
             )}
             detail={`${pct(
-              analysis.engagement.contacted === 0
+              analysis.engagement.responseEligible === 0
                 ? null
-                : (analysis.engagement.contacted -
+                : (analysis.engagement.responseEligible -
                     analysis.engagement.responded) /
-                    analysis.engagement.contacted,
-            )} of contacted leads`}
+                    analysis.engagement.responseEligible,
+            )} of leads with observed outbound`}
           />
 
           <StoryStep

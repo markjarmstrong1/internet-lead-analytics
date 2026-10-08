@@ -28,11 +28,11 @@ export function FirstResponseAnalysisCard({
         />
 
         <Metric
-          label="No response"
+          label="No observed response"
           value={String(
             firstResponse.noResponse,
           )}
-          detail={`${firstResponse.eligible} timeline-covered contacted leads`}
+          detail={`${firstResponse.eligible} leads with observed outbound`}
         />
 
         <Metric
