@@ -35,17 +35,17 @@ export const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
     key: "response-patterns",
     label: "How quickly are people responding?",
     description:
-      "Focus on leads with observed responses and compare how quickly those responses arrive.",
+      "Compare response rates and response times across lead sources, including leads with observed outbound but no observed response.",
     name: "How quickly are people responding?",
-    groupBy: "responseSpeed",
+    groupBy: "source",
     evidence: {
       outbound: "observed",
-      response: "observed",
     },
     metrics: [
       "leads",
       "observedOutbound",
       "responded",
+      "responseRate",
       "responseWithin24hRate",
       "medianResponseMinutes",
     ],
