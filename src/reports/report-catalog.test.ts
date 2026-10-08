@@ -29,6 +29,9 @@ describe("report catalog", () => {
       key: "responseRate",
       format: "percent",
       description: expect.any(String),
+      population: "observed_outbound_population",
+      evidence: "observed_response",
+      denominator: "observedOutbound",
     });
 
     expect(
@@ -37,6 +40,9 @@ describe("report catalog", () => {
       key: "medianResponseMinutes",
       format: "minutes",
       description: expect.any(String),
+      population: "responding_population",
+      evidence: "observed_response",
+      denominator: null,
     });
   });
 

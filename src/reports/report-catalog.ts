@@ -88,12 +88,18 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     label: "Leads",
     description: "Leads in the report population.",
     format: "count",
+    population: "report_population",
+    evidence: "none",
+    denominator: null,
   },
   {
     key: "timelineCovered",
     label: "Timeline covered",
     description: "Leads with at least one linked timeline record.",
     format: "count",
+    population: "report_population",
+    evidence: "none",
+    denominator: null,
   },
   {
     key: "contacted",
@@ -101,6 +107,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Leads with a CRM First Contacted Time value; this is CRM state, not proof of qualifying outbound communication.",
     format: "count",
+    population: "report_population",
+    evidence: "crm_state",
+    denominator: null,
   },
   {
     key: "observedOutbound",
@@ -108,6 +117,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Leads with at least one qualifying employee outbound communication observed in timeline evidence.",
     format: "count",
+    population: "report_population",
+    evidence: "observed_outbound",
+    denominator: null,
   },
   {
     key: "responded",
@@ -115,6 +127,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Leads with an observed inbound communication after contact.",
     format: "count",
+    population: "report_population",
+    evidence: "observed_response",
+    denominator: null,
   },
   {
     key: "responseWithin24h",
@@ -122,6 +137,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Leads with an observed response within 24 hours.",
     format: "count",
+    population: "report_population",
+    evidence: "observed_response",
+    denominator: null,
   },
   {
     key: "appointments",
@@ -129,6 +147,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Leads with observed appointment-created evidence.",
     format: "count",
+    population: "report_population",
+    evidence: "observed_appointment",
+    denominator: null,
   },
   {
     key: "soldClosed",
@@ -136,6 +157,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Leads currently in Sold or Closed stage.",
     format: "count",
+    population: "report_population",
+    evidence: "crm_outcome",
+    denominator: null,
   },
   {
     key: "responseRate",
@@ -143,6 +167,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Observed responses divided by leads with observed outbound evidence.",
     format: "percent",
+    population: "observed_outbound_population",
+    evidence: "observed_response",
+    denominator: "observedOutbound",
   },
   {
     key: "responseWithin24hRate",
@@ -150,6 +177,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Responses within 24 hours divided by leads with observed outbound evidence.",
     format: "percent",
+    population: "observed_outbound_population",
+    evidence: "observed_response",
+    denominator: "observedOutbound",
   },
   {
     key: "medianResponseMinutes",
@@ -157,6 +187,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Median observed response time among responding leads.",
     format: "minutes",
+    population: "responding_population",
+    evidence: "observed_response",
+    denominator: null,
   },
   {
     key: "outboundAttempts",
@@ -164,6 +197,9 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     description:
       "Total qualifying employee outbound communications.",
     format: "count",
+    population: "report_population",
+    evidence: "observed_outbound",
+    denominator: null,
   },
 ];
 

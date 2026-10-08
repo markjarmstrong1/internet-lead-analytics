@@ -36,11 +36,27 @@ export type ReportMetricKey =
   | "medianResponseMinutes"
   | "outboundAttempts";
 
+export type ReportMeasureEvidence =
+  | "none"
+  | "crm_state"
+  | "observed_outbound"
+  | "observed_response"
+  | "observed_appointment"
+  | "crm_outcome";
+
+export type ReportMeasurePopulation =
+  | "report_population"
+  | "observed_outbound_population"
+  | "responding_population";
+
 export type ReportMeasure = {
   key: ReportMetricKey;
   label: string;
   description: string;
   format: "count" | "percent" | "minutes";
+  population: ReportMeasurePopulation;
+  evidence: ReportMeasureEvidence;
+  denominator: ReportMetricKey | null;
 };
 
 export type ReportDateRange = {
