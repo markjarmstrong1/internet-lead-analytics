@@ -87,4 +87,22 @@ export const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
       "soldClosed",
     ],
   },
+  {
+    key: "template-usage",
+    label: "How often are matched templates being used?",
+    description:
+      "Measure total matched-template uses and average uses per lead with observed outbound. This report summarizes overall usage; individual-template attribution needs a separate action-level analysis.",
+    name: "Matched template usage",
+    groupBy: "none",
+    evidence: {
+      outbound: "observed",
+    },
+    metrics: [
+      "leads",
+      "observedOutbound",
+      "outboundAttempts",
+      "templateUses",
+      "templateUsesPerLead",
+    ],
+  },
 ];

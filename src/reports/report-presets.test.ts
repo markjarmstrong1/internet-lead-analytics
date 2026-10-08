@@ -27,6 +27,25 @@ describe("management report presets", () => {
       "response-patterns",
       "non-responder-commonalities",
       "positive-outcome-patterns",
+      "template-usage",
     ]);
+  });
+
+  it("measures matched-template usage without assigning each lead to only one template", () => {
+    const preset = MANAGEMENT_REPORT_PRESETS.find(
+      (item) => item.key === "template-usage",
+    );
+
+    expect(preset).toBeDefined();
+    expect(preset).toMatchObject({
+      groupBy: "none",
+      evidence: {
+        outbound: "observed",
+      },
+    });
+    expect(preset?.metrics).toContain("outboundAttempts");
+    expect(preset?.metrics).toContain("templateUses");
+    expect(preset?.metrics).toContain("templateUsesPerLead");
+    expect(preset?.groupBy).not.toBe("template");
   });
 });
