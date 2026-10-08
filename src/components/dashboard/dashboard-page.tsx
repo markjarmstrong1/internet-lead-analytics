@@ -11,11 +11,9 @@ export async function DashboardPage() {
   const metrics = await getDashboardMetrics();
 
   const responseCoverage =
-    metrics.communicationLeads === 0
-      ? 0
-      : Math.round(
-          (metrics.inboundResponseLeads / metrics.communicationLeads) * 100,
-        );
+    metrics.responseRate === null
+      ? null
+      : Math.round(metrics.responseRate * 100);
 
   const activeCoverage =
     metrics.totalLeads === 0
@@ -28,7 +26,7 @@ export async function DashboardPage() {
       : Math.round((metrics.inConversation / metrics.activeLeads) * 100);
 
   const contactGap = Math.max(
-    metrics.activeLeads - metrics.engagedLeads,
+    metrics.activeLeads - metrics.observedOutboundLeads,
     0,
   );
 
@@ -42,7 +40,7 @@ export async function DashboardPage() {
 
       <ThemeSignature
         primary={String(metrics.totalLeads)}
-        secondary={`${responseCoverage}%`}
+        secondary={responseCoverage === null ? "—" : `${responseCoverage}%`}
         tertiary={String(metrics.sales)}
       />
 
@@ -95,13 +93,13 @@ export async function DashboardPage() {
             <AttentionItem
               label="Active leads without communication"
               value={contactGap}
-              detail="Active leads with no observed communication evidence."
+              detail="Active leads with no observed outbound evidence."
               tone={contactGap > 0 ? "warning" : "positive"}
             />
             <AttentionItem
               label="Communication → response"
-              value={`${responseCoverage}%`}
-              detail="Share of leads with communication evidence that also show inbound response."
+              value={responseCoverage === null ? "—" : `${responseCoverage}%`}
+              detail="Share of leads with observed outbound evidence that also show observed response."
               tone={responseCoverage >= 50 ? "positive" : "warning"}
             />
             <AttentionItem

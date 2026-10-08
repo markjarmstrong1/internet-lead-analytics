@@ -1,5 +1,12 @@
 import "server-only";
 
+import {
+  SupabaseAnalyticsRepository,
+} from "@/analytics/data/analytics-repository";
+import {
+  buildLeadObservations,
+  isSoldClosedStage,
+} from "@/analytics/observations/analytics-observations";
 import { createServerSupabaseClient } from "@/lib/supabase/server-client";
 
 export type DashboardMetrics = {
@@ -15,210 +22,140 @@ export type DashboardMetrics = {
   timelineCoverageRate: number;
   communicationLeads: number;
   inboundResponseLeads: number;
-};
-
-type LeadRow = {
-  id: string;
-  status: string | null;
-  stage: string | null;
-  deal_status: string | null;
-  sold_date: string | null;
-};
-
-type TimelineEventRow = {
-  category: string | null;
-  direction: string | null;
-  occurred_at: string;
-  raw_type: string | null;
-  details: string | null;
-};
-
-type TimelineRecordRow = {
-  lead_id: string | null;
-  timeline_events: TimelineEventRow[] | null;
-};
-
-type AppointmentRow = {
-  scheduled_at: string;
-  showed_at: string | null;
+  observedOutboundLeads: number;
+  responseRate: number | null;
+  medianResponseMinutes: number | null;
 };
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
-  const supabase = createServerSupabaseClient();
+  const client = createServerSupabaseClient();
+  const repository = new SupabaseAnalyticsRepository(client);
 
-  const [
-    { data: leads, error: leadsError },
-    { data: timelines, error: timelineError },
-    { data: appointments, error: appointmentsError },
-  ] = await Promise.all([
-    supabase
-      .from("leads")
-      .select("id, status, stage, deal_status, sold_date"),
+  const dataset = await repository.load();
+  const observations = buildLeadObservations(dataset);
 
-    supabase
-      .from("timeline_records")
-      .select(
-        "lead_id, timeline_events(category, direction, occurred_at, raw_type, details)",
-      )
-      .not("lead_id", "is", null),
+  const totalLeads = dataset.leads.length;
 
-    supabase
-      .from("appointments")
-      .select("scheduled_at, showed_at"),
-  ]);
-
-  if (leadsError) {
-    throw new Error(
-      `Failed to load dashboard leads: ${leadsError.message}`,
-    );
-  }
-
-  if (timelineError) {
-    throw new Error(
-      `Failed to load dashboard timeline coverage: ${timelineError.message}`,
-    );
-  }
-
-  if (appointmentsError) {
-    throw new Error(
-      `Failed to load dashboard appointments: ${appointmentsError.message}`,
-    );
-  }
-
-  const leadRows = (leads ?? []) as LeadRow[];
-  const timelineRows = (timelines ?? []) as TimelineRecordRow[];
-  const appointmentRows = (appointments ?? []) as AppointmentRow[];
-
-  const totalLeads = leadRows.length;
-
-  const activeLeads = leadRows.filter(
-    (lead) => lead.status?.toLowerCase() === "active",
+  const activeLeads = dataset.leads.filter(
+    (lead) => lead.status.trim().toLowerCase() === "active",
   ).length;
 
-  const recentCommunicationWindowMs = 30 * 24 * 60 * 60 * 1000;
-  const recentCommunicationCutoff = Date.now() - recentCommunicationWindowMs;
+  const timelineLeadIds = new Set(
+    dataset.leads
+      .filter((lead) => lead.timelineRecordIds.length > 0)
+      .map((lead) => lead.leadId),
+  );
 
-  const inConversationLeadIds = new Set<string>();
+  const timelineLeads = timelineLeadIds.size;
 
-  for (const timeline of timelineRows) {
-    if (!timeline.lead_id) {
-      continue;
-    }
+  const communicationObservations = observations.filter(
+    (observation) => observation.outboundCount > 0,
+  );
 
-    const lead = leadRows.find((candidate) => candidate.id === timeline.lead_id);
+  const engagedLeads = communicationObservations.length;
 
-    if (lead?.stage?.toLowerCase() !== "engage") {
-      continue;
-    }
+  const observedOutboundObservations = observations.filter(
+    (observation) =>
+      observation.evidence.outbound.state === "observed",
+  );
 
-    const recentCommunicationDirections = new Set<string>();
+  const observedOutboundLeads =
+    observedOutboundObservations.length;
 
-    for (const event of timeline.timeline_events ?? []) {
-      if (
-        event.category !== "communication" ||
-        !["inbound", "outbound"].includes(event.direction ?? "") ||
-        new Date(event.occurred_at).getTime() < recentCommunicationCutoff
-      ) {
-        continue;
-      }
+  const respondedObservations = observations.filter(
+    (observation) =>
+      observation.evidence.response.state === "observed",
+  );
 
-      recentCommunicationDirections.add(event.direction!);
-    }
+  const inboundResponseLeads =
+    respondedObservations.length;
 
-    if (
-      recentCommunicationDirections.has("inbound") &&
-      recentCommunicationDirections.has("outbound")
-    ) {
-      inConversationLeadIds.add(timeline.lead_id);
-    }
-  }
+  const responseRate =
+    observedOutboundLeads === 0
+      ? null
+      : inboundResponseLeads / observedOutboundLeads;
 
-  const sales = leadRows.filter(
-    (lead) =>
-      lead.sold_date !== null ||
-      ["closed or sold", "sold", "booked"].includes(
-        lead.deal_status?.toLowerCase() ?? "",
-      ),
+  const inConversation = observations.filter(
+    (observation) =>
+      observation.evidence.outbound.state === "observed" &&
+      observation.evidence.response.state === "observed",
   ).length;
 
-  const now = Date.now();
-
-  const upcomingAppointments = appointmentRows.filter(
-    (appointment) =>
-      new Date(appointment.scheduled_at).getTime() >= now,
-  ).length;
-
-  const appointmentEvidence = timelineRows.flatMap((timeline) =>
-    (timeline.timeline_events ?? []).filter((event) => {
-      const details = event.details?.toLowerCase() ?? "";
-      const rawType = event.raw_type?.toLowerCase() ?? "";
-
-      return (
-        details.includes("appointment") ||
-        rawType.includes("appointment")
-      );
-    }),
+  const appointmentObservations = observations.filter(
+    (observation) =>
+      observation.evidence.appointment.state === "observed",
   );
 
   const totalAppointmentsBooked =
-    appointmentRows.length > 0
-      ? appointmentRows.length
-      : appointmentEvidence.length;
+    appointmentObservations.length;
 
-  const totalAppointmentsShown =
-    appointmentRows.length > 0
-      ? appointmentRows.filter(
-          (appointment) => appointment.showed_at !== null,
-        ).length
-      : new Set(
-          leadRows
-            .filter((lead) =>
-              ["sold", "closed"].includes(
-                lead.stage?.toLowerCase() ?? "",
-              ),
-            )
-            .map((lead) => lead.id),
-        ).size;
+  /*
+   * Appointment show evidence is intentionally not inferred from
+   * current lead stage. The current canonical observation model
+   * only establishes appointment-created evidence.
+   *
+   * Keep this at zero until appointment-shown evidence is modeled
+   * explicitly rather than inventing a proxy.
+   */
+  const totalAppointmentsShown = 0;
 
-  const timelineLeadIds = new Set<string>();
-  const communicationLeadIds = new Set<string>();
-  const inboundLeadIds = new Set<string>();
+  const now = Date.now();
 
-  for (const timeline of timelineRows) {
-    if (!timeline.lead_id) {
-      continue;
-    }
+  const upcomingAppointments = appointmentObservations.filter(
+    (observation) =>
+      observation.appointmentAt !== null &&
+      Date.parse(observation.appointmentAt) >= now,
+  ).length;
 
-    timelineLeadIds.add(timeline.lead_id);
+  const sales = observations.filter(
+    (observation) =>
+      observation.evidence.outcome.state === "observed" &&
+      isSoldClosedStage(observation.lead.stage),
+  ).length;
 
-    for (const event of timeline.timeline_events ?? []) {
-      if (event.category !== "communication") {
-        continue;
-      }
+  const responseTimes = respondedObservations
+    .map((observation) => observation.responseMinutes)
+    .filter(
+      (value): value is number => value !== null,
+    )
+    .sort((a, b) => a - b);
 
-      communicationLeadIds.add(timeline.lead_id);
-
-      if (event.direction === "inbound") {
-        inboundLeadIds.add(timeline.lead_id);
-      }
-    }
-  }
+  const medianResponseMinutes =
+    responseTimes.length === 0
+      ? null
+      : responseTimes.length % 2 === 1
+        ? responseTimes[
+            Math.floor(responseTimes.length / 2)
+          ]
+        : (
+            responseTimes[
+              responseTimes.length / 2 - 1
+            ] +
+            responseTimes[
+              responseTimes.length / 2
+            ]
+          ) / 2;
 
   return {
     totalLeads,
     activeLeads,
-    engagedLeads: communicationLeadIds.size,
-    inConversation: inConversationLeadIds.size,
+    engagedLeads,
+    inConversation,
     upcomingAppointments,
     totalAppointmentsBooked,
     totalAppointmentsShown,
     sales,
-    timelineLeads: timelineLeadIds.size,
+    timelineLeads,
     timelineCoverageRate:
       totalLeads === 0
         ? 0
-        : Math.round((timelineLeadIds.size / totalLeads) * 100),
-    communicationLeads: communicationLeadIds.size,
-    inboundResponseLeads: inboundLeadIds.size,
+        : Math.round(
+            (timelineLeads / totalLeads) * 100,
+          ),
+    communicationLeads: engagedLeads,
+    inboundResponseLeads,
+    observedOutboundLeads,
+    responseRate,
+    medianResponseMinutes,
   };
 }
