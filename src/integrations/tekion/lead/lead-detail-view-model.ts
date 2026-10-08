@@ -3,6 +3,10 @@ import type {
   LeadTimelineEvent,
   LeadTimelineRecord,
 } from "./lead-detail-repository";
+import {
+  buildLeadDetailObservation,
+} from "./lead-detail-observation";
+import type { LeadObservation } from "@/analytics/observations/analytics-observations";
 
 export type LeadDetailViewModel = {
   events: LeadTimelineEvent[];
@@ -15,6 +19,7 @@ export type LeadDetailViewModel = {
   firstOutbound: LeadTimelineEvent | null;
   lastInbound: LeadTimelineEvent | null;
   lastOutbound: LeadTimelineEvent | null;
+  observation: LeadObservation;
 };
 
 function isValidDate(value: string): boolean {
@@ -75,9 +80,13 @@ export function buildLeadDetailViewModel(
   lead: LeadDetail,
   timeline: LeadTimelineRecord[],
 ): LeadDetailViewModel {
-  void lead;
-
   const events = getLeadTimelineEvents(timeline);
+
+  const observation =
+    buildLeadDetailObservation(
+      lead,
+      events,
+    );
 
   const communicationEvents = events.filter(isCommunication);
 
@@ -89,9 +98,8 @@ export function buildLeadDetailViewModel(
     (event) => event.direction === "outbound",
   );
 
-  const appointmentReferenceEvents = events.filter(
-    isAppointmentReference,
-  );
+  const appointmentReferenceEvents =
+    events.filter(isAppointmentReference);
 
   const sourceFiles = [
     ...new Set(
@@ -116,6 +124,7 @@ export function buildLeadDetailViewModel(
       [...outboundEvents].reverse()[0] ?? null,
     lastInbound: inboundEvents[0] ?? null,
     lastOutbound: outboundEvents[0] ?? null,
+    observation,
   };
 }
 

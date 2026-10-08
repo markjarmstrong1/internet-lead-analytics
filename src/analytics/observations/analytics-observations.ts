@@ -111,121 +111,129 @@ export function buildLeadObservations(
       .flatMap(
         (recordId) =>
           eventsByRecord.get(recordId) ?? [],
-      )
-      .sort(
-        (left, right) =>
-          Date.parse(left.occurredAt) -
-          Date.parse(right.occurredAt),
       );
 
-    const outboundActions = events
-      .filter(isEmployeeOutboundCommunication)
-      .map(buildLeadAction);
+    return buildLeadObservation(lead, events);
+  });
+}
 
-    const firstOutbound =
-      outboundActions[0]?.event ?? null;
+export function buildLeadObservation(
+  lead: AnalyticsLead,
+  events: AnalyticsEvent[],
+): LeadObservation {
+  const orderedEvents = [...events].sort(
+    (left, right) =>
+      Date.parse(left.occurredAt) -
+      Date.parse(right.occurredAt),
+  );
 
-    const firstAction =
-      outboundActions[0] ?? null;
+  const outboundActions = orderedEvents
+    .filter(isEmployeeOutboundCommunication)
+    .map(buildLeadAction);
 
-    const firstInbound = firstOutbound
-      ? findFirstInboundCommunication(
-          events,
-          firstOutbound.occurredAt,
+  const firstOutbound =
+    outboundActions[0]?.event ?? null;
+
+  const firstAction =
+    outboundActions[0] ?? null;
+
+  const firstInbound = firstOutbound
+    ? findFirstInboundCommunication(
+        orderedEvents,
+        firstOutbound.occurredAt,
+      )
+    : null;
+
+  const responseAction = firstInbound
+    ? findLastOutboundAtOrBefore(
+        outboundActions,
+        firstInbound.occurredAt,
+      )
+    : null;
+
+  /*
+   * Contact status and speed come from the lead export's
+   * First Contacted Time. Timeline evidence is separate:
+   * it explains what happened after contact.
+   */
+  const firstContactedTime =
+    lead.firstContactedTime ?? null;
+
+  const firstContactMinutes =
+    firstContactedTime && lead.creationTime
+      ? calculateElapsedMinutes(
+          lead.creationTime,
+          firstContactedTime,
         )
       : null;
 
-    const responseAction = firstInbound
-      ? findLastOutboundAtOrBefore(
-          outboundActions,
+  const responseMinutes =
+    firstOutbound && firstInbound
+      ? calculateElapsedMinutes(
+          firstOutbound.occurredAt,
           firstInbound.occurredAt,
         )
       : null;
 
-    /*
-     * Contact status and speed come from the lead export's
-     * First Contacted Time. Timeline evidence is separate:
-     * it explains what happened after contact.
-     */
-    const firstContactedTime =
-      lead.firstContactedTime ?? null;
+  const appointmentAt =
+    findAppointmentEvidenceAt(orderedEvents);
 
-    const firstContactMinutes =
-      firstContactedTime && lead.creationTime
-        ? calculateElapsedMinutes(
-            lead.creationTime,
-            firstContactedTime,
-          )
-        : null;
+  const soldClosed =
+    isSoldClosedStage(lead.stage);
 
-    const responseMinutes =
-      firstOutbound && firstInbound
-        ? calculateElapsedMinutes(
-            firstOutbound.occurredAt,
-            firstInbound.occurredAt,
-          )
-        : null;
+  const soldClosedAt =
+    soldClosed
+      ? lead.soldDate ??
+        lead.closedTime ??
+        findObservedSoldClosedAt(orderedEvents)
+      : null;
 
-    const appointmentAt =
-      findAppointmentEvidenceAt(events);
+  const actionsBeforeResponse =
+    firstInbound
+      ? outboundActions.filter(
+          (action) =>
+            Date.parse(action.event.occurredAt) <=
+            Date.parse(firstInbound.occurredAt),
+        ).length
+      : null;
 
-    const soldClosed =
-      isSoldClosedStage(lead.stage);
-
-    const soldClosedAt =
-      soldClosed
-        ? lead.soldDate ??
-          lead.closedTime ??
-          findObservedSoldClosedAt(events)
-        : null;
-
-    const actionsBeforeResponse =
-      firstInbound
-        ? outboundActions.filter(
-            (action) =>
-              Date.parse(action.event.occurredAt) <=
-              Date.parse(firstInbound.occurredAt),
-          ).length
-        : null;
-
-    const evidence = buildEvidenceAssessments({
-      hasTimelineEvents: events.length > 0,
-      firstContactedTime,
-      firstOutbound,
-      firstInbound,
-      appointmentAt,
-      soldClosed,
-    });
-
-    return {
-      lead,
-      events,
-      firstOutbound,
-      firstInbound,
-      firstAction,
-      responseAction,
-      outboundActions,
-      templateActions:
-        outboundActions.filter(
-          (action) => action.template !== null,
-        ),
-      firstContactedTime,
-      firstContactMinutes,
-      responseMinutes,
-      outboundAttemptsBeforeResponse:
-        actionsBeforeResponse,
-      appointmentAt,
-      soldClosedAt,
-      evidence,
-      respondedWithin24h:
-        responseMinutes !== null &&
-        responseMinutes <= RESPONSE_WINDOW_MINUTES,
-      outboundCount: outboundActions.length,
-      appointmentEvidence:
-        appointmentAt !== null,
-      soldClosed,
-    };
+  const evidence = buildEvidenceAssessments({
+    hasTimelineEvents: orderedEvents.length > 0,
+    firstContactedTime,
+    firstOutbound,
+    firstInbound,
+    appointmentAt,
+    soldClosed,
   });
+
+  return {
+    lead,
+    events: orderedEvents,
+    firstOutbound,
+    firstInbound,
+    firstAction,
+    responseAction,
+    outboundActions,
+    templateActions:
+      outboundActions.filter(
+        (action) => action.template !== null,
+      ),
+    firstContactedTime,
+    firstContactMinutes,
+    responseMinutes,
+    outboundAttemptsBeforeResponse:
+      actionsBeforeResponse,
+    appointmentAt,
+    soldClosedAt,
+    evidence,
+    respondedWithin24h:
+      responseMinutes !== null &&
+      responseMinutes <= RESPONSE_WINDOW_MINUTES,
+    outboundCount: outboundActions.length,
+    appointmentEvidence:
+      appointmentAt !== null,
+    soldClosed,
+  };
 }
 
 export function buildLeadAction(

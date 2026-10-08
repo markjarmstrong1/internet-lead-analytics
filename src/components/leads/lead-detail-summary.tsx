@@ -268,21 +268,84 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
       <div className="space-y-3">
         <AnalyticsCard
           label="First outbound"
-          value={formatDateTime(model.firstOutbound?.occurred_at ?? null)}
+          value={formatDateTime(
+            model.observation.firstOutbound?.occurredAt ?? null,
+          )}
           detail={
-            model.firstOutbound
+            model.observation.evidence.outbound.state === "observed"
               ? getCommunicationLabel(model.firstOutbound)
-              : "No observed outbound communication."
+              : model.observation.evidence.outbound.reason
+          }
+          state={
+            model.observation.evidence.outbound.state === "observed"
+              ? "observed"
+              : "missing"
           }
         />
 
         <AnalyticsCard
-          label="Last inbound"
-          value={formatDateTime(model.lastInbound?.occurred_at ?? null)}
+          label="First response"
+          value={formatDateTime(
+            model.observation.firstInbound?.occurredAt ?? null,
+          )}
           detail={
-            model.lastInbound
+            model.observation.evidence.response.state === "observed"
               ? getCommunicationLabel(model.lastInbound)
-              : "No observed inbound communication."
+              : model.observation.evidence.response.reason
+          }
+          state={
+            model.observation.evidence.response.state === "observed"
+              ? "observed"
+              : "missing"
+          }
+        />
+
+        <AnalyticsCard
+          label="Response time"
+          value={
+            model.observation.responseMinutes === null
+              ? "—"
+              : `${Math.round(model.observation.responseMinutes)} min`
+          }
+          detail={
+            model.observation.evidence.response.state === "observed"
+              ? "Calculated from first observed outbound to first observed inbound response."
+              : model.observation.evidence.response.reason
+          }
+          state={
+            model.observation.responseMinutes !== null
+              ? "calculated"
+              : "missing"
+          }
+        />
+
+        <AnalyticsCard
+          label="Outbound attempts"
+          value={String(model.observation.outboundCount)}
+          detail={
+            model.observation.evidence.outbound.state === "observed"
+              ? "Qualifying employee outbound communications observed in timeline evidence."
+              : model.observation.evidence.outbound.reason
+          }
+          state={
+            model.observation.evidence.outbound.state === "observed"
+              ? "calculated"
+              : "missing"
+          }
+        />
+
+        <AnalyticsCard
+          label="Appointment evidence"
+          value={
+            model.observation.evidence.appointment.state === "observed"
+              ? formatDateTime(model.observation.appointmentAt)
+              : "—"
+          }
+          detail={model.observation.evidence.appointment.reason}
+          state={
+            model.observation.evidence.appointment.state === "observed"
+              ? "observed"
+              : "missing"
           }
         />
 
@@ -292,7 +355,10 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
           detail={
             model.lastOutbound
               ? getCommunicationLabel(model.lastOutbound)
-              : "No observed outbound communication."
+              : model.observation.evidence.outbound.reason
+          }
+          state={
+            model.lastOutbound ? "observed" : "missing"
           }
         />
 
