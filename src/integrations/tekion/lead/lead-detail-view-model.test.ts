@@ -104,13 +104,13 @@ const timeline: LeadTimelineRecord[] = [
         source_event_id: "source-4",
         source_file: "customer.txt",
         occurred_at: "2026-09-04T13:00:00Z",
-        raw_type: "Visit Set",
+        raw_type: "Stage Changed",
         actor: "Salesperson",
         actor_type: "employee",
         category: "visit",
         channel: "email",
         direction: "outbound",
-        details: "Appointment scheduled for Friday",
+        details: "Appt. created for Friday",
         metadata: {},
         raw_data: {},
       },
@@ -154,16 +154,40 @@ describe("lead detail view model", () => {
     ).toBe(false);
   });
 
-  it("identifies appointment references without calling them appointment records", () => {
+  it("uses the canonical appointment evidence rule", () => {
     const model = buildLeadDetailViewModel(
       lead,
       timeline,
     );
 
-    expect(model.appointmentReferenceEvents).toHaveLength(1);
-    expect(
-      model.appointmentReferenceEvents[0]?.id,
-    ).toBe("event-4");
+    expect(model.appointmentEvidenceEvent?.id).toBe("event-4");
+    expect(model.observation.evidence.appointment.state).toBe(
+      "observed",
+    );
+  });
+
+  it("does not treat arbitrary appointment text as appointment evidence", () => {
+    const appointmentTextEvent = {
+      ...timeline[0].events[2],
+      id: "event-5",
+      raw_type: "Task Completed",
+      details: "Customer discussed an appointment.",
+    };
+
+    const model = buildLeadDetailViewModel(
+      lead,
+      [
+        {
+          ...timeline[0],
+          events: [
+            ...timeline[0].events,
+            appointmentTextEvent,
+          ],
+        },
+      ],
+    );
+
+    expect(model.appointmentEvidenceEvent?.id).toBe("event-4");
   });
 
   it("preserves timeline source provenance", () => {

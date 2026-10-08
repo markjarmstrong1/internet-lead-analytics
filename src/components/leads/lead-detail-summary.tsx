@@ -235,9 +235,13 @@ export function LeadDetailSummary({
             />
 
             <Method
-              label="Appointments"
-              value={String(model.appointmentReferenceEvents.length)}
-              detail="Timeline references only; not appointment records."
+              label="Appointment evidence"
+              value={model.appointmentEvidenceEvent ? "1" : "0"}
+              detail={
+                model.appointmentEvidenceEvent
+                  ? "A qualifying appointment creation event was observed."
+                  : model.observation.evidence.appointment.reason
+              }
             />
 
             <Method

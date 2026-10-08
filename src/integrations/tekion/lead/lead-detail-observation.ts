@@ -122,3 +122,36 @@ export function buildLeadDetailObservation(
     events.map(toAnalyticsEvent),
   );
 }
+
+export function findLeadDetailAppointmentEvidenceEvent(
+  events: LeadTimelineEvent[],
+): LeadTimelineEvent | null {
+  const analyticsEvents = events.map(toAnalyticsEvent);
+
+  const appointmentEvent = analyticsEvents.find((event, index) => {
+    if (
+      event.rawType !== "Stage Changed" ||
+      !event.details.toLowerCase().includes("appt. created") ||
+      event.details.toLowerCase().includes("appointment is deleted")
+    ) {
+      return false;
+    }
+
+    return !analyticsEvents.some(
+      (other) =>
+        other.occurredAt === event.occurredAt &&
+        other.rawType === "Stage Changed" &&
+        other.details
+          .toLowerCase()
+          .includes("appointment is deleted"),
+    );
+  });
+
+  if (!appointmentEvent) {
+    return null;
+  }
+
+  const index = analyticsEvents.indexOf(appointmentEvent);
+
+  return events[index] ?? null;
+}

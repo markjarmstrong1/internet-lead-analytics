@@ -13,7 +13,7 @@ export type LeadDetailViewModel = {
   communicationEvents: LeadTimelineEvent[];
   inboundEvents: LeadTimelineEvent[];
   outboundEvents: LeadTimelineEvent[];
-  appointmentReferenceEvents: LeadTimelineEvent[];
+  appointmentEvidenceEvent: LeadTimelineEvent | null;
   sourceFiles: string[];
   timelineRecordCount: number;
   firstOutbound: LeadTimelineEvent | null;
@@ -42,23 +42,6 @@ function isCommunication(event: LeadTimelineEvent): boolean {
     (event.direction === "inbound" ||
       event.direction === "outbound") &&
     isValidDate(event.occurred_at)
-  );
-}
-
-function isAppointmentReference(
-  event: LeadTimelineEvent,
-): boolean {
-  const searchableText = [
-    event.raw_type,
-    event.details,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-
-  return (
-    searchableText.includes("appointment") ||
-    searchableText.includes("appt.")
   );
 }
 
@@ -98,8 +81,8 @@ export function buildLeadDetailViewModel(
     (event) => event.direction === "outbound",
   );
 
-  const appointmentReferenceEvents =
-    events.filter(isAppointmentReference);
+  const appointmentEvidenceEvent =
+    findLeadDetailAppointmentEvidenceEvent(events);
 
   const sourceFiles = [
     ...new Set(
@@ -117,7 +100,7 @@ export function buildLeadDetailViewModel(
     communicationEvents,
     inboundEvents,
     outboundEvents,
-    appointmentReferenceEvents,
+    appointmentEvidenceEvent,
     sourceFiles,
     timelineRecordCount: timeline.length,
     firstOutbound:
