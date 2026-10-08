@@ -6,6 +6,7 @@ import {
   reportDefinitionFromSearchParams,
 } from "@/reports/report-definition";
 import { buildReport } from "@/reports/build-report";
+import { buildLeadObservations } from "@/analytics/observations/analytics-observations";
 import { createServerReportRepository } from "@/reports/create-server-report-repository";
 
 import { ReportsPage } from "@/components/reports/reports-page";
@@ -99,6 +100,18 @@ function buildOptions(
           lead.status.trim() ||
           "Unknown",
       ),
+    ),
+    templates: uniqueSorted(
+      buildLeadObservations(dataset)
+        .flatMap((observation) =>
+          observation.templateActions.map(
+            (action) => action.templateCode,
+          ),
+        )
+        .filter(
+          (template): template is string =>
+            template !== null,
+        ),
     ),
   };
 }

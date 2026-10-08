@@ -22,6 +22,7 @@ type ReportBuilderProps = {
     sourceGroups: string[];
     stages: string[];
     statuses: string[];
+    templates: string[];
   };
 };
 
@@ -371,6 +372,22 @@ export function ReportBuilder({
             onToggle={(value, checked) =>
               updateFilter(
                 "statuses",
+                value,
+                checked,
+              )
+            }
+          />
+
+          <FilterSelect
+            name="template"
+            label="Matched templates"
+            options={options.templates}
+            selected={
+              draft.filters.templates
+            }
+            onToggle={(value, checked) =>
+              updateFilter(
+                "templates",
                 value,
                 checked,
               )

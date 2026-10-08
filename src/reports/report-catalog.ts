@@ -19,6 +19,8 @@ import {
   calculateResponded,
   calculateSoldClosed,
   calculateTimelineCovered,
+  calculateTemplateUses,
+  calculateTemplateUsesPerLead,
 } from "./calculations/report-measures";
 
 export const REPORT_DATE_BASES: Array<{
@@ -94,6 +96,12 @@ export const REPORT_DIMENSIONS: ReportDimension[] = [
     label: "Response speed",
     description:
       "Compare leads by observed response-speed bucket; leads without observed response remain explicit.",
+  },
+  {
+    key: "template",
+    label: "Matched template",
+    description:
+      "Compare report measures by template code observed on qualifying outbound communications.",
   },
 ];
 
@@ -227,6 +235,28 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     evidence: "observed_outbound",
     denominator: null,
     calculate: calculateOutboundAttempts,
+  },
+  {
+    key: "templateUses",
+    label: "Matched template uses",
+    description:
+      "Total qualifying outbound communications with canonical matched-template evidence.",
+    format: "count",
+    population: "report_population",
+    evidence: "observed_outbound",
+    denominator: null,
+    calculate: calculateTemplateUses,
+  },
+  {
+    key: "templateUsesPerLead",
+    label: "Template uses per lead",
+    description:
+      "Matched template uses divided by leads in the report population.",
+    format: "decimal",
+    population: "report_population",
+    evidence: "observed_outbound",
+    denominator: "leads",
+    calculate: calculateTemplateUsesPerLead,
   },
 ];
 

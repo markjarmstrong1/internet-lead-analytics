@@ -42,6 +42,7 @@ export type LeadAction = {
   actionType: string;
   channel: string | null;
   template: string | null;
+  templateCode: string | null;
   templateSource: TemplateSource;
 };
 
@@ -216,7 +217,7 @@ export function buildLeadObservation(
     outboundActions,
     templateActions:
       outboundActions.filter(
-        (action) => action.template !== null,
+        (action) => action.templateCode !== null,
       ),
     firstContactedTime,
     firstContactMinutes,
@@ -247,6 +248,8 @@ export function buildLeadAction(
       event.rawType.trim() || "Unknown action",
     channel: event.channel,
     template: template.value,
+    templateCode:
+      event.templateCode?.trim() || null,
     templateSource: template.source,
   };
 }

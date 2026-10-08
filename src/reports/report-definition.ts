@@ -24,6 +24,7 @@ export const DEFAULT_REPORT_DEFINITION: ReportDefinition = {
     sourceGroups: [],
     stages: [],
     statuses: [],
+    templates: [],
     evidence: {
       outbound: "any",
       response: "any",
@@ -75,6 +76,7 @@ export function normalizeReportDefinition(
       ),
       stages: unique(asStringArray(filters.stages)),
       statuses: unique(asStringArray(filters.statuses)),
+      templates: unique(asStringArray(filters.templates)),
       evidence: {
         outbound:
           getEvidenceStateFilter(
@@ -163,6 +165,7 @@ export function reportDefinitionFromSearchParams(
       sourceGroups: values("sourceGroup"),
       stages: values("stage"),
       statuses: values("status"),
+      templates: values("template"),
       evidence: {
         outbound:
           first("evidenceOutbound") ?? "any",

@@ -922,6 +922,119 @@ describe("buildReport", () => {
     ).toBe(1);
   });
 
+  it("filters by canonical matched template and counts template uses", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("template-a"),
+          lead("template-b", {
+            leadId: "template-b",
+            timelineRecordIds: ["record-2"],
+          }),
+          lead("unmatched", {
+            leadId: "unmatched",
+            timelineRecordIds: ["record-3"],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "template-a-outbound-1",
+            templateCode: "TEMPLATE_A",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "template-a-outbound-2",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            templateCode: "TEMPLATE_A",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "template-b-outbound",
+            templateCode: "TEMPLATE_B",
+          }),
+          event({
+            timelineRecordId: "record-3",
+            sourceEventId: "unmatched-outbound",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          templates: ["TEMPLATE_A"],
+        },
+        groupBy: "template",
+        metrics: [
+          "leads",
+          "templateUses",
+          "templateUsesPerLead",
+        ],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.leadIds).toEqual(["template-a"]);
+    expect(result.summary).toEqual({
+      leads: 1,
+      templateUses: 2,
+      templateUsesPerLead: 2,
+    });
+    expect(result.rows).toEqual([
+      {
+        key: "TEMPLATE_A",
+        label: "TEMPLATE_A",
+        leadIds: ["template-a"],
+        values: {
+          leads: 1,
+          templateUses: 2,
+          templateUsesPerLead: 2,
+        },
+      },
+    ]);
+  });
+
+  it("does not treat inferred template text as canonical matched-template evidence", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("inferred"),
+          lead("matched", {
+            leadId: "matched",
+            timelineRecordIds: ["record-2"],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "inferred-outbound",
+            metadata: {
+              templateName: "TEMPLATE_A",
+            },
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "matched-outbound",
+            templateCode: "TEMPLATE_A",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          templates: ["TEMPLATE_A"],
+        },
+        groupBy: "none",
+        metrics: ["leads", "templateUses"],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.leadIds).toEqual(["matched"]);
+    expect(result.summary).toEqual({
+      leads: 1,
+      templateUses: 1,
+    });
+  });
+
   it("supports outcome-date population", () => {
     const result = buildReport(
       dataset(

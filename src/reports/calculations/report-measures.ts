@@ -135,6 +135,29 @@ export function calculateOutboundAttempts(
   );
 }
 
+export function calculateTemplateUses(
+  context: ReportMeasureCalculationContext,
+): number {
+  return context.observations.reduce(
+    (total, observation) =>
+      total + observation.templateActions.length,
+    0,
+  );
+}
+
+export function calculateTemplateUsesPerLead(
+  context: ReportMeasureCalculationContext,
+): number | null {
+  if (context.leads.length === 0) {
+    return null;
+  }
+
+  return (
+    calculateTemplateUses(context) /
+    context.leads.length
+  );
+}
+
 function observedOutboundPopulation(
   observations: LeadObservation[],
 ): LeadObservation[] {

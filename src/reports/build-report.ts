@@ -104,7 +104,11 @@ function buildPopulation(
         definition,
         observationsByLead.get(lead.leadId),
       ) &&
-      matchesFilters(lead, definition) &&
+      matchesFilters(
+        lead,
+        observationsByLead.get(lead.leadId),
+        definition,
+      ) &&
       matchesEvidenceFilters(
         observationsByLead.get(lead.leadId),
         definition,
@@ -326,6 +330,7 @@ function isDateInRange(
 
 function matchesFilters(
   lead: AnalyticsLead,
+  observation: LeadObservation | undefined,
   definition: ReportDefinition,
 ): boolean {
   const {
@@ -333,6 +338,7 @@ function matchesFilters(
     sourceGroups,
     stages,
     statuses,
+    templates,
   } = definition.filters;
 
   return (
@@ -351,7 +357,30 @@ function matchesFilters(
     matchesStringFilter(
       lead.status,
       statuses,
+    ) &&
+    matchesTemplateFilter(
+      observation,
+      templates,
     )
+  );
+}
+
+function matchesTemplateFilter(
+  observation: LeadObservation | undefined,
+  selected: string[],
+): boolean {
+  if (selected.length === 0) {
+    return true;
+  }
+
+  if (!observation) {
+    return false;
+  }
+
+  return observation.templateActions.some(
+    (action) =>
+      action.templateCode !== null &&
+      selected.includes(action.templateCode),
   );
 }
 
@@ -462,6 +491,9 @@ function dimensionValue(
 
     case "responseSpeed":
       return responseSpeedDimensionValue(observation);
+
+    case "template":
+      return templateDimensionValue(observation);
   }
 }
 
@@ -487,3 +519,16 @@ function responseSpeedDimensionValue(
   );
 }
 
+function templateDimensionValue(
+  observation: LeadObservation | null,
+): string {
+  const templates =
+    observation?.templateActions
+      .map((action) => action.templateCode)
+      .filter(
+        (template): template is string =>
+          template !== null,
+      ) ?? [];
+
+  return templates[0] ?? "No matched template";
+}

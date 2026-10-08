@@ -14,7 +14,8 @@ export type ReportDimensionKey =
   | "sourceGroup"
   | "stage"
   | "status"
-  | "responseSpeed";
+  | "responseSpeed"
+  | "template";
 
 export type ReportDimension = {
   key: ReportDimensionKey;
@@ -34,7 +35,9 @@ export type ReportMetricKey =
   | "responseRate"
   | "responseWithin24hRate"
   | "medianResponseMinutes"
-  | "outboundAttempts";
+  | "outboundAttempts"
+  | "templateUses"
+  | "templateUsesPerLead";
 
 export type ReportMeasureEvidence =
   | "none"
@@ -58,7 +61,7 @@ export type ReportMeasure = {
   key: ReportMetricKey;
   label: string;
   description: string;
-  format: "count" | "percent" | "minutes";
+  format: "count" | "percent" | "minutes" | "decimal";
   population: ReportMeasurePopulation;
   evidence: ReportMeasureEvidence;
   denominator: ReportMetricKey | null;
@@ -86,6 +89,7 @@ export type ReportFilters = {
   sourceGroups: string[];
   stages: string[];
   statuses: string[];
+  templates: string[];
   evidence: ReportEvidenceFilters;
 };
 
