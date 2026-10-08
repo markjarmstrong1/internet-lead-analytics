@@ -93,6 +93,24 @@ export function ReportBuilder({
     }));
   }
 
+  function applyPreset(
+    preset: ManagementReportPreset,
+  ) {
+    setDraft((current) => ({
+      ...current,
+      name: preset.name,
+      groupBy: preset.groupBy,
+      filters: {
+        ...current.filters,
+        evidence: {
+          ...current.filters.evidence,
+          ...preset.evidence,
+        },
+      },
+      metrics: [...preset.metrics],
+    }));
+  }
+
   function toggleMetric(
     value: ReportDefinition["metrics"][number],
     checked: boolean,
@@ -116,6 +134,39 @@ export function ReportBuilder({
 
   return (
     <div className="space-y-6">
+      <section className="rounded-xl border border-slate-200 bg-white p-5">
+        <div>
+          <p className="text-sm font-semibold">
+            Start with a management question
+          </p>
+
+          <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
+            Start with a common management question, then adjust the
+            population, grouping, evidence, and measures before generating
+            the report.
+          </p>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {MANAGEMENT_REPORT_PRESETS.map((preset) => (
+            <button
+              key={preset.key}
+              type="button"
+              onClick={() => applyPreset(preset)}
+              className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-slate-400 hover:bg-white"
+            >
+              <span className="block text-sm font-semibold">
+                {preset.label}
+              </span>
+
+              <span className="mt-1 block text-xs leading-5 text-slate-500">
+                {preset.description}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <form
         method="get"
         className="space-y-6"
@@ -537,6 +588,101 @@ export function ReportBuilder({
     </div>
   );
 }
+
+
+type ManagementReportPreset = {
+  key: string;
+  label: string;
+  description: string;
+  name: string;
+  groupBy: ReportDefinition["groupBy"];
+  evidence: Partial<
+    ReportDefinition["filters"]["evidence"]
+  >;
+  metrics: ReportDefinition["metrics"];
+};
+
+const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
+  {
+    key: "losing-internet-leads",
+    label: "Where are we losing Internet leads?",
+    description:
+      "Focus on leads with observed outbound but no observed response, then compare where those leads come from.",
+    name: "Where are we losing Internet leads?",
+    groupBy: "source",
+    evidence: {
+      outbound: "observed",
+      response: "not_observed",
+    },
+    metrics: [
+      "leads",
+      "observedOutbound",
+      "responded",
+      "responseRate",
+      "appointments",
+      "soldClosed",
+    ],
+  },
+  {
+    key: "response-patterns",
+    label: "What are people responding to?",
+    description:
+      "Start with responding leads and compare response performance across lead sources.",
+    name: "What are people responding to?",
+    groupBy: "source",
+    evidence: {
+      outbound: "observed",
+      response: "observed",
+    },
+    metrics: [
+      "leads",
+      "observedOutbound",
+      "responded",
+      "responseRate",
+      "responseWithin24hRate",
+      "medianResponseMinutes",
+    ],
+  },
+  {
+    key: "non-responder-commonalities",
+    label: "What do non-responders have in common?",
+    description:
+      "Focus on leads with observed outbound and no observed response, then compare current stage.",
+    name: "Non-responder commonalities",
+    groupBy: "stage",
+    evidence: {
+      outbound: "observed",
+      response: "not_observed",
+    },
+    metrics: [
+      "leads",
+      "observedOutbound",
+      "responded",
+      "responseRate",
+      "appointments",
+      "soldClosed",
+    ],
+  },
+  {
+    key: "positive-outcome-patterns",
+    label: "What patterns are associated with sold / closed leads?",
+    description:
+      "Compare sources using observed activity and the current CRM Sold / Closed outcome measure.",
+    name: "Patterns associated with sold / closed leads",
+    groupBy: "source",
+    evidence: {
+      outbound: "observed",
+    },
+    metrics: [
+      "leads",
+      "observedOutbound",
+      "responded",
+      "responseRate",
+      "appointments",
+      "soldClosed",
+    ],
+  },
+];
 
 function Field({
   label,
