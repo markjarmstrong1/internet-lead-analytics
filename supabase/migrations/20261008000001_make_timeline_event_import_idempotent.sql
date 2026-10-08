@@ -1,4 +1,5 @@
--- Make timeline-event inserts resilient to an event already persisted.\ncreate or replace function public.apply_tekion_import_batch(
+-- Make timeline-event inserts resilient to an event already persisted.
+create or replace function public.apply_tekion_import_batch(
   p_import_id uuid,
   lead_rows jsonb,
   source_record_rows jsonb,
@@ -447,4 +448,4 @@ begin
     updated_at = now()
   where id = p_import_id;
 end;
-$$;\n
+$$;
