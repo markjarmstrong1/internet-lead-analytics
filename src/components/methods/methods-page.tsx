@@ -455,7 +455,7 @@ export function MethodsPage({
             value={pct(
               initialAnalysis.engagement.responseRate,
             )}
-            valueLabel={`${number(responded)} observed responses from ${number(responseEligible)} contacted leads with timeline evidence`}
+            valueLabel={`${number(responded)} observed responses from ${number(responseEligible)} leads with observed outbound evidence`}
           >
             <p>
               Response means an observed inbound
@@ -466,14 +466,14 @@ export function MethodsPage({
             </p>
 
             <EvidenceDetails
-              population={`${number(responseEligible)} contacted leads with timeline evidence`}
-              numerator={`${number(responded)} contacted leads with observed inbound response`}
-              denominator={`${number(responseEligible)} contacted leads with timeline evidence`}
+              population={`${number(responseEligible)} leads with observed outbound evidence`}
+              numerator={`${number(responded)} leads with observed inbound response`}
+              denominator={`${number(responseEligible)} leads with observed outbound evidence`}
               evidence="First Contacted Time → timeline evidence of subsequent inbound communication"
               limitation={
                 responseEligible < contacted
-                  ? `${number(contacted - responseEligible)} contacted leads lack timeline evidence and are excluded from the response denominator.`
-                  : "All contacted leads have timeline evidence."
+                  ? `${number(contacted - responseEligible)} CRM-contacted leads lack observed outbound evidence and are excluded from the response denominator.`
+                  : "All CRM-contacted leads have observed outbound evidence."
               }
             />
           </QuestionCard>
@@ -518,9 +518,9 @@ export function MethodsPage({
           </div>
 
           <EvidenceNote>
-            Population: contacted leads. Numerator: contacted
+            Population: leads with observed outbound evidence. Numerator:
             leads with observed inbound response. Denominator:
-            contacted leads in each speed bucket. This shows
+            observed-outbound leads in each speed bucket. This shows
             association in the observed data; it does not prove
             that response speed caused the outcome.
           </EvidenceNote>

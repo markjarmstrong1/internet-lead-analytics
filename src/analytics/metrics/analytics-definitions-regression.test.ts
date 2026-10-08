@@ -315,6 +315,63 @@ describe("canonical analytics definitions", () => {
     expect(bucket?.rate).toBe(0.5);
   });
 
+  it("keeps CRM-contacted leads without observed outbound out of response analysis", () => {
+    const dataset: AnalyticsDataset = {
+      leads: [
+        makeLead("crm-only", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
+        makeLead("responded", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
+        makeLead("no-response", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
+      ],
+      events: [
+        makeEvent("crm-only", {
+          sourceEventId: "crm-only-workflow",
+          rawType: "Task Completed",
+          category: "workflow",
+          channel: null,
+          direction: null,
+        }),
+        makeEvent("responded", {
+          sourceEventId: "responded-outbound",
+        }),
+        makeEvent("responded", {
+          sourceEventId: "responded-inbound",
+          occurredAt:
+            "2026-01-01T10:07:00.000Z",
+          rawType: "Text Received",
+          actorType: "unknown",
+          direction: "inbound",
+        }),
+        makeEvent("no-response", {
+          sourceEventId: "no-response-outbound",
+        }),
+      ],
+    };
+
+    const result =
+      buildDashboardAnalysis(dataset);
+
+    const noResponseBucket =
+      result.engagement.speed.find(
+        (row) => row.key === "no_response",
+      );
+
+    expect(noResponseBucket?.contacted).toBe(1);
+    expect(noResponseBucket?.responded).toBe(0);
+
+    expect(
+      result.engagement.responseEligible,
+    ).toBe(2);
+  });
+
   it("partitions current Sold/Closed leads by timeline coverage", () => {
     const dataset: AnalyticsDataset = {
       leads: [

@@ -365,10 +365,10 @@ export function buildDashboardAnalysis(
       ),
       medianResponseMinutes,
       speed: buildResponseSpeedRows(
-        contacted,
+        responseEligible,
       ),
       channels: buildChannelRows(
-        contacted,
+        responseEligible,
       ),
       email: emailEngagement,
       firstResponse,

@@ -659,10 +659,16 @@ describe("buildReport", () => {
         values: { leads: 1 },
       },
       {
+        key: "Insufficient evidence",
+        label: "Insufficient evidence",
+        leadIds: ["not-exposed"],
+        values: { leads: 1 },
+      },
+      {
         key: "No observed response",
         label: "No observed response",
-        leadIds: ["no-response", "not-exposed"],
-        values: { leads: 2 },
+        leadIds: ["no-response"],
+        values: { leads: 1 },
       },
     ]);
   });

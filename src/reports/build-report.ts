@@ -446,6 +446,10 @@ function matchesResponseWithin24h(
     return true;
   }
 
+  if (observation.evidence.outbound.state !== "observed") {
+    return false;
+  }
+
   return filter === "yes"
     ? observation.respondedWithin24h
     : !observation.respondedWithin24h;
@@ -500,8 +504,17 @@ function dimensionValue(
 function responseSpeedDimensionValue(
   observation: LeadObservation | null,
 ): string {
+  if (!observation) {
+    return "Insufficient evidence";
+  }
+
   if (
-    !observation ||
+    observation.evidence.outbound.state !== "observed"
+  ) {
+    return "Insufficient evidence";
+  }
+
+  if (
     observation.evidence.response.state !== "observed"
   ) {
     return "No observed response";

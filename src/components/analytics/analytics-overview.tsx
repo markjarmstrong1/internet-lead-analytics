@@ -246,14 +246,14 @@ export function AnalyticsOverview({
 
       <Card
         title="Which channels are producing responses?"
-        description="First-touch channel compared using the same contacted-lead denominator."
+        description="First-touch channel compared using the same observed-outbound denominator."
       >
         <div className="overflow-x-auto">
           <table className="w-full min-w-[650px] text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-[10px] font-semibold uppercase tracking-[0.11em] text-[var(--muted)]">
                 <th className="pb-3 pr-4">Channel</th>
-                <th className="pb-3 pr-4">Contacted</th>
+                <th className="pb-3 pr-4">Observed outbound</th>
                 <th className="pb-3 pr-4">Responded</th>
                 <th className="pb-3 pr-4">Response rate</th>
                 <th className="pb-3">Within 24h</th>
