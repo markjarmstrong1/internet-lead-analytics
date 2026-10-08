@@ -432,6 +432,67 @@ describe("buildReport", () => {
     ]);
   });
 
+  it("keeps response-rate comparison denominators when evidence filters narrow the lead list", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("responded", {
+            timelineRecordIds: ["record-responded"],
+          }),
+          lead("no-response", {
+            timelineRecordIds: ["record-no-response"],
+          }),
+          lead("no-outbound", {
+            timelineRecordIds: [],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-responded",
+            sourceEventId: "outbound-responded",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+          }),
+          event({
+            timelineRecordId: "record-responded",
+            sourceEventId: "inbound-responded",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-no-response",
+            sourceEventId: "outbound-no-response",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          evidence: {
+            response: "observed",
+          },
+        },
+        groupBy: "none",
+        metrics: [
+          "leads",
+          "observedOutbound",
+          "responded",
+          "responseRate",
+        ],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.leadIds).toEqual(["responded"]);
+    expect(result.summary).toMatchObject({
+      leads: 1,
+      observedOutbound: 1,
+      responded: 1,
+      responseRate: 0.5,
+    });
+  });
+
   it("preserves exact lead population IDs for an overall report", () => {
     const result = buildReport(
       dataset(

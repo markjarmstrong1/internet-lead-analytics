@@ -34,11 +34,22 @@ export function buildReport(
     ]),
   );
 
+  // Keep the manager's selected lead list separate from the
+  // comparison cohort used by measures with explicit population rules.
+  const comparisonPopulation = buildPopulation(
+    dataset.leads,
+    observations,
+    observationsByLead,
+    definition,
+    false,
+  );
+
   const population = buildPopulation(
     dataset.leads,
     observations,
     observationsByLead,
     definition,
+    true,
   );
 
   const {
@@ -52,15 +63,25 @@ export function buildReport(
     definition.groupBy,
   );
 
+  const comparisonGrouped = groupObservations(
+    comparisonPopulation.leads,
+    comparisonPopulation.observations,
+    definition.groupBy,
+  );
+
   const rows = [...grouped.entries()]
-    .map(([key, group]) =>
-      buildRow(
+    .map(([key, group]) => {
+      const comparisonGroup = comparisonGrouped.get(key);
+
+      return buildRow(
         key,
         group.leads,
         group.observations,
+        comparisonGroup?.leads ?? [],
+        comparisonGroup?.observations ?? [],
         definition.metrics,
-      ),
-    )
+      );
+    })
     .sort((left, right) =>
       left.label.localeCompare(right.label),
     );
@@ -68,10 +89,18 @@ export function buildReport(
   const summary: ReportResult["summary"] = {};
 
   for (const metric of definition.metrics) {
+    const measure = measureDefinition(metric);
+    const useComparisonPopulation =
+      measure?.population !== "report_population";
+
+    const metricPopulation = useComparisonPopulation
+      ? comparisonPopulation
+      : population;
+
     summary[metric] = calculateMetric(
       metric,
-      filteredLeads,
-      filteredObservations,
+      metricPopulation.leads,
+      metricPopulation.observations,
     );
   }
 
@@ -96,6 +125,7 @@ function buildPopulation(
   observations: LeadObservation[],
   observationsByLead: Map<string, LeadObservation>,
   definition: ReportDefinition,
+  applyEvidenceFilters: boolean,
 ): ReportPopulation {
   const filteredLeads = leads.filter(
     (lead) =>
@@ -109,10 +139,11 @@ function buildPopulation(
         observationsByLead.get(lead.leadId),
         definition,
       ) &&
-      matchesEvidenceFilters(
-        observationsByLead.get(lead.leadId),
-        definition,
-      ),
+      (!applyEvidenceFilters ||
+        matchesEvidenceFilters(
+          observationsByLead.get(lead.leadId),
+          definition,
+        )),
   );
 
   const populationIds = new Set(
@@ -183,15 +214,21 @@ function buildRow(
   key: string,
   leads: AnalyticsLead[],
   observations: LeadObservation[],
+  comparisonLeads: AnalyticsLead[],
+  comparisonObservations: LeadObservation[],
   metrics: ReportMetricKey[],
 ): ReportRow {
   const values: ReportRow["values"] = {};
 
   for (const metric of metrics) {
+    const measure = measureDefinition(metric);
+    const useComparisonPopulation =
+      measure?.population !== "report_population";
+
     values[metric] = calculateMetric(
       metric,
-      leads,
-      observations,
+      useComparisonPopulation ? comparisonLeads : leads,
+      useComparisonPopulation ? comparisonObservations : observations,
     );
   }
 
