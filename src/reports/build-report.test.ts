@@ -64,6 +64,31 @@ function dataset(
   return { leads, events };
 }
 
+function expectPopulationIntegrity(
+  result: ReturnType<typeof buildReport>,
+) {
+  expect(
+    new Set(result.leadIds).size,
+  ).toBe(result.leadIds.length);
+
+  expect(result.leadIds).toHaveLength(
+    result.populationCount,
+  );
+
+  const groupedLeadIds =
+    result.rows.flatMap(
+      (row) => row.leadIds,
+    );
+
+  expect(
+    new Set(groupedLeadIds).size,
+  ).toBe(groupedLeadIds.length);
+
+  expect(
+    new Set(groupedLeadIds),
+  ).toEqual(new Set(result.leadIds));
+}
+
 describe("report definition normalization", () => {
   it("provides stable defaults", () => {
     expect(
@@ -337,6 +362,139 @@ describe("buildReport", () => {
         },
       },
     ]);
+  });
+
+  it("preserves exact lead population IDs for an overall report", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("included-1"),
+          lead("included-2", {
+            source: "Source B",
+          }),
+          lead("excluded", {
+            source: "Source C",
+          }),
+        ],
+        [],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          sources: ["Source A", "Source B"],
+        },
+        groupBy: "none",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(result.leadIds).toEqual([
+      "included-1",
+      "included-2",
+    ]);
+
+    expectPopulationIntegrity(result);
+  });
+
+  it("preserves exact lead population IDs across grouped rows", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("source-a-1"),
+          lead("source-a-2"),
+          lead("source-b-1", {
+            source: "Source B",
+          }),
+          lead("excluded", {
+            source: "Source C",
+          }),
+        ],
+        [],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          sources: ["Source A", "Source B"],
+        },
+        groupBy: "source",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(result.leadIds).toEqual([
+      "source-a-1",
+      "source-a-2",
+      "source-b-1",
+    ]);
+
+    expect(
+      result.rows.map((row) => ({
+        key: row.key,
+        leadIds: row.leadIds,
+      })),
+    ).toEqual([
+      {
+        key: "Source A",
+        leadIds: [
+          "source-a-1",
+          "source-a-2",
+        ],
+      },
+      {
+        key: "Source B",
+        leadIds: ["source-b-1"],
+      },
+    ]);
+
+    expectPopulationIntegrity(result);
+  });
+
+  it("preserves population integrity for evidence-filtered reports", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("responded"),
+          lead("no-response", {
+            timelineRecordIds: ["record-2"],
+          }),
+          lead("not-exposed", {
+            timelineRecordIds: [],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "responded-outbound",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "responded-inbound",
+            occurredAt:
+              "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "no-response-outbound",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          evidence: {
+            response: "not_observed",
+          },
+        },
+        groupBy: "responseSpeed",
+        metrics: ["leads"],
+      }),
+    );
+
+    expect(result.leadIds).toEqual([
+      "no-response",
+    ]);
+
+    expectPopulationIntegrity(result);
   });
 
   it("returns a null response rate when no outbound evidence exists", () => {
