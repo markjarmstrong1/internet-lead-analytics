@@ -364,6 +364,74 @@ describe("buildReport", () => {
     ]);
   });
 
+  it("calculates response rates against all leads with observed outbound, including non-responders", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("responded", {
+            timelineRecordIds: ["record-responded"],
+          }),
+          lead("no-response", {
+            timelineRecordIds: ["record-no-response"],
+          }),
+          lead("no-outbound", {
+            timelineRecordIds: [],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-responded",
+            sourceEventId: "outbound-responded",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+          }),
+          event({
+            timelineRecordId: "record-responded",
+            sourceEventId: "inbound-responded",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-no-response",
+            sourceEventId: "outbound-no-response",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: {
+          evidence: {
+            outbound: "observed",
+          },
+        },
+        groupBy: "none",
+        metrics: [
+          "leads",
+          "observedOutbound",
+          "responded",
+          "responseRate",
+          "responseWithin24hRate",
+          "medianResponseMinutes",
+        ],
+      }),
+    );
+
+    expect(result.populationCount).toBe(2);
+    expect(result.summary).toMatchObject({
+      leads: 2,
+      observedOutbound: 2,
+      responded: 1,
+      responseRate: 0.5,
+      responseWithin24hRate: 0.5,
+      medianResponseMinutes: 5,
+    });
+    expect(result.leadIds).toEqual([
+      "responded",
+      "no-response",
+    ]);
+  });
+
   it("preserves exact lead population IDs for an overall report", () => {
     const result = buildReport(
       dataset(
