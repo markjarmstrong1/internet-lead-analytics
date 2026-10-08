@@ -9,6 +9,9 @@ import type { LeadListItem } from "@/integrations/tekion/lead/supabase-lead-repo
 
 type LeadListTableProps = {
   leads: LeadListItem[];
+  initialStatus?: string;
+  initialStage?: string;
+  initialSourceGroup?: string;
 };
 
 function formatDate(value: string | null) {
@@ -64,21 +67,30 @@ function statusTone(value: string | null) {
   return "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]";
 }
 
-export function LeadListTable({ leads }: LeadListTableProps) {
+export function LeadListTable({
+  leads,
+  initialStatus = "all",
+  initialStage = "all",
+  initialSourceGroup = "all",
+}: LeadListTableProps) {
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
-  const [stage, setStage] = useState("all");
-  const [sourceGroup, setSourceGroup] = useState("all");
+  const [status, setStatus] = useState(initialStatus);
+  const [stage, setStage] = useState(initialStage);
+  const [sourceGroup, setSourceGroup] = useState(initialSourceGroup);
 
   const statuses = useMemo(
     () =>
-      [...new Set(leads.map((lead) => lead.status).filter(Boolean))].sort(),
+      [...new Set(
+        leads.map((lead) => lead.status?.trim() || "Unknown"),
+      )].sort(),
     [leads],
   );
 
   const stages = useMemo(
     () =>
-      [...new Set(leads.map((lead) => lead.stage).filter(Boolean))].sort(),
+      [...new Set(
+        leads.map((lead) => lead.stage?.trim() || "Unknown"),
+      )].sort(),
     [leads],
   );
 
@@ -86,7 +98,10 @@ export function LeadListTable({ leads }: LeadListTableProps) {
     () =>
       [
         ...new Set(
-          leads.map((lead) => lead.lead_source_group).filter(Boolean),
+          leads.map(
+            (lead) =>
+              lead.lead_source_group?.trim() || "Unknown",
+          ),
         ),
       ].sort(),
     [leads],
@@ -102,12 +117,17 @@ export function LeadListTable({ leads }: LeadListTableProps) {
         lead.contact_name.toLowerCase().includes(query) ||
         lead.external_record_id.toLowerCase().includes(query);
 
+      const leadStatus = lead.status?.trim() || "Unknown";
+      const leadStage = lead.stage?.trim() || "Unknown";
+      const leadSourceGroup =
+        lead.lead_source_group?.trim() || "Unknown";
+
       return (
         matchesSearch &&
-        (status === "all" || lead.status === status) &&
-        (stage === "all" || lead.stage === stage) &&
+        (status === "all" || leadStatus === status) &&
+        (stage === "all" || leadStage === stage) &&
         (sourceGroup === "all" ||
-          lead.lead_source_group === sourceGroup)
+          leadSourceGroup === sourceGroup)
       );
     });
   }, [leads, search, status, stage, sourceGroup]);

@@ -1,10 +1,20 @@
 import { AppShell } from "@/components/app/app-shell";
 import { LeadListPage } from "@/components/leads/lead-list-page";
 
-export default function LeadListRoute() {
+type LeadListRouteProps = {
+  searchParams: Promise<{
+    status?: string;
+    stage?: string;
+    sourceGroup?: string;
+  }>;
+};
+
+export default async function LeadListRoute({
+  searchParams,
+}: LeadListRouteProps) {
   return (
     <AppShell>
-      <LeadListPage />
+      <LeadListPage searchParams={searchParams} />
     </AppShell>
   );
 }

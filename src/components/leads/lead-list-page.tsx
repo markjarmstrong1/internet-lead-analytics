@@ -6,8 +6,21 @@ import { LeadsNavigation } from "@/components/leads/leads-navigation";
 import { LeadListTable } from "@/components/leads/lead-list-table";
 import { listLeads } from "@/integrations/tekion/lead/supabase-lead-repository";
 
-export async function LeadListPage() {
-  const leads = await listLeads();
+type LeadListPageProps = {
+  searchParams: Promise<{
+    status?: string;
+    stage?: string;
+    sourceGroup?: string;
+  }>;
+};
+
+export async function LeadListPage({
+  searchParams,
+}: LeadListPageProps) {
+  const [leads, params] = await Promise.all([
+    listLeads(),
+    searchParams,
+  ]);
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-8 px-6 py-8 lg:px-8">
@@ -26,7 +39,12 @@ export async function LeadListPage() {
         } available for investigation.`}
       >
         <div className="overflow-hidden rounded-[10px] border bg-white">
-          <LeadListTable leads={leads} />
+          <LeadListTable
+            leads={leads}
+            initialStatus={params.status ?? "all"}
+            initialStage={params.stage ?? "all"}
+            initialSourceGroup={params.sourceGroup ?? "all"}
+          />
         </div>
       </SectionPanel>
     </div>
