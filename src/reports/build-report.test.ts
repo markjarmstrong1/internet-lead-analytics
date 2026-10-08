@@ -11,6 +11,7 @@ import {
   normalizeReportDefinition,
 } from "./report-definition";
 import { buildReport } from "./build-report";
+import { buildDashboardAnalysis } from "@/analytics/metrics/dashboard";
 
 function event(
   overrides: Partial<
@@ -1317,4 +1318,156 @@ describe("buildReport", () => {
       result.rows[0]?.values.soldClosed,
     ).toBe(1);
   });
+
+  it("cross-checks shared dashboard and report metrics against identical evidence", () => {
+    const data = dataset(
+      [
+        lead("fast-response-sold", {
+          stage: "Sold",
+          timelineRecordIds: ["record-fast"],
+        }),
+        lead("outbound-no-response", {
+          timelineRecordIds: ["record-no-response"],
+        }),
+        lead("late-response", {
+          timelineRecordIds: ["record-late"],
+        }),
+        lead("sold-no-timeline", {
+          stage: "Closed",
+          timelineRecordIds: [],
+        }),
+      ],
+      [
+        event({
+          timelineRecordId: "record-fast",
+          sourceEventId: "fast-outbound",
+          occurredAt: "2026-09-10T10:00:00.000Z",
+        }),
+        event({
+          timelineRecordId: "record-fast",
+          sourceEventId: "fast-inbound",
+          occurredAt: "2026-09-10T10:05:00.000Z",
+          rawType: "Text Received",
+          actorType: "unknown",
+          direction: "inbound",
+        }),
+        event({
+          timelineRecordId: "record-fast",
+          sourceEventId: "fast-appointment",
+          occurredAt: "2026-09-10T10:06:00.000Z",
+          rawType: "Stage Changed",
+          category: "lifecycle",
+          channel: null,
+          direction: null,
+          details: "Stage got changed from Engage to Appt. Created",
+        }),
+        event({
+          timelineRecordId: "record-no-response",
+          sourceEventId: "no-response-outbound",
+          occurredAt: "2026-09-10T10:00:00.000Z",
+        }),
+        event({
+          timelineRecordId: "record-late",
+          sourceEventId: "late-outbound",
+          occurredAt: "2026-09-10T10:00:00.000Z",
+        }),
+        event({
+          timelineRecordId: "record-late",
+          sourceEventId: "late-inbound",
+          occurredAt: "2026-09-11T11:00:00.000Z",
+          rawType: "Text Received",
+          actorType: "unknown",
+          direction: "inbound",
+        }),
+      ],
+    );
+
+    const dashboard = buildDashboardAnalysis(data);
+    const report = buildReport(
+      data,
+      normalizeReportDefinition({
+        groupBy: "none",
+        metrics: [
+          "leads",
+          "timelineCovered",
+          "observedOutbound",
+          "responded",
+          "responseWithin24h",
+          "appointments",
+          "soldClosed",
+          "responseRate",
+          "responseWithin24hRate",
+        ],
+      }),
+    );
+
+    expect(report.summary).toEqual({
+      leads: dashboard.acquisition.leads,
+      timelineCovered: dashboard.acquisition.timelineCovered,
+      observedOutbound: dashboard.engagement.responseEligible,
+      responded: dashboard.engagement.responded,
+      responseWithin24h: dashboard.engagement.respondedWithin24h,
+      appointments: dashboard.progression.appointmentEvidence,
+      soldClosed: dashboard.progression.soldClosed,
+      responseRate: dashboard.engagement.responseRate,
+      responseWithin24hRate: dashboard.engagement.responseWithin24hRate,
+    });
+
+    expect(report.summary).toMatchObject({
+      leads: 4,
+      timelineCovered: 3,
+      observedOutbound: 3,
+      responded: 2,
+      responseWithin24h: 1,
+      appointments: 1,
+      soldClosed: 2,
+      responseRate: 2 / 3,
+      responseWithin24hRate: 1 / 3,
+    });
+  });
+
+  it("counts only selected template uses when one lead uses multiple templates", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("mixed-template-lead", {
+            timelineRecordIds: ["record-1"],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "template-a-1",
+            templateCode: "TEMPLATE_A",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "template-a-2",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            templateCode: "TEMPLATE_A",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "template-b-1",
+            occurredAt: "2026-09-10T10:10:00.000Z",
+            templateCode: "TEMPLATE_B",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        filters: { templates: ["TEMPLATE_A"] },
+        groupBy: "none",
+        metrics: ["leads", "templateUses", "templateUsesPerLead"],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.leadIds).toEqual(["mixed-template-lead"]);
+    expect(result.summary).toEqual({
+      leads: 1,
+      templateUses: 2,
+      templateUsesPerLead: 2,
+    });
+  });
+
 });
