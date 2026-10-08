@@ -8,6 +8,10 @@ import {
   REPORT_DIMENSIONS,
   REPORT_MEASURES,
 } from "@/reports/report-catalog";
+import {
+  MANAGEMENT_REPORT_PRESETS,
+  type ManagementReportPreset,
+} from "@/reports/report-presets";
 import { saveReportAction } from "@/reports/actions";
 import type {
   ReportDefinition,
@@ -607,99 +611,6 @@ export function ReportBuilder({
 }
 
 
-type ManagementReportPreset = {
-  key: string;
-  label: string;
-  description: string;
-  name: string;
-  groupBy: ReportDefinition["groupBy"];
-  evidence: Partial<
-    ReportDefinition["filters"]["evidence"]
-  >;
-  metrics: ReportDefinition["metrics"];
-};
-
-const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
-  {
-    key: "losing-internet-leads",
-    label: "Where are we losing Internet leads?",
-    description:
-      "Focus on leads with observed outbound but no observed response, then compare where those leads come from.",
-    name: "Where are we losing Internet leads?",
-    groupBy: "source",
-    evidence: {
-      outbound: "observed",
-      response: "not_observed",
-    },
-    metrics: [
-      "leads",
-      "observedOutbound",
-      "responded",
-      "responseRate",
-      "appointments",
-      "soldClosed",
-    ],
-  },
-  {
-    key: "response-patterns",
-    label: "What are people responding to?",
-    description:
-      "Start with responding leads and compare response performance across lead sources.",
-    name: "What are people responding to?",
-    groupBy: "source",
-    evidence: {
-      outbound: "observed",
-      response: "observed",
-    },
-    metrics: [
-      "leads",
-      "observedOutbound",
-      "responded",
-      "responseRate",
-      "responseWithin24hRate",
-      "medianResponseMinutes",
-    ],
-  },
-  {
-    key: "non-responder-commonalities",
-    label: "What do non-responders have in common?",
-    description:
-      "Focus on leads with observed outbound and no observed response, then compare current stage.",
-    name: "Non-responder commonalities",
-    groupBy: "stage",
-    evidence: {
-      outbound: "observed",
-      response: "not_observed",
-    },
-    metrics: [
-      "leads",
-      "observedOutbound",
-      "responded",
-      "responseRate",
-      "appointments",
-      "soldClosed",
-    ],
-  },
-  {
-    key: "positive-outcome-patterns",
-    label: "What patterns are associated with sold / closed leads?",
-    description:
-      "Compare sources using observed activity and the current CRM Sold / Closed outcome measure.",
-    name: "Patterns associated with sold / closed leads",
-    groupBy: "source",
-    evidence: {
-      outbound: "observed",
-    },
-    metrics: [
-      "leads",
-      "observedOutbound",
-      "responded",
-      "responseRate",
-      "appointments",
-      "soldClosed",
-    ],
-  },
-];
 
 function Field({
   label,
