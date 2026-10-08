@@ -106,6 +106,8 @@ export function ReportResults({
 
       <ManagementReadout result={result} />
 
+      <ComparisonReadout result={result} />
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Report population"
@@ -161,10 +163,20 @@ export function ReportResults({
 
           <tbody>
             {result.rows.map(
-              (row) => (
+              (row) => {
+                const comparison = comparisonState(result, row);
+
+                return (
                 <tr
                   key={row.key}
-                  className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
+                  className={[
+                    "border-b border-slate-100 last:border-b-0 hover:bg-slate-50",
+                    comparison === "strongest"
+                      ? "bg-emerald-50/60"
+                      : comparison === "weakest"
+                        ? "bg-amber-50/60"
+                        : "",
+                  ].join(" ")}
                 >
                   <td className="px-4 py-3 font-medium">
                     <div className="flex items-center justify-between gap-4">
@@ -190,17 +202,16 @@ export function ReportResults({
                         key={metric}
                         className="px-4 py-3 text-right tabular-nums"
                       >
-                        {formatMetric(
-                          metric,
-                          row.values[
-                            metric
-                          ] ?? null,
-                        )}
+                        <MetricCell
+                          metric={metric}
+                          value={row.values[metric] ?? null}
+                        />
                       </td>
                     ),
                   )}
                 </tr>
-              ),
+                );
+              },
             )}
 
             {result.rows.length === 0 ? (
@@ -352,6 +363,180 @@ function ManagementReadout({
         </p>
       ) : null}
     </section>
+  );
+}
+
+function ComparisonReadout({
+  result,
+}: {
+  result: ReportResult;
+}) {
+  if (
+    result.definition.groupBy === "none" ||
+    !result.definition.metrics.includes("responseRate")
+  ) {
+    return null;
+  }
+
+  const rows = result.rows.filter(
+    (row) => row.values.responseRate != null,
+  );
+
+  if (rows.length < 2) {
+    return null;
+  }
+
+  const sorted = [...rows].sort(
+    (a, b) =>
+      (b.values.responseRate ?? -1) -
+      (a.values.responseRate ?? -1),
+  );
+
+  const strongest = sorted[0];
+  const weakest = sorted[sorted.length - 1];
+
+  if (!strongest || !weakest) {
+    return null;
+  }
+
+  const spread =
+    (strongest.values.responseRate ?? 0) -
+    (weakest.values.responseRate ?? 0);
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Group comparison
+          </p>
+
+          <h3 className="mt-1 text-base font-semibold text-slate-950">
+            The largest observed response-rate gap is{" "}
+            {formatPercentagePoints(spread)}
+          </h3>
+
+          <p className="mt-1 max-w-3xl text-sm text-slate-500">
+            Rates are calculated from leads with observed outbound evidence.
+            Null values remain unranked rather than being treated as zero.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 text-xs">
+          <ComparisonBadge
+            label="Strongest"
+            row={strongest}
+          />
+
+          <ComparisonBadge
+            label="Weakest"
+            row={weakest}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ComparisonBadge({
+  label,
+  row,
+}: {
+  label: string;
+  row: ReportResult["rows"][number];
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+      <p className="font-semibold text-slate-700">
+        {label}
+      </p>
+
+      <p className="mt-0.5 text-slate-500">
+        {row.label} ·{" "}
+        {formatMetric(
+          "responseRate",
+          row.values.responseRate ?? null,
+        )}
+      </p>
+    </div>
+  );
+}
+
+function comparisonState(
+  result: ReportResult,
+  row: ReportResult["rows"][number],
+): "strongest" | "weakest" | null {
+  if (
+    result.definition.groupBy === "none" ||
+    !result.definition.metrics.includes("responseRate") ||
+    row.values.responseRate == null
+  ) {
+    return null;
+  }
+
+  const ranked = result.rows.filter(
+    (candidate) => candidate.values.responseRate != null,
+  );
+
+  if (ranked.length < 2) {
+    return null;
+  }
+
+  const max = Math.max(
+    ...ranked.map(
+      (candidate) => candidate.values.responseRate ?? -1,
+    ),
+  );
+
+  const min = Math.min(
+    ...ranked.map(
+      (candidate) => candidate.values.responseRate ?? 2,
+    ),
+  );
+
+  if (row.values.responseRate === max) {
+    return "strongest";
+  }
+
+  if (row.values.responseRate === min) {
+    return "weakest";
+  }
+
+  return null;
+}
+
+function MetricCell({
+  metric,
+  value,
+}: {
+  metric: ReportMetricKey;
+  value: number | null;
+}) {
+  if (value === null) {
+    return <span>—</span>;
+  }
+
+  if (
+    metric === "responseRate" ||
+    metric === "responseWithin24hRate"
+  ) {
+    return (
+      <span className="inline-flex flex-col items-end">
+        <span>{formatMetric(metric, value)}</span>
+        <span className="text-[10px] font-normal text-slate-400">
+          of observed outbound
+        </span>
+      </span>
+    );
+  }
+
+  return <span>{formatMetric(metric, value)}</span>;
+}
+
+function formatPercentagePoints(value: number): string {
+  return (
+    (value * 100).toFixed(1) +
+    " percentage points"
   );
 }
 
