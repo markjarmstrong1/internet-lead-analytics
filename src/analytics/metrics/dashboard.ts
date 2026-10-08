@@ -1212,7 +1212,7 @@ function buildTemplateRows(
   >();
 
   for (const observation of observations) {
-    for (const action of observation.templateActions) {
+    for (const action of observation.outboundActions) {
       if (!action.template) {
         continue;
       }

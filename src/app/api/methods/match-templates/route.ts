@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { runMethod } from "@/methods/template-methods";
+import { describeMethodError, runMethod } from "@/methods/template-methods";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,10 +15,10 @@ export async function POST() {
   } catch (error) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Template matching failed.",
+        error: describeMethodError(
+          error,
+          "Template matching failed.",
+        ),
       },
       { status: 500 },
     );

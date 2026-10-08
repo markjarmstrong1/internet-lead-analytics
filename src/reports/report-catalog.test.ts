@@ -9,7 +9,7 @@ import {
 
 describe("report catalog", () => {
   it("defines dimensions as first-class report concepts", () => {
-    expect(REPORT_DIMENSIONS).toHaveLength(6);
+    expect(REPORT_DIMENSIONS).toHaveLength(7);
 
     expect(
       dimensionDefinition("responseSpeed"),
@@ -21,7 +21,7 @@ describe("report catalog", () => {
   });
 
   it("defines measures as first-class report concepts", () => {
-    expect(REPORT_MEASURES).toHaveLength(12);
+    expect(REPORT_MEASURES).toHaveLength(14);
 
     expect(
       measureDefinition("responseRate"),

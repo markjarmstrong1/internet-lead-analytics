@@ -33,6 +33,46 @@ function adminClient(): SupabaseClient {
   });
 }
 
+export function describeMethodError(
+  error: unknown,
+  fallback: string,
+): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+
+  if (error && typeof error === "object") {
+    const value = error as {
+      message?: unknown;
+      details?: unknown;
+      hint?: unknown;
+      code?: unknown;
+    };
+
+    if (typeof value.message === "string" && value.message.trim()) {
+      const code =
+        typeof value.code === "string" ? ` [${value.code}]` : "";
+      const extra = [
+        value.details,
+        value.hint,
+      ].filter(
+        (part): part is string =>
+          typeof part === "string" && Boolean(part.trim()),
+      );
+
+      return `${value.message}${code}${
+        extra.length ? ` — ${extra.join(" ")}` : ""
+      }`;
+    }
+  }
+
+  return fallback;
+}
+
 export async function syncTekionTemplates(): Promise<{
   discovered: number;
   created: number;
@@ -218,17 +258,42 @@ export async function matchTimelineEventsToTemplates(): Promise<{
         row.normalized_subject ?? null,
     }));
 
-  const { data: events, error: eventError } =
-    await supabase
+  type MatchableTimelineEvent = {
+    id: string;
+    details: string;
+    metadata: Record<string, unknown> | null;
+    raw_data: Record<string, unknown> | null;
+    channel: string | null;
+    direction: string | null;
+    actor_type: string | null;
+  };
+
+  // Supabase REST responses are capped. Fetch stable pages so
+  // larger imports cannot silently omit eligible communications.
+  const events: MatchableTimelineEvent[] = [];
+  const pageSize = 500;
+
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await supabase
       .from("timeline_events")
       .select(
         "id,details,metadata,raw_data,channel,direction,actor_type",
       )
       .eq("direction", "outbound")
-      .in("channel", ["email", "text"]);
+      .in("channel", ["email", "text"])
+      .order("id", { ascending: true })
+      .range(offset, offset + pageSize - 1);
 
-  if (eventError) {
-    throw eventError;
+    if (error) {
+      throw error;
+    }
+
+    const page = (data ?? []) as MatchableTimelineEvent[];
+    events.push(...page);
+
+    if (page.length < pageSize) {
+      break;
+    }
   }
 
   let matched = 0;
@@ -288,37 +353,62 @@ export async function matchTimelineEventsToTemplates(): Promise<{
   });
 
   /*
-   * The table has one row per event. Replacing the complete derived
-   * result set makes the method deterministic and rerunnable.
+   * Upsert in small batches instead of deleting all matches through
+   * one enormous .in(...) request. Existing results remain available
+   * if any batch fails. Remove stale rows only after all writes pass.
    */
-  const { error: deleteError } =
-    await supabase
-      .from("timeline_event_template_matches")
-      .delete()
-      .in(
-        "timeline_event_id",
-        (events ?? []).map(
-          (event) => event.id,
-        ),
-      );
+  const existingMatchIds: string[] = [];
 
-  if (
-    deleteError &&
-    (events ?? []).length > 0
-  ) {
-    throw deleteError;
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await supabase
+      .from("timeline_event_template_matches")
+      .select("timeline_event_id")
+      .order("timeline_event_id", { ascending: true })
+      .range(offset, offset + pageSize - 1);
+
+    if (error) {
+      throw error;
+    }
+
+    const page = data ?? [];
+    existingMatchIds.push(
+      ...page.map((row) => row.timeline_event_id),
+    );
+
+    if (page.length < pageSize) {
+      break;
+    }
   }
 
-  if (rows.length) {
-    const { error: insertError } =
-      await supabase
-        .from(
-          "timeline_event_template_matches",
-        )
-        .insert(rows);
+  const writeBatchSize = 100;
 
-    if (insertError) {
-      throw insertError;
+  for (let offset = 0; offset < rows.length; offset += writeBatchSize) {
+    const batch = rows.slice(offset, offset + writeBatchSize);
+
+    const { error } = await supabase
+      .from("timeline_event_template_matches")
+      .upsert(batch, { onConflict: "timeline_event_id" });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  const currentEventIds = new Set(events.map((event) => event.id));
+  const staleIds = existingMatchIds.filter(
+    (id) => !currentEventIds.has(id),
+  );
+
+  for (let offset = 0; offset < staleIds.length; offset += writeBatchSize) {
+    const batch = staleIds.slice(offset, offset + writeBatchSize);
+
+    const { error } = await supabase
+      .from("timeline_event_template_matches")
+      .delete()
+      .in("timeline_event_id", batch);
+
+    if (error) {
+      throw error;
     }
   }
 
@@ -400,10 +490,10 @@ export async function runMethod(
       result,
     };
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unknown method failure.";
+    const message = describeMethodError(
+      error,
+      "Unknown method failure.",
+    );
 
     await supabase
       .from("method_runs")
