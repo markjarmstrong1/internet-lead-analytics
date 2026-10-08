@@ -193,11 +193,25 @@ function buildPopulation(
     filteredLeads.map((lead) => lead.leadId),
   );
 
+  const selectedTemplates = definition.filters.templates;
+
   return {
     leads: filteredLeads,
-    observations: observations.filter((observation) =>
-      populationIds.has(observation.lead.leadId),
-    ),
+    observations: observations
+      .filter((observation) =>
+        populationIds.has(observation.lead.leadId),
+      )
+      .map((observation) => ({
+        ...observation,
+        templateActions:
+          selectedTemplates.length === 0
+            ? observation.templateActions
+            : observation.templateActions.filter(
+                (action) =>
+                  action.templateCode !== null &&
+                  selectedTemplates.includes(action.templateCode),
+              ),
+      })),
   };
 }
 
