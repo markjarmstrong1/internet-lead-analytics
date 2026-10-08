@@ -208,6 +208,50 @@ describe("canonical analytics definitions", () => {
     ).toBe(0.5);
   });
 
+  it("uses observed outbound leads as the response denominator", () => {
+    const dataset: AnalyticsDataset = {
+      leads: [
+        makeLead("crm-contacted-no-outbound", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
+        makeLead("observed-outbound", {
+          firstContactedTime:
+            "2026-01-01T10:05:00.000Z",
+        }),
+      ],
+      events: [
+        makeEvent("crm-contacted-no-outbound", {
+          sourceEventId: "crm-only-event",
+          rawType: "Task Completed",
+          category: "workflow",
+          actorType: "employee",
+          channel: null,
+          direction: null,
+        }),
+        makeEvent("observed-outbound", {
+          sourceEventId: "observed-outbound-event",
+        }),
+        makeEvent("observed-outbound", {
+          sourceEventId: "observed-response",
+          occurredAt:
+            "2026-01-01T10:07:00.000Z",
+          rawType: "Text Received",
+          actorType: "unknown",
+          direction: "inbound",
+        }),
+      ],
+    };
+
+    const result = buildDashboardAnalysis(dataset);
+
+    expect(result.engagement.contacted).toBe(2);
+    expect(result.engagement.responseEligible).toBe(1);
+    expect(result.engagement.responded).toBe(1);
+    expect(result.engagement.responseRate).toBe(1);
+    expect(result.engagement.responseEvidenceCoverageRate).toBe(0.5);
+  });
+
   it("uses contacted leads as the response-speed outcome denominator", () => {
     const dataset: AnalyticsDataset = {
       leads: [
