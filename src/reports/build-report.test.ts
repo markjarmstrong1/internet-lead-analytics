@@ -662,6 +662,66 @@ describe("buildReport", () => {
     });
   });
 
+  it("reports evidence diagnostics for response-rate metrics", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("responded"),
+          lead("no-response", {
+            leadId: "no-response",
+            timelineRecordIds: ["record-2"],
+          }),
+          lead("no-timeline", {
+            leadId: "no-timeline",
+            timelineRecordIds: [],
+          }),
+        ],
+        [
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "outbound-1",
+          }),
+          event({
+            timelineRecordId: "record-1",
+            sourceEventId: "inbound-1",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            timelineRecordId: "record-2",
+            sourceEventId: "outbound-2",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        groupBy: "none",
+        metrics: ["responseRate", "observedOutbound"],
+      }),
+    );
+
+    expect(result.summary.responseRate).toBe(0.5);
+    expect(result.summaryDiagnostics.responseRate).toEqual({
+      population: "observed_outbound_population",
+      evidence: "observed_response",
+      denominatorMetric: "observedOutbound",
+      eligibleLeadCount: 3,
+      timelineCoveredLeadCount: 2,
+      numerator: 1,
+      denominator: 2,
+    });
+
+    expect(result.summaryDiagnostics.observedOutbound).toMatchObject({
+      population: "report_population",
+      evidence: "observed_outbound",
+      eligibleLeadCount: 3,
+      timelineCoveredLeadCount: 2,
+      numerator: null,
+      denominator: null,
+    });
+  });
+
   it("uses observed outbound leads as the denominator for response rates", () => {
     const result = buildReport(
       dataset(

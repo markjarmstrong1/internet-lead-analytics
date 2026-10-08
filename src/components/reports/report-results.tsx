@@ -148,6 +148,8 @@ export function ReportResults({
           ))}
       </div>
 
+      <MetricEvidencePanel result={result} />
+
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[760px] border-collapse text-sm">
           <thead>
@@ -248,6 +250,130 @@ export function ReportResults({
         </table>
       </div>
     </div>
+  );
+}
+
+function MetricEvidencePanel({
+  result,
+}: {
+  result: ReportResult;
+}) {
+  const entries = result.definition.metrics
+    .map((metric) => ({
+      metric,
+      diagnostic: result.summaryDiagnostics[metric],
+    }))
+    .filter(
+      (entry): entry is {
+        metric: ReportMetricKey;
+        diagnostic: NonNullable<
+          ReportResult["summaryDiagnostics"][ReportMetricKey]
+        >;
+      } => entry.diagnostic != null,
+    );
+
+  if (entries.length === 0) {
+    return null;
+  }
+
+  const populationLabels = {
+    report_population: "Report population",
+    observed_outbound_population: "Leads with observed outbound",
+    responding_population: "Leads with observed response",
+  };
+
+  const evidenceLabels = {
+    none: "No specific evidence requirement",
+    crm_state: "CRM state",
+    observed_outbound: "Observed outbound activity",
+    observed_response: "Observed customer response",
+    observed_appointment: "Observed appointment evidence",
+    crm_outcome: "CRM outcome",
+  };
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-5">
+      <div>
+        <h3 className="text-base font-semibold text-slate-950">
+          Evidence &amp; metric definitions
+        </h3>
+        <p className="mt-1 text-sm text-slate-500">
+          See which population each metric uses and how much timeline coverage is available.
+          Timeline coverage does not by itself guarantee that every event was captured.
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {entries.map(({ metric, diagnostic }) => (
+          <article
+            key={metric}
+            className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+          >
+            <h4 className="text-sm font-semibold text-slate-900">
+              {metricDefinition(metric)?.label ?? metric}
+            </h4>
+
+            <dl className="mt-3 space-y-2 text-xs">
+              <div className="flex items-start justify-between gap-4">
+                <dt className="text-slate-500">Population</dt>
+                <dd className="text-right font-medium text-slate-800">
+                  {populationLabels[diagnostic.population]}
+                </dd>
+              </div>
+
+              <div className="flex items-start justify-between gap-4">
+                <dt className="text-slate-500">Evidence basis</dt>
+                <dd className="text-right font-medium text-slate-800">
+                  {evidenceLabels[diagnostic.evidence]}
+                </dd>
+              </div>
+
+              <div className="flex items-start justify-between gap-4">
+                <dt className="text-slate-500">Eligible leads</dt>
+                <dd className="font-medium tabular-nums text-slate-800">
+                  {formatCount(diagnostic.eligibleLeadCount)}
+                </dd>
+              </div>
+
+              <div className="flex items-start justify-between gap-4">
+                <dt className="text-slate-500">Leads with timeline records</dt>
+                <dd className="font-medium tabular-nums text-slate-800">
+                  {formatCount(diagnostic.timelineCoveredLeadCount)}
+                </dd>
+              </div>
+
+              {diagnostic.denominatorMetric !== null ? (
+                <div className="border-t border-slate-200 pt-2">
+                  <dt className="text-slate-500">Calculation</dt>
+                  <dd className="mt-1 font-medium text-slate-800">
+                    {diagnostic.numerator === null
+                      ? "Numerator unavailable"
+                      : formatMetric(
+                          metric === "responseRate"
+                            ? "responded"
+                            : "responseWithin24h",
+                          diagnostic.numerator,
+                        )}
+                    {" / "}
+                    {diagnostic.denominator === null
+                      ? "—"
+                      : formatMetric(
+                          diagnostic.denominatorMetric,
+                          diagnostic.denominator,
+                        )}
+                    {" "}
+                    <span className="font-normal text-slate-500">
+                      ({metricDefinition(diagnostic.denominatorMetric)?.label ??
+                        diagnostic.denominatorMetric})
+                    </span>
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 

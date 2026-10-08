@@ -88,11 +88,18 @@ export function buildReport(
     );
 
   const summary: ReportResult["summary"] = {};
+  const summaryDiagnostics: ReportResult["summaryDiagnostics"] = {};
 
   for (const metric of definition.metrics) {
     const measure = measureDefinition(metric);
+
+    if (!measure) {
+      summary[metric] = null;
+      continue;
+    }
+
     const useComparisonPopulation =
-      measure?.population !== "report_population";
+      measure.population !== "report_population";
 
     const metricPopulation = useComparisonPopulation
       ? comparisonPopulation
@@ -103,6 +110,40 @@ export function buildReport(
       metricPopulation.leads,
       metricPopulation.observations,
     );
+
+    const numeratorMetric: ReportMetricKey | null =
+      metric === "responseRate"
+        ? "responded"
+        : metric === "responseWithin24hRate"
+          ? "responseWithin24h"
+          : null;
+
+    summaryDiagnostics[metric] = {
+      population: measure.population,
+      evidence: measure.evidence,
+      denominatorMetric: measure.denominator,
+      eligibleLeadCount: metricPopulation.leads.length,
+      timelineCoveredLeadCount:
+        metricPopulation.leads.filter(
+          (lead) => lead.timelineRecordIds.length > 0,
+        ).length,
+      numerator:
+        numeratorMetric !== null
+          ? calculateMetric(
+              numeratorMetric,
+              metricPopulation.leads,
+              metricPopulation.observations,
+            )
+          : null,
+      denominator:
+        measure.denominator !== null
+          ? calculateMetric(
+              measure.denominator,
+              metricPopulation.leads,
+              metricPopulation.observations,
+            )
+          : null,
+    };
   }
 
   return {
@@ -110,6 +151,7 @@ export function buildReport(
     populationCount: filteredLeads.length,
     leadIds: filteredLeads.map((lead) => lead.leadId),
     summary,
+    summaryDiagnostics,
     rows,
   };
 }
