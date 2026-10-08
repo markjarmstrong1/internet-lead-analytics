@@ -7,8 +7,26 @@ import Link from "next/link";
 
 import type { LeadListItem } from "@/integrations/tekion/lead/supabase-lead-repository";
 
+type LeadEvidenceState =
+  | "observed"
+  | "not_observed"
+  | "unknown"
+  | "insufficient_evidence"
+  | "unresolved";
+
+type LeadPopulationEvidence = {
+  outbound: LeadEvidenceState;
+  response: LeadEvidenceState;
+  appointment: LeadEvidenceState;
+  outcome: LeadEvidenceState;
+};
+
 type LeadListTableProps = {
   leads: LeadListItem[];
+  populationEvidence?: Record<
+    string,
+    LeadPopulationEvidence
+  >;
   initialStatus?: string;
   initialStage?: string;
   initialSourceGroup?: string;
@@ -45,6 +63,55 @@ function displayName(value: string) {
   return `${parts[0]} ${parts[parts.length - 1]}`;
 }
 
+function evidenceLabel(
+  state: LeadEvidenceState | undefined,
+): string {
+  switch (state) {
+    case "observed":
+      return "Observed";
+    case "not_observed":
+      return "Not observed";
+    case "insufficient_evidence":
+    case "unknown":
+    case "unresolved":
+      return "Insufficient evidence";
+    default:
+      return "Unknown";
+  }
+}
+
+function evidenceTone(
+  state: LeadEvidenceState | undefined,
+): string {
+  switch (state) {
+    case "observed":
+      return "border-[var(--success)]/25 bg-[var(--success-soft)] text-[var(--success)]";
+    case "not_observed":
+      return "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]";
+    default:
+      return "border-[var(--border)] bg-white text-[var(--muted)]";
+  }
+}
+
+function EvidenceBadge({
+  label,
+  state,
+}: {
+  label: string;
+  state: LeadEvidenceState | undefined;
+}) {
+  return (
+    <span
+      title={`${label}: ${evidenceLabel(state)}`}
+      className={`inline-flex rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${evidenceTone(
+        state,
+      )}`}
+    >
+      {label}
+    </span>
+  );
+}
+
 function statusTone(value: string | null) {
   const normalized = value?.toLowerCase() ?? "";
 
@@ -69,6 +136,7 @@ function statusTone(value: string | null) {
 
 export function LeadListTable({
   leads,
+  populationEvidence = {},
   initialStatus = "all",
   initialStage = "all",
   initialSourceGroup = "all",
@@ -228,12 +296,13 @@ export function LeadListTable({
 
       <div className="overflow-x-auto">
         <div className="min-w-[880px]">
-          <div className="grid grid-cols-[minmax(280px,1.7fr)_130px_130px_150px_150px] border-b bg-white px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+          <div className="grid grid-cols-[minmax(280px,1.55fr)_120px_120px_135px_135px_minmax(300px,1.5fr)] border-b bg-white px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
             <span>Lead</span>
             <span>Status</span>
             <span>Stage</span>
             <span>Created</span>
             <span>Last activity</span>
+            <span>Evidence</span>
           </div>
 
           {filteredLeads.length === 0 ? (
@@ -248,7 +317,7 @@ export function LeadListTable({
               <Link
                 key={lead.id}
                 href={`/leads/${lead.id}`}
-                className="grid grid-cols-[minmax(280px,1.7fr)_130px_130px_150px_150px] items-center border-b px-5 py-3.5 text-sm transition last:border-b-0 hover:bg-[var(--accent-soft)]"
+                className="grid grid-cols-[minmax(280px,1.55fr)_120px_120px_135px_135px_minmax(300px,1.5fr)] items-center border-b px-5 py-3.5 text-sm transition last:border-b-0 hover:bg-[var(--accent-soft)]"
               >
                 <span className="min-w-0">
                   <span className="block truncate font-medium text-[var(--foreground)]">
@@ -284,6 +353,33 @@ export function LeadListTable({
                   {formatDateTime(
                     lead.last_engaged_at ?? lead.last_contacted_at,
                   )}
+                </span>
+
+                <span className="flex flex-wrap gap-1.5">
+                  <EvidenceBadge
+                    label="Outbound"
+                    state={
+                      populationEvidence[lead.id]?.outbound
+                    }
+                  />
+                  <EvidenceBadge
+                    label="Response"
+                    state={
+                      populationEvidence[lead.id]?.response
+                    }
+                  />
+                  <EvidenceBadge
+                    label="Appt"
+                    state={
+                      populationEvidence[lead.id]?.appointment
+                    }
+                  />
+                  <EvidenceBadge
+                    label="Outcome"
+                    state={
+                      populationEvidence[lead.id]?.outcome
+                    }
+                  />
                 </span>
               </Link>
             ))

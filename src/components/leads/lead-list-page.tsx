@@ -1,9 +1,12 @@
 // src/components/leads/lead-list-page.tsx
 
+import { buildLeadObservations } from "@/analytics/observations/analytics-observations";
 import { PageHeader } from "@/components/app/page-header";
 import { SectionPanel } from "@/components/app/section-panel";
 import { LeadsNavigation } from "@/components/leads/leads-navigation";
 import { LeadListTable } from "@/components/leads/lead-list-table";
+import { SupabaseAnalyticsRepository } from "@/analytics/data/analytics-repository";
+import { createServerSupabaseClient } from "@/lib/supabase/server-client";
 import { listLeads } from "@/integrations/tekion/lead/supabase-lead-repository";
 
 type LeadListPageProps = {
@@ -30,6 +33,40 @@ export async function LeadListPage({
     reportLeadIds.length > 0
       ? reportLeadIds
       : undefined,
+  );
+
+  const analyticsClient = createServerSupabaseClient();
+  const analyticsRepository =
+    new SupabaseAnalyticsRepository(analyticsClient);
+  const analyticsDataset =
+    await analyticsRepository.load();
+
+  const observations = buildLeadObservations(
+    analyticsDataset,
+  );
+
+  const leadIds = new Set(
+    leads.map((lead) => lead.id),
+  );
+
+  const populationEvidence = Object.fromEntries(
+    observations
+      .filter((observation) =>
+        leadIds.has(observation.lead.leadId),
+      )
+      .map((observation) => [
+        observation.lead.leadId,
+        {
+          outbound:
+            observation.evidence.outbound.state,
+          response:
+            observation.evidence.response.state,
+          appointment:
+            observation.evidence.appointment.state,
+          outcome:
+            observation.evidence.outcome.state,
+        },
+      ]),
   );
 
   return (
@@ -59,6 +96,7 @@ export async function LeadListPage({
         <div className="overflow-hidden rounded-[10px] border bg-white">
           <LeadListTable
             leads={leads}
+            populationEvidence={populationEvidence}
             initialStatus={params.status ?? "all"}
             initialStage={params.stage ?? "all"}
             initialSourceGroup={params.sourceGroup ?? "all"}
