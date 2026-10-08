@@ -15,6 +15,7 @@ type LeadListPageProps = {
     stage?: string;
     sourceGroup?: string;
     leadIds?: string;
+    context?: string;
   }>;
 };
 
@@ -75,12 +76,12 @@ export async function LeadListPage({
         eyebrow="Lead management"
         title={
           reportLeadIds.length > 0
-            ? "Report lead population"
+            ? params.context ?? "Report lead population"
             : "Leads"
         }
         description={
           reportLeadIds.length > 0
-            ? "The exact lead population behind the selected report result."
+            ? "The exact lead population behind the selected report result. Evidence below is derived from the canonical analytics timeline."
             : "Find, filter, group, and open individual internet leads."
         }
       />

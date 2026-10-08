@@ -192,6 +192,7 @@ export function ReportResults({
                         leadIds={row.leadIds}
                         label="Investigate"
                         compact
+                        context={`${result.definition.name} · ${row.label}`}
                       />
                     </div>
                   </td>
@@ -570,18 +571,26 @@ function LeadPopulationLink({
   leadIds,
   label,
   compact = false,
+  context,
 }: {
   leadIds: string[];
   label: string;
   compact?: boolean;
+  context?: string;
 }) {
   if (leadIds.length === 0) {
     return null;
   }
 
-  const href = `/leads/list?leadIds=${encodeURIComponent(
-    leadIds.join(","),
-  )}`;
+  const params = new URLSearchParams({
+    leadIds: leadIds.join(","),
+  });
+
+  if (context) {
+    params.set("context", context);
+  }
+
+  const href = `/leads/list?${params.toString()}`;
 
   return (
     <Link

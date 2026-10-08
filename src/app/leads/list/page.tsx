@@ -7,6 +7,7 @@ type LeadListRouteProps = {
     stage?: string;
     sourceGroup?: string;
     leadIds?: string;
+    context?: string;
   }>;
 };
 
