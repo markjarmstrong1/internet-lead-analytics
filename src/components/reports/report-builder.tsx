@@ -104,11 +104,24 @@ export function ReportBuilder({
     setDraft((current) => ({
       ...current,
       name: preset.name,
+      dateRange: {
+        basis: "lead_created",
+        start: null,
+        end: null,
+      },
       groupBy: preset.groupBy,
       filters: {
-        ...current.filters,
+        sources: [],
+        sourceGroups: [],
+        stages: [],
+        statuses: [],
+        templates: [],
         evidence: {
-          ...current.filters.evidence,
+          outbound: "any",
+          response: "any",
+          appointment: "any",
+          outcome: "any",
+          responseWithin24h: "any",
           ...preset.evidence,
         },
       },
