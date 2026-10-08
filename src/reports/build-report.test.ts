@@ -317,6 +317,7 @@ describe("buildReport", () => {
       {
         key: "Source A",
         label: "Source A",
+        leadIds: ["lead-1"],
         values: {
           leads: 1,
           contacted: 1,
@@ -327,6 +328,7 @@ describe("buildReport", () => {
       {
         key: "Source B",
         label: "Source B",
+        leadIds: ["lead-2"],
         values: {
           leads: 1,
           contacted: 0,
@@ -489,16 +491,19 @@ describe("buildReport", () => {
       {
         key: "< 5 minutes",
         label: "< 5 minutes",
+        leadIds: ["fast"],
         values: { leads: 1 },
       },
       {
         key: "15–60 minutes",
         label: "15–60 minutes",
+        leadIds: ["medium"],
         values: { leads: 1 },
       },
       {
         key: "No observed response",
         label: "No observed response",
+        leadIds: ["no-response", "not-exposed"],
         values: { leads: 2 },
       },
     ]);

@@ -24,18 +24,27 @@ type TimelineRecordRow = {
   timeline_events: TimelineEventRow[] | null;
 };
 
-export async function listLeads(): Promise<LeadListItem[]> {
+export async function listLeads(
+  leadIds?: string[],
+): Promise<LeadListItem[]> {
   const supabase = createServerSupabaseClient();
+
+  let leadsQuery = supabase
+    .from("leads")
+    .select("*");
+
+  if (leadIds && leadIds.length > 0) {
+    leadsQuery = leadsQuery.in("id", leadIds);
+  }
+
+  leadsQuery = leadsQuery.order("creation_time", {
+    ascending: false,
+    nullsFirst: false,
+  });
 
   const [{ data, error }, { data: timelineRecords, error: timelineError }] =
     await Promise.all([
-      supabase
-        .from("leads")
-        .select("*")
-        .order("creation_time", {
-          ascending: false,
-          nullsFirst: false,
-        }),
+      leadsQuery,
 
       supabase
         .from("timeline_records")

@@ -11,23 +11,41 @@ type LeadListPageProps = {
     status?: string;
     stage?: string;
     sourceGroup?: string;
+    leadIds?: string;
   }>;
 };
 
 export async function LeadListPage({
   searchParams,
 }: LeadListPageProps) {
-  const [leads, params] = await Promise.all([
-    listLeads(),
-    searchParams,
-  ]);
+  const params = await searchParams;
+
+  const reportLeadIds =
+    params.leadIds
+      ?.split(",")
+      .map((value) => value.trim())
+      .filter(Boolean) ?? [];
+
+  const leads = await listLeads(
+    reportLeadIds.length > 0
+      ? reportLeadIds
+      : undefined,
+  );
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-8 px-6 py-8 lg:px-8">
       <PageHeader
         eyebrow="Lead management"
-        title="Leads"
-        description="Find, filter, group, and open individual internet leads."
+        title={
+          reportLeadIds.length > 0
+            ? "Report lead population"
+            : "Leads"
+        }
+        description={
+          reportLeadIds.length > 0
+            ? "The exact lead population behind the selected report result."
+            : "Find, filter, group, and open individual internet leads."
+        }
       />
 
       <LeadsNavigation active="list" />

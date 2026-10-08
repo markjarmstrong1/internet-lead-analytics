@@ -78,6 +78,7 @@ export function buildReport(
   return {
     definition,
     populationCount: filteredLeads.length,
+    leadIds: filteredLeads.map((lead) => lead.leadId),
     summary,
     rows,
   };
@@ -193,6 +194,7 @@ function buildRow(
   return {
     key,
     label: key,
+    leadIds: leads.map((lead) => lead.leadId),
     values,
   };
 }

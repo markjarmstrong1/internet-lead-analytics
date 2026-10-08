@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { metricDefinition } from "@/reports/report-catalog";
 import type {
   ReportMetricKey,
@@ -86,6 +88,22 @@ export function ReportResults({
         </button>
       </div>
 
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div>
+          <p className="text-sm font-semibold">
+            Investigate this population
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Open the exact leads represented by this report.
+          </p>
+        </div>
+
+        <LeadPopulationLink
+          leadIds={result.leadIds}
+          label={`View ${result.populationCount.toLocaleString()} leads`}
+        />
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Report population"
@@ -147,7 +165,15 @@ export function ReportResults({
                   className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
                 >
                   <td className="px-4 py-3 font-medium">
-                    {row.label}
+                    <div className="flex items-center justify-between gap-4">
+                      <span>{row.label}</span>
+
+                      <LeadPopulationLink
+                        leadIds={row.leadIds}
+                        label="View leads"
+                        compact
+                      />
+                    </div>
                   </td>
 
                   {metrics.map(
@@ -189,6 +215,37 @@ export function ReportResults({
         </table>
       </div>
     </div>
+  );
+}
+
+function LeadPopulationLink({
+  leadIds,
+  label,
+  compact = false,
+}: {
+  leadIds: string[];
+  label: string;
+  compact?: boolean;
+}) {
+  if (leadIds.length === 0) {
+    return null;
+  }
+
+  const href = `/leads/list?leadIds=${encodeURIComponent(
+    leadIds.join(","),
+  )}`;
+
+  return (
+    <Link
+      href={href}
+      className={
+        compact
+          ? "whitespace-nowrap text-xs font-medium text-slate-600 underline decoration-slate-300 underline-offset-4 hover:text-slate-950"
+          : "rounded-lg bg-slate-950 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+      }
+    >
+      {label}
+    </Link>
   );
 }
 

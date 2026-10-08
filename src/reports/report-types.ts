@@ -111,6 +111,7 @@ export type ReportMetricValue = number | null;
 export type ReportRow = {
   key: string;
   label: string;
+  leadIds: string[];
   values: Partial<
     Record<ReportMetricKey, ReportMetricValue>
   >;
@@ -119,6 +120,7 @@ export type ReportRow = {
 export type ReportResult = {
   definition: ReportDefinition;
   populationCount: number;
+  leadIds: string[];
   summary: Partial<
     Record<ReportMetricKey, ReportMetricValue>
   >;
