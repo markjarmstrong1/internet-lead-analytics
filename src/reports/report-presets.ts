@@ -1,6 +1,6 @@
 import type { ReportDefinition } from "./report-types";
 
-type ManagementReportPreset = {
+export type ManagementReportPreset = {
   key: string;
   label: string;
   description: string;
