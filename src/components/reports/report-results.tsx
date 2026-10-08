@@ -104,6 +104,8 @@ export function ReportResults({
         />
       </div>
 
+      <ManagementReadout result={result} />
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Report population"
@@ -166,11 +168,17 @@ export function ReportResults({
                 >
                   <td className="px-4 py-3 font-medium">
                     <div className="flex items-center justify-between gap-4">
-                      <span>{row.label}</span>
+                      <span className="min-w-0">
+                        <span className="block truncate">{row.label}</span>
+                        <span className="mt-0.5 block text-[11px] font-normal text-slate-400">
+                          {row.leadIds.length.toLocaleString()}{" "}
+                          {row.leadIds.length === 1 ? "lead" : "leads"}
+                        </span>
+                      </span>
 
                       <LeadPopulationLink
                         leadIds={row.leadIds}
-                        label="View leads"
+                        label="Investigate"
                         compact
                       />
                     </div>
@@ -214,6 +222,161 @@ export function ReportResults({
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function ManagementReadout({
+  result,
+}: {
+  result: ReportResult;
+}) {
+  const evidence = result.definition.filters.evidence;
+
+  const responseRateRows = result.rows
+    .filter((row) => row.values.responseRate != null)
+    .sort(
+      (a, b) =>
+        (b.values.responseRate ?? -1) -
+        (a.values.responseRate ?? -1),
+    );
+
+  const strongest = responseRateRows[0] ?? null;
+
+  const weakest =
+    responseRateRows.length > 1
+      ? responseRateRows[responseRateRows.length - 1]
+      : null;
+
+  const evidenceLabels = [
+    evidence.outbound !== "any"
+      ? `Outbound ${evidence.outbound.replace("_", " ")}`
+      : null,
+    evidence.response !== "any"
+      ? `Response ${evidence.response.replace("_", " ")}`
+      : null,
+    evidence.appointment !== "any"
+      ? `Appointment ${evidence.appointment.replace("_", " ")}`
+      : null,
+    evidence.outcome !== "any"
+      ? `Outcome ${evidence.outcome.replace("_", " ")}`
+      : null,
+    evidence.responseWithin24h !== "any"
+      ? `24h response ${evidence.responseWithin24h}`
+      : null,
+  ].filter((value): value is string => value !== null);
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            Management readout
+          </p>
+
+          <h3 className="mt-1 text-base font-semibold text-slate-950">
+            {result.populationCount.toLocaleString()} leads match the current definition
+          </h3>
+
+          <p className="mt-1 max-w-3xl text-sm text-slate-500">
+            This readout summarizes the report configuration and observed
+            results. It does not infer causation from grouped comparisons.
+          </p>
+        </div>
+
+        {strongest ? (
+          <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+              Highest displayed response rate
+            </p>
+
+            <p className="mt-1 text-lg font-semibold tabular-nums text-slate-950">
+              {formatMetric(
+                "responseRate",
+                strongest.values.responseRate ?? null,
+              )}
+            </p>
+
+            <p className="text-xs text-slate-500">
+              {strongest.label}
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <ReadoutItem
+          label="Population"
+          value={result.definition.name}
+          detail={`${result.populationCount.toLocaleString()} matching leads`}
+        />
+
+        <ReadoutItem
+          label="Grouped by"
+          value={
+            result.definition.groupBy === "none"
+              ? "Entire population"
+              : result.definition.groupBy
+          }
+          detail={`${result.rows.length.toLocaleString()} displayed group${result.rows.length === 1 ? "" : "s"}`}
+        />
+
+        <ReadoutItem
+          label="Evidence posture"
+          value={
+            evidenceLabels.length > 0
+              ? evidenceLabels.join(" · ")
+              : "No evidence filter"
+          }
+          detail="Filters applied to canonical evidence states"
+        />
+      </div>
+
+      {strongest && weakest && strongest.key !== weakest.key ? (
+        <p className="mt-4 text-xs text-slate-500">
+          Among the displayed groups, observed response rate ranges from{" "}
+          <span className="font-semibold text-slate-700">
+            {formatMetric(
+              "responseRate",
+              weakest.values.responseRate ?? null,
+            )}
+          </span>{" "}
+          to{" "}
+          <span className="font-semibold text-slate-700">
+            {formatMetric(
+              "responseRate",
+              strongest.values.responseRate ?? null,
+            )}
+          </span>
+          . Treat this as an observed comparison, not a causal conclusion.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function ReadoutItem({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+        {label}
+      </p>
+
+      <p className="mt-1 text-sm font-semibold text-slate-900">
+        {value}
+      </p>
+
+      <p className="mt-1 text-xs text-slate-500">
+        {detail}
+      </p>
     </div>
   );
 }
