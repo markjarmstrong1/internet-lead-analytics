@@ -93,7 +93,9 @@ function EventDetails({
                 {event.raw_type || "Timeline event"}
               </h2>
 
-              <EvidenceState kind="observed" />
+              <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-slate-500">
+                Source event
+              </span>
             </div>
 
             <p className="mt-1 text-xs text-slate-400">
@@ -251,11 +253,13 @@ export function LeadDetailTimeline({
                       {event.raw_type || "Timeline event"}
                     </p>
 
-                    <EvidenceState kind="observed" />
+                    <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-slate-500">
+                      Source event
+                    </span>
                   </div>
 
                   <p className="mt-1 truncate text-xs text-slate-400">
-                    {eventMeta(event) || "Observed event"}
+                    {eventMeta(event) || "Imported source event"}
                   </p>
                 </div>
 

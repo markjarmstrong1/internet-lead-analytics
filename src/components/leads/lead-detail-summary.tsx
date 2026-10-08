@@ -107,6 +107,41 @@ function Method({
   );
 }
 
+type EvidenceStateValue =
+  | "observed"
+  | "not_observed"
+  | "unknown"
+  | "insufficient_evidence"
+  | "unresolved";
+
+function evidenceLabel(
+  state: EvidenceStateValue,
+): string {
+  switch (state) {
+    case "observed":
+      return "Observed";
+    case "not_observed":
+      return "Not observed";
+    case "insufficient_evidence":
+    case "unknown":
+    case "unresolved":
+      return "Insufficient evidence";
+  }
+}
+
+function evidenceTone(
+  state: EvidenceStateValue,
+): string {
+  switch (state) {
+    case "observed":
+      return "border-[var(--success)]/25 bg-[var(--success-soft)] text-[var(--success)]";
+    case "not_observed":
+      return "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--muted-strong)]";
+    default:
+      return "border-[var(--border)] bg-white text-[var(--muted)]";
+  }
+}
+
 function AnalyticsCard({
   label,
   value,
@@ -116,13 +151,27 @@ function AnalyticsCard({
   label: string;
   value: string;
   detail: string;
-  state?: "observed" | "calculated" | "missing";
+  state?: EvidenceStateValue | "calculated";
 }) {
+  const evidenceState =
+    state === "calculated"
+      ? "observed"
+      : state;
+
   return (
     <div className="rounded-[9px] border p-4">
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-medium">{label}</p>
-        <EvidenceState kind={state} />
+
+        <span
+          className={`inline-flex rounded-full border px-2 py-1 text-[9px] font-semibold uppercase tracking-wide ${evidenceTone(
+            evidenceState,
+          )}`}
+        >
+          {state === "calculated"
+            ? "Calculated"
+            : evidenceLabel(evidenceState)}
+        </span>
       </div>
 
       <p className="mt-2 text-lg font-semibold tabular-nums">
@@ -281,9 +330,7 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
               : model.observation.evidence.outbound.reason
           }
           state={
-            model.observation.evidence.outbound.state === "observed"
-              ? "observed"
-              : "missing"
+            model.observation.evidence.outbound.state
           }
         />
 
@@ -298,9 +345,7 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
               : model.observation.evidence.response.reason
           }
           state={
-            model.observation.evidence.response.state === "observed"
-              ? "observed"
-              : "missing"
+            model.observation.evidence.response.state
           }
         />
 
@@ -319,7 +364,7 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
           state={
             model.observation.responseMinutes !== null
               ? "calculated"
-              : "missing"
+              : model.observation.evidence.response.state
           }
         />
 
@@ -334,7 +379,7 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
           state={
             model.observation.evidence.outbound.state === "observed"
               ? "calculated"
-              : "missing"
+              : model.observation.evidence.outbound.state
           }
         />
 
@@ -347,9 +392,7 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
           }
           detail={model.observation.evidence.appointment.reason}
           state={
-            model.observation.evidence.appointment.state === "observed"
-              ? "observed"
-              : "missing"
+            model.observation.evidence.appointment.state
           }
         />
 
@@ -362,7 +405,9 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
               : model.observation.evidence.outbound.reason
           }
           state={
-            model.lastOutbound ? "observed" : "missing"
+            model.lastOutbound
+              ? "observed"
+              : model.observation.evidence.outbound.state
           }
         />
 
@@ -374,14 +419,22 @@ LeadDetailSummary.Analytics = function LeadDetailAnalytics({
               ? "Sold date recorded on the canonical lead."
               : "No sold date is recorded; this does not prove no sale occurred."
           }
-          state={lead.sold_date ? "observed" : "missing"}
+          state={
+            lead.sold_date
+              ? "observed"
+              : model.observation.evidence.outcome.state
+          }
         />
 
         <AnalyticsCard
           label="Closed time"
           value={formatDateTime(lead.closed_time)}
           detail="Recorded closed timestamp on the canonical lead."
-          state={lead.closed_time ? "observed" : "missing"}
+          state={
+            lead.closed_time
+              ? "observed"
+              : model.observation.evidence.outcome.state
+          }
         />
 
         <div className="rounded-[9px] border p-4">
