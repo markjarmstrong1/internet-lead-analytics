@@ -232,9 +232,9 @@ export function buildDashboardAnalysis(
       observation.firstContactedTime !== null,
   );
 
-  const responseEligible = contacted.filter(
+  const responseEligible = observations.filter(
     (observation) =>
-      observation.lead.timelineRecordIds.length > 0,
+      observation.evidence.outbound.state === "observed",
   );
 
   const responded = responseEligible.filter(
@@ -462,15 +462,10 @@ function buildContactSpeedRows(
 }
 
 function buildResponseSpeedRows(
-  contacted: ReturnType<
+  responseEligible: ReturnType<
     typeof buildLeadObservations
   >,
 ): ResponseSpeedRow[] {
-  const responseEligible = contacted.filter(
-    (observation) =>
-      observation.lead.timelineRecordIds.length > 0,
-  );
-
   return RESPONSE_SPEED_BUCKETS.map(
     (bucket) => {
       const rows = responseEligible.filter(
@@ -525,15 +520,10 @@ function buildResponseSpeedRows(
 }
 
 function buildChannelRows(
-  contacted: ReturnType<
+  responseEligible: ReturnType<
     typeof buildLeadObservations
   >,
 ): ChannelRow[] {
-  const responseEligible = contacted.filter(
-    (observation) =>
-      observation.lead.timelineRecordIds.length > 0,
-  );
-
   const channels = [
     "text",
     "email",
@@ -630,9 +620,9 @@ function buildSourceRows(
           row.firstContactedTime !== null,
       );
 
-      const responseEligible = contacted.filter(
+      const responseEligible = rows.filter(
         (row) =>
-          row.lead.timelineRecordIds.length > 0,
+          row.evidence.outbound.state === "observed",
       );
 
       const responded = responseEligible.filter(
@@ -805,9 +795,9 @@ function buildTrendRows(
           row.firstContactedTime !== null,
       );
 
-      const responseEligible = contacted.filter(
+      const responseEligible = rows.filter(
         (row) =>
-          row.lead.timelineRecordIds.length > 0,
+          row.evidence.outbound.state === "observed",
       );
 
       const responded = responseEligible.filter(
@@ -962,8 +952,9 @@ function buildSoldLeadAnalytics(
     (row) => row.firstContactedTime !== null,
   );
 
-  const responseEligible = contacted.filter(
-    (row) => row.lead.timelineRecordIds.length > 0,
+  const responseEligible = soldRows.filter(
+    (row) =>
+      row.evidence.outbound.state === "observed",
   );
 
   const responded = responseEligible.filter(

@@ -91,7 +91,7 @@ export function AnalyticsOverview({
           <HeroMetric
             label="Responded"
             value={pct(analysis.engagement.responseRate)}
-            detail={`${analysis.engagement.responded} contacted leads`}
+            detail={`${analysis.engagement.responded} observed outbound leads`}
           />
           <HeroMetric
             label="Appointment evidence"
