@@ -63,6 +63,8 @@ function extractFirstContactedTime(
     : parsed.toISOString();
 }
 
+const TIMELINE_EVENT_PAGE_SIZE = 500;
+
 export class SupabaseAnalyticsRepository
   implements AnalyticsRepository
 {
@@ -70,11 +72,46 @@ export class SupabaseAnalyticsRepository
     private readonly client: SupabaseClient<TimelineDatabase>,
   ) {}
 
+  private async loadTimelineEvents() {
+    const events: Awaited<
+      ReturnType<
+        ReturnType<
+          SupabaseClient<TimelineDatabase>["from"]
+        >["select"]
+      >
+    >["data"] = [];
+
+    for (let from = 0; ; from += TIMELINE_EVENT_PAGE_SIZE) {
+      const to = from + TIMELINE_EVENT_PAGE_SIZE - 1;
+
+      const result = await this.client
+        .from("timeline_events")
+        .select("*")
+        .order("occurred_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to);
+
+      if (result.error) {
+        throw new Error(
+          `Failed to load analytics timeline events: ${result.error.message}`,
+        );
+      }
+
+      events.push(...(result.data ?? []));
+
+      if ((result.data ?? []).length < TIMELINE_EVENT_PAGE_SIZE) {
+        break;
+      }
+    }
+
+    return events;
+  }
+
   async load(): Promise<AnalyticsDataset> {
     const [
       leadsResult,
       recordsResult,
-      eventsResult,
+      events,
       templatesResult,
     ] = await Promise.all([
         this.client
@@ -86,10 +123,7 @@ export class SupabaseAnalyticsRepository
           .from("timeline_records")
           .select("id, lead_id")
           .not("lead_id", "is", null),
-        this.client
-          .from("timeline_events")
-          .select("*")
-          .order("occurred_at", { ascending: true }),
+        this.loadTimelineEvents(),
         this.client
           .from("templates")
           .select("template_code,name")
@@ -105,12 +139,6 @@ export class SupabaseAnalyticsRepository
     if (recordsResult.error) {
       throw new Error(
         `Failed to load analytics timeline records: ${recordsResult.error.message}`,
-      );
-    }
-
-    if (eventsResult.error) {
-      throw new Error(
-        `Failed to load analytics timeline events: ${eventsResult.error.message}`,
       );
     }
 
@@ -152,9 +180,7 @@ export class SupabaseAnalyticsRepository
 
     return {
       leads,
-      events: buildAnalyticsEvents(
-        eventsResult.data ?? [],
-      ),
+      events: buildAnalyticsEvents(events),
       templates: (templatesResult.data ?? []).map(
         (template) => ({
           templateCode: template.template_code,
