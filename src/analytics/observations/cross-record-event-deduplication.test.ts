@@ -139,3 +139,45 @@ describe("cross-record event handling", () => {
     expect(result.outboundCount).toBe(2);
   });
 });
+
+
+it("does not collapse matching event content with different template names", () => {
+const result = observe({
+leads: [lead("lead-1", ["record-1", "record-2"])],
+events: [
+event("record-1", "event-a", {
+metadata: { templateName: "Appointment Follow-up" },
+}),
+event("record-2", "event-b", {
+metadata: { templateName: "Price Quote" },
+}),
+],
+})[0];
+
+expect(result.outboundCount).toBe(2);
+expect(result.templateActions.map((action) => action.template)).toEqual([
+  "Appointment Follow-up",
+  "Price Quote",
+]);
+
+});
+
+it("preserves source record order for matching timestamps", () => {
+const result = observe({
+leads: [lead("lead-1", ["record-1", "record-2"])],
+events: [
+event("record-1", "event-a", {
+details: "First source record event",
+}),
+event("record-2", "event-b", {
+details: "Second source record event",
+}),
+],
+})[0];
+
+expect(result.events.map((item) => item.details)).toEqual([
+  "First source record event",
+  "Second source record event",
+]);
+
+});
