@@ -176,3 +176,19 @@ describe("cross-record event handling", () => {
     ]);
   });
 });
+  it("matches template identity when stored in different event fields", () => {
+    const result = observe({
+      leads: [lead("lead-1", ["record-1", "record-2"])],
+      events: [
+        event("record-1", "event-a", {
+          metadata: { templateName: "Appointment Follow-up" },
+        }),
+        event("record-2", "event-b", {
+          rawData: { template_name: "Appointment Follow-up" },
+        }),
+      ],
+    })[0];
+
+    expect(result.outboundCount).toBe(1);
+    expect(result.events).toHaveLength(1);
+  });

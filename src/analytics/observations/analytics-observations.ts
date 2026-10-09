@@ -574,10 +574,9 @@ export function average(
 /**
  * Content-based cross-record deduplication for analytics only.
  *
- * For each matching event signature, retain the occurrences from the
- * record containing the greatest number of matches. Ties follow the
- * lead's timelineRecordIds order. Repeated occurrences within a record
- * remain intact. This is a heuristic, not proof of real-world identity.
+ * Keep the repeated occurrences from the record with the greatest count
+ * for each matching signature. Ties follow timelineRecordIds order.
+ * Repeated events within one record remain intact.
  */
 function deduplicateCrossRecordEvents(
   events: AnalyticsEvent[],
@@ -586,12 +585,12 @@ function deduplicateCrossRecordEvents(
   const recordOrder = new Map(
     timelineRecordIds.map((id, index) => [id, index]),
   );
-  const groups = new Map<
-    string,
-    Map<string, AnalyticsEvent[]>
-  >();
+  const groups = new Map<string, Map<string, AnalyticsEvent[]>>();
 
   for (const event of events) {
+    const templateIdentity =
+      extractTemplate(event).value?.trim().toLowerCase() ?? "";
+
     const signature = JSON.stringify([
       event.occurredAt,
       event.rawType.trim().toLowerCase(),
@@ -602,20 +601,7 @@ function deduplicateCrossRecordEvents(
       event.direction ?? "",
       event.details.trim().toLowerCase(),
       event.templateCode?.trim().toLowerCase() ?? "",
-      JSON.stringify([
-        event.metadata?.templateName ??
-          event.metadata?.template_name ??
-          event.metadata?.template ??
-          event.metadata?.templateId ??
-          event.metadata?.template_id ??
-          "",
-        event.rawData?.templateName ??
-          event.rawData?.template_name ??
-          event.rawData?.template ??
-          event.rawData?.templateId ??
-          event.rawData?.template_id ??
-          "",
-      ]).toLowerCase(),
+      templateIdentity,
     ]);
 
     let byRecord = groups.get(signature);
