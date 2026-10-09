@@ -37,10 +37,10 @@ function createQuery<T>(result: QueryResult<T>) {
       onFulfilled: (value: QueryResult<T>) => unknown,
       onRejected?: (reason: unknown) => unknown,
     ) => {
-      const pageResult = Array.isArray(result.data)
+      const pageResult: QueryResult<T> = Array.isArray(result.data)
         ? {
             ...result,
-            data: result.data.slice(rangeFrom, rangeTo + 1),
+            data: result.data.slice(rangeFrom, rangeTo + 1) as T,
           }
         : result;
 
