@@ -18,9 +18,17 @@ type QueryResult<T> = {
 };
 
 function createQuery<T>(result: QueryResult<T>) {
+  let rangeFrom = 0;
+  let rangeTo = Number.POSITIVE_INFINITY;
+
   const query = {
     select: () => query,
     order: () => query,
+    range: (from: number, to: number) => {
+      rangeFrom = from;
+      rangeTo = to;
+      return query;
+    },
     insert: () => query,
     update: () => query,
     eq: () => query,
@@ -28,7 +36,16 @@ function createQuery<T>(result: QueryResult<T>) {
     then: (
       onFulfilled: (value: QueryResult<T>) => unknown,
       onRejected?: (reason: unknown) => unknown,
-    ) => Promise.resolve(result).then(onFulfilled, onRejected),
+    ) => {
+      const pageResult = Array.isArray(result.data)
+        ? {
+            ...result,
+            data: result.data.slice(rangeFrom, rangeTo + 1),
+          }
+        : result;
+
+      return Promise.resolve(pageResult).then(onFulfilled, onRejected);
+    },
   };
 
   return query;
@@ -155,6 +172,28 @@ describe("SupabaseTimelineImportRepository", () => {
       events: [persistedEvent],
       leads: [],
     });
+  });
+
+  it("loads every page when a snapshot table exceeds 500 rows", async () => {
+    const persistedRecords = Array.from({ length: 501 }, (_, index) => ({
+      ...record,
+      id: `record-${index + 1}`,
+    }));
+
+    const repository = new SupabaseTimelineImportRepository(
+      createFakeClient({
+        records: { data: persistedRecords, error: null },
+        events: { data: [], error: null },
+        leads: { data: [], error: null },
+        sourceImports: { data: [], error: null },
+      }),
+    );
+
+    const snapshot = await repository.loadSnapshot();
+
+    expect(snapshot.records).toHaveLength(501);
+    expect(snapshot.records[0].id).toBe("record-1");
+    expect(snapshot.records[500].id).toBe("record-501");
   });
 
   it("creates a source import", async () => {

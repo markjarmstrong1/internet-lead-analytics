@@ -13,6 +13,42 @@ import type { LeadPersistenceRow } from "@/integrations/tekion/lead/lead-persist
 import type { SourceRecordPersistenceRow } from "./source-record-persistence-row";
 import type { TimelineDatabase } from "@/integrations/tekion/timeline/timeline-database";
 
+const IMPORT_SNAPSHOT_PAGE_SIZE = 500;
+
+async function loadAllSnapshotPages<T>(
+  loadPage: (
+    from: number,
+    to: number,
+  ) => Promise<{
+    data: T[] | null;
+    error: { message: string } | null;
+  }>,
+  errorPrefix: string,
+): Promise<T[]> {
+  const rows: T[] = [];
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await loadPage(
+      from,
+      from + IMPORT_SNAPSHOT_PAGE_SIZE - 1,
+    );
+
+    if (error) {
+      throw new Error(`${errorPrefix}: ${error.message}`);
+    }
+
+    const page = data ?? [];
+    rows.push(...page);
+
+    if (page.length < IMPORT_SNAPSHOT_PAGE_SIZE) {
+      return rows;
+    }
+
+    from += IMPORT_SNAPSHOT_PAGE_SIZE;
+  }
+}
+
 export class SupabaseTimelineImportRepository
   implements TimelineImportRepository
 {
@@ -21,59 +57,45 @@ export class SupabaseTimelineImportRepository
   ) {}
 
   async loadSnapshot() {
-    const [
-      recordsResult,
-      eventsResult,
-      leadsResult,
-    ] = await Promise.all([
-      this.client
-        .from("timeline_records")
-        .select("*")
-        .order("created_at", {
-          ascending: true,
-        }),
-
-      this.client
-        .from("timeline_events")
-        .select("*")
-        .order("occurred_at", {
-          ascending: true,
-        }),
-
-      this.client
-        .from("leads")
-        .select("external_record_id, contact_name")
-        .order("created_at", {
-          ascending: true,
-        }),
+    const [records, events, leads] = await Promise.all([
+      loadAllSnapshotPages(
+        async (from, to) =>
+          await this.client
+            .from("timeline_records")
+            .select("*")
+            .order("created_at", { ascending: true })
+            .order("id", { ascending: true })
+            .range(from, to),
+        "Failed to load timeline records",
+      ),
+      loadAllSnapshotPages(
+        async (from, to) =>
+          await this.client
+            .from("timeline_events")
+            .select("*")
+            .order("occurred_at", { ascending: true })
+            .order("id", { ascending: true })
+            .range(from, to),
+        "Failed to load timeline events",
+      ),
+      loadAllSnapshotPages(
+        async (from, to) =>
+          await this.client
+            .from("leads")
+            .select("external_record_id, contact_name")
+            .order("created_at", { ascending: true })
+            .order("id", { ascending: true })
+            .range(from, to),
+        "Failed to load leads",
+      ),
     ]);
 
-    if (recordsResult.error) {
-      throw new Error(
-        `Failed to load timeline records: ${recordsResult.error.message}`,
-      );
-    }
-
-    if (eventsResult.error) {
-      throw new Error(
-        `Failed to load timeline events: ${eventsResult.error.message}`,
-      );
-    }
-
-    if (leadsResult.error) {
-      throw new Error(
-        `Failed to load leads: ${leadsResult.error.message}`,
-      );
-    }
-
     return {
-      records: recordsResult.data,
-      events: eventsResult.data,
-      leads: leadsResult.data.map((lead) => ({
-        externalRecordId:
-          lead.external_record_id,
-        contactName:
-          lead.contact_name,
+      records,
+      events,
+      leads: leads.map((lead) => ({
+        externalRecordId: lead.external_record_id,
+        contactName: lead.contact_name,
       })),
     };
   }
