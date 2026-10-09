@@ -593,20 +593,30 @@ function deduplicateCrossRecordEvents(
 
   for (const event of events) {
     const signature = JSON.stringify([
-event.occurredAt,
-event.rawType.trim().toLowerCase(),
-event.actor.trim().toLowerCase(),
-event.actorType.trim().toLowerCase(),
-event.category.trim().toLowerCase(),
-event.channel ?? "",
-event.direction ?? "",
-event.details.trim().toLowerCase(),
-event.templateCode?.trim().toLowerCase() ?? "",
-JSON.stringify([
-event.metadata?.templateName ?? event.metadata?.template_name ?? event.metadata?.template ?? event.metadata?.templateId ?? event.metadata?.template_id ?? "",
-event.rawData?.templateName ?? event.rawData?.template_name ?? event.rawData?.template ?? event.rawData?.templateId ?? event.rawData?.template_id ?? "",
-]).toLowerCase(),
-]);
+      event.occurredAt,
+      event.rawType.trim().toLowerCase(),
+      event.actor.trim().toLowerCase(),
+      event.actorType.trim().toLowerCase(),
+      event.category.trim().toLowerCase(),
+      event.channel ?? "",
+      event.direction ?? "",
+      event.details.trim().toLowerCase(),
+      event.templateCode?.trim().toLowerCase() ?? "",
+      JSON.stringify([
+        event.metadata?.templateName ??
+          event.metadata?.template_name ??
+          event.metadata?.template ??
+          event.metadata?.templateId ??
+          event.metadata?.template_id ??
+          "",
+        event.rawData?.templateName ??
+          event.rawData?.template_name ??
+          event.rawData?.template ??
+          event.rawData?.templateId ??
+          event.rawData?.template_id ??
+          "",
+      ]).toLowerCase(),
+    ]);
 
     let byRecord = groups.get(signature);
     if (!byRecord) {
