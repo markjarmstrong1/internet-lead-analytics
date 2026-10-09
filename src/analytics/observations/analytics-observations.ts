@@ -114,10 +114,7 @@ export function buildLeadObservations(
           eventsByRecord.get(recordId) ?? [],
       );
 
-    return buildLeadObservation(
-      lead,
-      deduplicateOverlappingRecordEvents(events),
-    );
+    return buildLeadObservation(lead, events);
   });
 }
 
@@ -568,67 +565,6 @@ export function average(
       0,
     ) / values.length
   );
-}
-
-function normalizeDuplicateSignatureValue(
-  value: string | null | undefined,
-): string {
-  return (value ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-}
-
-function deduplicateOverlappingRecordEvents(
-  events: AnalyticsEvent[],
-): AnalyticsEvent[] {
-  const eventsBySignature = new Map<
-    string,
-    Map<string, AnalyticsEvent[]>
-  >();
-
-  for (const event of events) {
-    const signature = JSON.stringify([
-      normalizeDuplicateSignatureValue(event.occurredAt),
-      normalizeDuplicateSignatureValue(event.rawType),
-      normalizeDuplicateSignatureValue(event.actor),
-      normalizeDuplicateSignatureValue(event.actorType),
-      normalizeDuplicateSignatureValue(event.category),
-      normalizeDuplicateSignatureValue(event.channel),
-      normalizeDuplicateSignatureValue(event.direction),
-      normalizeDuplicateSignatureValue(event.details),
-      normalizeDuplicateSignatureValue(event.templateCode),
-    ]);
-
-    let eventsByRecord = eventsBySignature.get(signature);
-
-    if (!eventsByRecord) {
-      eventsByRecord = new Map<string, AnalyticsEvent[]>();
-      eventsBySignature.set(signature, eventsByRecord);
-    }
-
-    const recordEvents =
-      eventsByRecord.get(event.timelineRecordId) ?? [];
-
-    recordEvents.push(event);
-    eventsByRecord.set(event.timelineRecordId, recordEvents);
-  }
-
-  const retainedEvents: AnalyticsEvent[] = [];
-
-  for (const eventsByRecord of eventsBySignature.values()) {
-    let largestRecordGroup: AnalyticsEvent[] = [];
-
-    for (const recordEvents of eventsByRecord.values()) {
-      if (recordEvents.length > largestRecordGroup.length) {
-        largestRecordGroup = recordEvents;
-      }
-    }
-
-    retainedEvents.push(...largestRecordGroup);
-  }
-
-  return retainedEvents;
 }
 
 function groupEventsByRecord(
