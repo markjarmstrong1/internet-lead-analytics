@@ -61,11 +61,9 @@ event("record-2", "event-b"),
 ],
 })[0];
 
-```
 expect(result.outboundCount).toBe(2);
 expect(result.events).toHaveLength(2);
 expect(result.templateActions).toHaveLength(2);
-```
 
 });
 
@@ -81,10 +79,8 @@ details: "A different message",
 ],
 })[0];
 
-```
 expect(result.outboundCount).toBe(2);
 expect(result.events).toHaveLength(2);
-```
 
 });
 
@@ -97,11 +93,9 @@ event("record-1", "event-b"),
 ],
 })[0];
 
-```
 expect(result.outboundCount).toBe(2);
 expect(result.events).toHaveLength(2);
 expect(result.templateActions).toHaveLength(2);
-```
 
 });
 
@@ -117,11 +111,9 @@ event("record-2", "event-b"),
 ],
 });
 
-```
 expect(result).toHaveLength(2);
 expect(result[0].outboundCount).toBe(1);
 expect(result[1].outboundCount).toBe(1);
-```
 
 });
 
@@ -135,10 +127,8 @@ event("record-2", "event-c"),
 ],
 })[0];
 
-```
 expect(result.outboundCount).toBe(3);
 expect(result.events).toHaveLength(3);
-```
 
 });
 });
