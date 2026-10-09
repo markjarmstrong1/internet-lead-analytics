@@ -114,7 +114,10 @@ export function buildLeadObservations(
           eventsByRecord.get(recordId) ?? [],
       );
 
-    return buildLeadObservation(lead, events);
+    return buildLeadObservation(
+      lead,
+      deduplicateCrossRecordEvents(events, lead.timelineRecordIds),
+    );
   });
 }
 
@@ -565,6 +568,67 @@ export function average(
       0,
     ) / values.length
   );
+}
+
+
+/**
+ * Content-based cross-record deduplication for analytics only.
+ *
+ * For each matching event signature, retain the occurrences from the
+ * record containing the greatest number of matches. Ties follow the
+ * lead's timelineRecordIds order. Repeated occurrences within a record
+ * remain intact. This is a heuristic, not proof of real-world identity.
+ */
+function deduplicateCrossRecordEvents(
+  events: AnalyticsEvent[],
+  timelineRecordIds: string[],
+): AnalyticsEvent[] {
+  const recordOrder = new Map(
+    timelineRecordIds.map((id, index) => [id, index]),
+  );
+  const groups = new Map<
+    string,
+    Map<string, AnalyticsEvent[]>
+  >();
+
+  for (const event of events) {
+    const signature = JSON.stringify([
+      event.occurredAt,
+      event.rawType.trim().toLowerCase(),
+      event.actor.trim().toLowerCase(),
+      event.actorType.trim().toLowerCase(),
+      event.category.trim().toLowerCase(),
+      event.channel ?? "",
+      event.direction ?? "",
+      event.details.trim().toLowerCase(),
+      event.templateCode?.trim().toLowerCase() ?? "",
+    ]);
+
+    let byRecord = groups.get(signature);
+    if (!byRecord) {
+      byRecord = new Map<string, AnalyticsEvent[]>();
+      groups.set(signature, byRecord);
+    }
+
+    const recordEvents = byRecord.get(event.timelineRecordId) ?? [];
+    recordEvents.push(event);
+    byRecord.set(event.timelineRecordId, recordEvents);
+  }
+
+  const retained: AnalyticsEvent[] = [];
+
+  for (const byRecord of groups.values()) {
+    const candidates = [...byRecord.entries()].sort(
+      ([recordA, eventsA], [recordB, eventsB]) =>
+        eventsB.length - eventsA.length ||
+        (recordOrder.get(recordA) ?? Number.MAX_SAFE_INTEGER) -
+          (recordOrder.get(recordB) ?? Number.MAX_SAFE_INTEGER),
+    );
+
+    retained.push(...(candidates[0]?.[1] ?? []));
+  }
+
+  return retained;
 }
 
 function groupEventsByRecord(
