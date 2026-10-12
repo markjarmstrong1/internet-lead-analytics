@@ -67,7 +67,7 @@ export function ReportResults({
   }
 
   return (
-    <div className="space-y-5">
+    <div id="report-export-content" className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-500">
           {result.rows.length.toLocaleString()}{" "}
@@ -78,17 +78,27 @@ export function ReportResults({
           leads in the report population
         </p>
 
-        <button
-          type="button"
-          onClick={downloadCsv}
-          disabled={result.rows.length === 0}
-          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Export CSV
-        </button>
+        <div className="no-print flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            disabled={result.rows.length === 0}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Export PDF
+          </button>
+          <button
+            type="button"
+            onClick={downloadCsv}
+            disabled={result.rows.length === 0}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Export CSV
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div className="no-print flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <div>
           <p className="text-sm font-semibold">
             Investigate this population

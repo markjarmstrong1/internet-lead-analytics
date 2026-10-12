@@ -4020,3 +4020,80 @@ textarea {
     min-height: 92px;
   }
 }
+
+
+/* REPORT PDF EXPORT */
+@media print {
+  @page {
+    size: landscape;
+    margin: 12mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #report-export-content,
+  #report-export-content * {
+    visibility: visible !important;
+  }
+
+  #report-export-content {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #111827 !important;
+    background: white !important;
+  }
+
+  #report-export-content .no-print,
+  #report-export-content button,
+  #report-export-content a {
+    display: none !important;
+  }
+
+  #report-export-content .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  #report-export-content table {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: collapse !important;
+    font-size: 9pt !important;
+  }
+
+  #report-export-content th,
+  #report-export-content td {
+    padding: 5px !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  #report-export-content tr,
+  #report-export-content article,
+  #report-export-content section {
+    break-inside: avoid;
+  }
+
+  #report-export-content h3,
+  #report-export-content h4 {
+    break-after: avoid;
+  }
+
+  #report-export-content .grid {
+    gap: 8px !important;
+  }
+
+  #report-export-content .bg-slate-50,
+  #report-export-content .bg-white {
+    background: white !important;
+  }
+
+  #report-export-content .text-slate-400,
+  #report-export-content .text-slate-500 {
+    color: #4b5563 !important;
+  }
+}
