@@ -86,34 +86,6 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
     doc.moveDown(0.55);
   }
 
-  let pageNumber = 1;
-  doc.on("pageAdded", () => {
-    pageNumber += 1;
-  });
-
-  function drawFooter() {
-    const y = doc.page.height - 27;
-    doc.save();
-    doc.moveTo(doc.page.margins.left, y - 7)
-      .lineTo(doc.page.width - doc.page.margins.right, y - 7)
-      .lineWidth(0.5)
-      .strokeColor(COLORS.line)
-      .stroke();
-    doc.font("Helvetica")
-      .fontSize(7.5)
-      .fillColor(COLORS.muted)
-      .text("INTERNET LEAD ANALYTICS  /  MANAGEMENT REPORT", doc.page.margins.left, y, {
-        width: pageWidth() * 0.75,
-        lineBreak: false,
-      });
-    doc.text(`Page ${pageNumber}`, doc.page.margins.left, y, {
-      width: pageWidth(),
-      align: "right",
-      lineBreak: false,
-    });
-    doc.restore();
-  }
-
   function ensureSpace(height: number) {
     if (doc.y + height > bottom() - 10) {
       doc.addPage();
@@ -137,7 +109,7 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
       });
 
     metrics.forEach((metric, index) => {
-      const label = metricDefinition(metric)?.label ?? metric;
+      const label = pdfMetricLabel(metric);
       doc.font("Helvetica-Bold")
         .fontSize(metrics.length > 9 ? 6.2 : 7)
         .fillColor(COLORS.white)
@@ -157,13 +129,13 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
   const tableX = doc.page.margins.left;
   const tableWidth = pageWidth();
   const labelWidth = Math.min(170, Math.max(120, tableWidth * 0.25));
-  const metricWidth = (tableWidth - labelWidth) / Math.max(metrics.length, 1);
+  const metricGroups = chunkMetrics(metrics, 6);
 
   // Report masthead
   doc.rect(0, 0, doc.page.width, 9).fill(COLORS.accent);
   doc.y = 38;
   doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.accent)
-    .text("INTERNET LEAD ANALYTICS", { characterSpacing: 1.4 });
+    .text("INTERNET LEAD ANALYTICS");
   doc.moveDown(0.8);
 
   doc.font("Helvetica-Bold").fontSize(25).fillColor(COLORS.ink)
@@ -235,66 +207,87 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
 
   doc.y = cardY + cardHeight + 22;
 
+  ensureSpace(135);
   sectionTitle(
     "Results by group",
     `${metrics.length} selected measure${metrics.length === 1 ? "" : "s"} · Numeric values are aligned for comparison`,
   );
-
-  let tableHeaderDrawn = false;
-  const drawHeader = () => {
-    drawMetricTableHeader(metrics, labelWidth, metricWidth, tableX);
-    tableHeaderDrawn = true;
-  };
-  drawHeader();
 
   if (result.rows.length === 0) {
     doc.font("Helvetica").fontSize(9).fillColor(COLORS.muted)
       .text("No leads match this report definition.", tableX + 8, doc.y + 12);
     doc.y += 36;
   } else {
-    result.rows.forEach((row, rowIndex) => {
+    metricGroups.forEach((metricGroup, groupIndex) => {
+      if (groupIndex > 0) {
+        ensureSpace(135);
+        doc.moveDown(0.45);
+        sectionTitle(
+          `Additional measures (${groupIndex + 1} of ${metricGroups.length})`,
+          "The same report groups, with additional selected measures.",
+        );
+      }
+
+      const groupLabelWidth = Math.min(155, Math.max(130, tableWidth * 0.22));
+      const metricWidth =
+        (tableWidth - groupLabelWidth) / Math.max(metricGroup.length, 1);
       const rowHeight = 27;
-      if (doc.y + rowHeight > bottom() - 12) {
-        doc.addPage();
-        tableHeaderDrawn = false;
-        drawHeader();
-      } else if (!tableHeaderDrawn) {
-        drawHeader();
-      }
 
-      const y = doc.y;
-      if (rowIndex % 2 === 1) {
-        doc.rect(tableX, y, tableWidth, rowHeight).fill(COLORS.soft);
-      }
-      doc.moveTo(tableX, y + rowHeight).lineTo(tableX + tableWidth, y + rowHeight)
-        .lineWidth(0.35).strokeColor(COLORS.line).stroke();
+      const drawHeader = () =>
+        drawMetricTableHeader(
+          metricGroup,
+          groupLabelWidth,
+          metricWidth,
+          tableX,
+        );
 
-      doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.ink)
-        .text(row.label, tableX + 8, y + 8, {
-          width: labelWidth - 16,
-          height: 12,
-          ellipsis: true,
+      // Keep the table header with at least the first data row.
+      ensureSpace(36 + rowHeight + 12);
+      drawHeader();
+
+      result.rows.forEach((row, rowIndex) => {
+        if (doc.y + rowHeight > bottom() - 12) {
+          doc.addPage();
+          drawHeader();
+        }
+
+        const y = doc.y;
+        if (rowIndex % 2 === 1) {
+          doc.rect(tableX, y, tableWidth, rowHeight).fill(COLORS.soft);
+        }
+        doc.moveTo(tableX, y + rowHeight)
+          .lineTo(tableX + tableWidth, y + rowHeight)
+          .lineWidth(0.35)
+          .strokeColor(COLORS.line)
+          .stroke();
+
+        doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.ink)
+          .text(formatGroupLabel(result.definition.groupBy, row.label),
+            tableX + 8, y + 8, {
+              width: groupLabelWidth - 16,
+              height: 12,
+              ellipsis: true,
+            });
+
+        metricGroup.forEach((metric, index) => {
+          const value = formatMetric(metric, row.values[metric] ?? null);
+          doc.font("Helvetica").fontSize(8)
+            .fillColor(value === "—" ? COLORS.muted : COLORS.ink)
+            .text(value, tableX + groupLabelWidth + index * metricWidth + 3, y + 8, {
+              width: metricWidth - 6,
+              height: 12,
+              align: "right",
+              ellipsis: true,
+            });
         });
 
-      metrics.forEach((metric, index) => {
-        const value = formatMetric(metric, row.values[metric] ?? null);
-        doc.font("Helvetica").fontSize(metrics.length > 9 ? 6.5 : 8)
-          .fillColor(value === "—" ? COLORS.muted : COLORS.ink)
-          .text(value, tableX + labelWidth + index * metricWidth + 2, y + 8, {
-            width: metricWidth - 5,
-            height: 12,
-            align: "right",
-            ellipsis: true,
-          });
+        doc.y = y + rowHeight;
       });
-
-      doc.y = y + rowHeight;
-      tableHeaderDrawn = true;
     });
   }
 
   // Concise definitions section so the PDF retains essential context.
-  ensureSpace(64);
+  ensureSpace(115);
   sectionTitle("Measurement notes");
   doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
     .text(
@@ -325,10 +318,43 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
     doc.restore();
   }
 
-  // Avoid an unused helper becoming a second source of page-number logic.
-  void drawFooter;
   doc.end();
   return finished;
+}
+
+function chunkMetrics(metrics: ReportMetricKey[], size: number): ReportMetricKey[][] {
+  const groups: ReportMetricKey[][] = [];
+  for (let index = 0; index < metrics.length; index += size) {
+    groups.push(metrics.slice(index, index + size));
+  }
+  return groups;
+}
+
+function pdfMetricLabel(metric: ReportMetricKey): string {
+  const labels: Partial<Record<ReportMetricKey, string>> = {
+    leads: "Leads",
+    timelineCovered: "Timeline covered",
+    contacted: "CRM contacted",
+    observedOutbound: "Observed outbound",
+    responded: "Observed responses",
+    responseWithin24h: "Responses within 24h",
+    appointments: "Appointments",
+    soldClosed: "Sold / closed",
+    responseRate: "Observed response rate",
+    responseWithin24hRate: "24-hour response rate",
+    medianResponseMinutes: "Median response time",
+    outboundAttempts: "Outbound attempts",
+    templateUses: "Matched template uses",
+    templateUsesPerLead: "Template uses per lead",
+  };
+  return labels[metric] ?? metricDefinition(metric)?.label ?? metric;
+}
+
+function formatGroupLabel(dimension: string, label: string): string {
+  if (dimension === "template" && label !== "No matched template") {
+    return label.startsWith("Template ") ? label : `Template ${label}`;
+  }
+  return label;
 }
 
 function formatMetric(metric: ReportMetricKey, value: number | null): string {
