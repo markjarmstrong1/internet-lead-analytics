@@ -68,6 +68,19 @@ export function ReportResults({
 
   return (
     <div id="report-export-content" className="space-y-5">
+      <header className="report-print-header">
+        <div className="report-print-brand">INTERNET LEAD ANALYTICS <span>MANAGEMENT REPORT</span></div>
+        <h1>{result.definition.name}</h1>
+        <p className="report-print-subtitle">
+          Reporting period: {formatReportDateRange(result.definition.dateRange.start, result.definition.dateRange.end)}
+          {" · "}Date basis: {result.definition.dateRange.basis.replaceAll("_", " ")}
+        </p>
+        <p className="report-print-meta">
+          {result.populationCount.toLocaleString()} leads
+          {" · "}{result.rows.length.toLocaleString()} report rows
+          {" · "}Generated {new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(new Date())}
+        </p>
+      </header>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-500">
           {result.rows.length.toLocaleString()}{" "}
@@ -131,7 +144,7 @@ export function ReportResults({
 
       <ComparisonReadout result={result} />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="report-summary-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Report population"
           value={formatCount(
@@ -826,6 +839,17 @@ function csvCell(
   value: string,
 ): string {
   return `"${value.replaceAll('"', '""')}"`;
+}
+
+function formatReportDateRange(start: string | null, end: string | null): string {
+  const format = (value: string) => new Intl.DateTimeFormat("en-US", {
+    month: "short", day: "numeric", year: "numeric", timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00.000Z`));
+
+  if (start && end) return `${format(start)} – ${format(end)}`;
+  if (start) return `From ${format(start)} onward`;
+  if (end) return `Through ${format(end)}`;
+  return "All available dates";
 }
 
 function safeFilename(

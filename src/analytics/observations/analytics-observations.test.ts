@@ -175,4 +175,53 @@ describe("analytics observations", () => {
       "no_response",
     );
   });
+
+  it("deduplicates the same event copied across timeline records", () => {
+    const result = buildLeadObservations(dataset([
+      event({ sourceEventId: "record-1-copy", timelineRecordId: "record-1" }),
+      event({ sourceEventId: "record-2-copy", timelineRecordId: "record-2" }),
+    ], { timelineRecordIds: ["record-1", "record-2"] }))[0];
+
+    expect(result.events).toHaveLength(1);
+  });
+
+  it("preserves repeated events in the record with the most evidence", () => {
+    const result = buildLeadObservations(dataset([
+      event({ sourceEventId: "repeat-1", timelineRecordId: "record-1" }),
+      event({ sourceEventId: "repeat-2", timelineRecordId: "record-1" }),
+      event({ sourceEventId: "duplicate-copy", timelineRecordId: "record-2" }),
+    ], { timelineRecordIds: ["record-1", "record-2"] }))[0];
+
+    expect(result.events).toHaveLength(2);
+    expect(result.events.map((item) => item.sourceEventId).sort())
+      .toEqual(["repeat-1", "repeat-2"]);
+  });
+
+  it("uses timeline record order to break equal-count deduplication ties", () => {
+    const result = buildLeadObservations(dataset([
+      event({ sourceEventId: "record-1-copy", timelineRecordId: "record-1" }),
+      event({ sourceEventId: "record-2-copy", timelineRecordId: "record-2" }),
+    ], { timelineRecordIds: ["record-2", "record-1"] }))[0];
+
+    expect(result.events).toHaveLength(1);
+    expect(result.events[0]?.sourceEventId).toBe("record-2-copy");
+  });
+
+  it("does not merge similar events when their details differ", () => {
+    const result = buildLeadObservations(dataset([
+      event({
+        sourceEventId: "first-action",
+        timelineRecordId: "record-1",
+        details: "Message about the appointment",
+      }),
+      event({
+        sourceEventId: "second-action",
+        timelineRecordId: "record-2",
+        details: "Message about the vehicle",
+      }),
+    ], { timelineRecordIds: ["record-1", "record-2"] }))[0];
+
+    expect(result.events).toHaveLength(2);
+  });
+
 });

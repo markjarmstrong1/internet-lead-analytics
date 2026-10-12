@@ -49,6 +49,12 @@ export function ReportsPage({
           actions={
             <>
               <Link
+                href="/reports/view"
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+              >
+                View reports
+              </Link>
+              <Link
                 href="/reports/template-responses"
                 className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
               >
