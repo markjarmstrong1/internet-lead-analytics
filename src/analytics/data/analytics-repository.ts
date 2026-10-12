@@ -107,40 +107,78 @@ export class SupabaseAnalyticsRepository
     return events;
   }
 
+  private async loadLeads() {
+    const rows = [];
+    const pageSize = 500;
+
+    for (let from = 0; ; from += pageSize) {
+      const result = await this.client
+        .from("leads")
+        .select(
+          "id, contact_name, source, lead_source_group, stage, status, creation_time, raw_data, sold_date, closed_time",
+        )
+        .order("id", { ascending: true })
+        .range(from, from + pageSize - 1);
+
+      if (result.error) {
+        throw new Error(
+          `Failed to load analytics leads: ${result.error.message}`,
+        );
+      }
+
+      rows.push(...(result.data ?? []));
+
+      if ((result.data ?? []).length < pageSize) {
+        break;
+      }
+    }
+
+    return rows;
+  }
+
+  private async loadTimelineRecords() {
+    const rows = [];
+    const pageSize = 500;
+
+    for (let from = 0; ; from += pageSize) {
+      const result = await this.client
+        .from("timeline_records")
+        .select("id, lead_id")
+        .not("lead_id", "is", null)
+        .order("id", { ascending: true })
+        .range(from, from + pageSize - 1);
+
+      if (result.error) {
+        throw new Error(
+          `Failed to load analytics timeline records: ${result.error.message}`,
+        );
+      }
+
+      rows.push(...(result.data ?? []));
+
+      if ((result.data ?? []).length < pageSize) {
+        break;
+      }
+    }
+
+    return rows;
+  }
+
   async load(): Promise<AnalyticsDataset> {
     const [
-      leadsResult,
-      recordsResult,
+      leads,
+      records,
       events,
       templatesResult,
     ] = await Promise.all([
-        this.client
-          .from("leads")
-          .select(
-            "id, contact_name, source, lead_source_group, stage, status, creation_time, raw_data, sold_date, closed_time",
-          ),
-        this.client
-          .from("timeline_records")
-          .select("id, lead_id")
-          .not("lead_id", "is", null),
-        this.loadTimelineEvents(),
-        this.client
-          .from("templates")
-          .select("template_code,name")
-          .eq("is_active", true),
-      ]);
-
-    if (leadsResult.error) {
-      throw new Error(
-        `Failed to load analytics leads: ${leadsResult.error.message}`,
-      );
-    }
-
-    if (recordsResult.error) {
-      throw new Error(
-        `Failed to load analytics timeline records: ${recordsResult.error.message}`,
-      );
-    }
+      this.loadLeads(),
+      this.loadTimelineRecords(),
+      this.loadTimelineEvents(),
+      this.client
+        .from("templates")
+        .select("template_code,name")
+        .eq("is_active", true),
+    ]);
 
     if (templatesResult.error) {
       throw new Error(
@@ -150,7 +188,7 @@ export class SupabaseAnalyticsRepository
 
     const timelineIdsByLead = new Map<string, string[]>();
 
-    for (const record of recordsResult.data ?? []) {
+    for (const record of records) {
       if (!record.lead_id) {
         continue;
       }
@@ -160,7 +198,7 @@ export class SupabaseAnalyticsRepository
       timelineIdsByLead.set(record.lead_id, ids);
     }
 
-    const leads: AnalyticsLead[] = (leadsResult.data ?? []).map(
+    const analyticsLeads: AnalyticsLead[] = leads.map(
       (lead) => ({
         leadId: lead.id,
         contactName: lead.contact_name ?? "",
@@ -179,7 +217,7 @@ export class SupabaseAnalyticsRepository
     );
 
     return {
-      leads,
+      leads: analyticsLeads,
       events: buildAnalyticsEvents(events),
       templates: (templatesResult.data ?? []).map(
         (template) => ({
