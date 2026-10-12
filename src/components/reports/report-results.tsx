@@ -308,8 +308,10 @@ function MetricEvidencePanel({
           Evidence &amp; metric definitions
         </h3>
         <p className="mt-1 text-sm text-slate-500">
-          See which population each metric uses and how much timeline coverage is available.
-          Timeline coverage does not by itself guarantee that every event was captured.
+          Metrics can use different populations. The report population includes all selected
+          filters, including evidence filters; some metrics use the broader cohort before
+          evidence filters are applied. Timeline coverage counts leads with at least one linked
+          timeline record and does not guarantee that every event was captured.
         </p>
       </div>
 
@@ -339,14 +341,14 @@ function MetricEvidencePanel({
               </div>
 
               <div className="flex items-start justify-between gap-4">
-                <dt className="text-slate-500">Eligible leads</dt>
+                <dt className="text-slate-500">Leads in metric cohort</dt>
                 <dd className="font-medium tabular-nums text-slate-800">
                   {formatCount(diagnostic.eligibleLeadCount)}
                 </dd>
               </div>
 
               <div className="flex items-start justify-between gap-4">
-                <dt className="text-slate-500">Leads with timeline records</dt>
+                <dt className="text-slate-500">Cohort leads with timeline records</dt>
                 <dd className="font-medium tabular-nums text-slate-800">
                   {formatCount(diagnostic.timelineCoveredLeadCount)}
                 </dd>
