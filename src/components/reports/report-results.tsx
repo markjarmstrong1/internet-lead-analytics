@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 import { metricDefinition } from "@/reports/report-catalog";
-import type {
-  ReportMetricKey,
-  ReportResult,
+import {
+  DEFAULT_REPORT_PDF_OPTIONS,
+  type ReportMetricKey,
+  type ReportPdfOptions,
+  type ReportResult,
 } from "@/reports/report-types";
 
 export function ReportResults({
@@ -15,8 +18,66 @@ export function ReportResults({
   result: ReportResult;
   pdfUrl?: string;
 }) {
-  const metrics =
-    result.definition.metrics;
+  const metrics = result.definition.metrics;
+  const [pdfOptionsOpen, setPdfOptionsOpen] = useState(false);
+  const [pdfOptions, setPdfOptions] = useState<ReportPdfOptions>(
+    result.definition.pdfOptions ?? DEFAULT_REPORT_PDF_OPTIONS,
+  );
+
+  function exportPdf() {
+    if (!pdfUrl) {
+      window.print();
+      return;
+    }
+
+    const separator = pdfUrl.includes("?") ? "&" : "?";
+    const url = `${pdfUrl}${separator}pdfOptions=${encodeURIComponent(
+      JSON.stringify(pdfOptions),
+    )}`;
+    window.location.assign(url);
+  }
+
+  function choosePdfPreset(preset: ReportPdfOptions["layoutPreset"]) {
+    setPdfOptions((current) => {
+      if (preset === "executive") {
+        return {
+          ...current,
+          layoutPreset: preset,
+          includeExecutiveSummary: true,
+          includeDetailedResults: true,
+          includeMetricDefinitions: false,
+          includeTemplateUsage: false,
+          includeEmailEngagement: false,
+          maxRows: "25",
+          density: "comfortable",
+        };
+      }
+      if (preset === "data") {
+        return {
+          ...current,
+          layoutPreset: preset,
+          includeExecutiveSummary: false,
+          includeDetailedResults: true,
+          includeMetricDefinitions: true,
+          includeTemplateUsage: true,
+          includeEmailEngagement: true,
+          maxRows: "all",
+          density: "compact",
+        };
+      }
+      return {
+        ...current,
+        layoutPreset: preset,
+        includeExecutiveSummary: true,
+        includeDetailedResults: true,
+        includeMetricDefinitions: true,
+        includeTemplateUsage: true,
+        includeEmailEngagement: true,
+        maxRows: "all",
+        density: "comfortable",
+      };
+    });
+  }
 
   function downloadCsv() {
     const headers = [
@@ -96,18 +157,22 @@ export function ReportResults({
         <div className="no-print flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => {
-              if (pdfUrl) {
-                window.location.assign(pdfUrl);
-              } else {
-                window.print();
-              }
-            }}
+            onClick={exportPdf}
             disabled={result.rows.length === 0}
             className="border border-slate-300 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {pdfUrl ? "Download polished PDF" : "Export PDF"}
           </button>
+          {pdfUrl ? (
+            <button
+              type="button"
+              onClick={() => setPdfOptionsOpen((open) => !open)}
+              className="border border-slate-300 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-50"
+              aria-expanded={pdfOptionsOpen}
+            >
+              {pdfOptionsOpen ? "Hide PDF options" : "Customize PDF"}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={downloadCsv}
@@ -118,6 +183,158 @@ export function ReportResults({
           </button>
         </div>
       </div>
+
+
+      {pdfOptionsOpen && pdfUrl ? (
+        <section className="no-print rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                PDF export settings
+              </p>
+              <h3 className="mt-1 text-lg font-semibold text-slate-950">
+                Customize this export
+              </h3>
+              <p className="mt-1 max-w-2xl text-sm text-slate-500">
+                These choices apply to this download only. Your saved report stays unchanged.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPdfOptions(DEFAULT_REPORT_PDF_OPTIONS)}
+              className="text-sm font-medium text-slate-600 underline underline-offset-4 hover:text-slate-950"
+            >
+              Reset options
+            </button>
+          </div>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <label className="block text-sm font-medium text-slate-700">
+              Report style
+              <select
+                value={pdfOptions.layoutPreset}
+                onChange={(event) => choosePdfPreset(event.target.value as ReportPdfOptions["layoutPreset"])}
+                className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+              >
+                <option value="executive">Executive summary</option>
+                <option value="detailed">Detailed report</option>
+                <option value="data">Data-focused</option>
+              </select>
+            </label>
+            <label className="block text-sm font-medium text-slate-700">
+              Page orientation
+              <select
+                value={pdfOptions.orientation}
+                onChange={(event) => setPdfOptions({ ...pdfOptions, orientation: event.target.value as ReportPdfOptions["orientation"] })}
+                className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+              >
+                <option value="landscape">Landscape</option>
+                <option value="portrait">Portrait</option>
+              </select>
+            </label>
+            <label className="block text-sm font-medium text-slate-700">
+              Table density
+              <select
+                value={pdfOptions.density}
+                onChange={(event) => setPdfOptions({ ...pdfOptions, density: event.target.value as ReportPdfOptions["density"] })}
+                className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+              >
+                <option value="comfortable">Comfortable</option>
+                <option value="compact">Compact</option>
+              </select>
+            </label>
+            <label className="block text-sm font-medium text-slate-700">
+              Maximum table rows
+              <select
+                value={pdfOptions.maxRows}
+                onChange={(event) => setPdfOptions({ ...pdfOptions, maxRows: event.target.value as ReportPdfOptions["maxRows"] })}
+                className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+              >
+                <option value="25">25 rows</option>
+                <option value="50">50 rows</option>
+                <option value="100">100 rows</option>
+                <option value="all">All rows</option>
+              </select>
+            </label>
+          </div>
+
+          <label className="mt-4 block text-sm font-medium text-slate-700">
+            Subtitle
+            <input
+              value={pdfOptions.subtitle}
+              maxLength={240}
+              onChange={(event) => setPdfOptions({ ...pdfOptions, subtitle: event.target.value })}
+              placeholder="Optional context for this report"
+              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+            />
+          </label>
+
+          <div className="mt-5">
+            <p className="text-sm font-semibold text-slate-900">Include sections</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {([
+                ["includeExecutiveSummary", "Executive summary"],
+                ["includeDetailedResults", "Results by group"],
+                ["includeMetricDefinitions", "Evidence and metric definitions"],
+                ["includeTemplateUsage", "Matched-template usage"],
+                ["includeEmailEngagement", "Email engagement and lead outcomes"],
+              ] as const).map(([key, label]) => (
+                <label key={key} className="flex items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={pdfOptions[key]}
+                    onChange={(event) => setPdfOptions({ ...pdfOptions, [key]: event.target.checked })}
+                    className="h-4 w-4 rounded border-slate-300"
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <p className="text-sm font-semibold text-slate-900">Section headings</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {([
+                ["executiveSummary", "Executive summary heading"],
+                ["detailedResults", "Results heading"],
+                ["metricDefinitions", "Evidence heading"],
+                ["templateUsage", "Template usage heading"],
+                ["emailEngagement", "Email engagement heading"],
+              ] as const).map(([key, label]) => (
+                <label key={key} className="block text-sm text-slate-700">
+                  {label}
+                  <input
+                    value={pdfOptions.sectionTitles[key]}
+                    maxLength={100}
+                    onChange={(event) => setPdfOptions({
+                      ...pdfOptions,
+                      sectionTitles: {
+                        ...pdfOptions.sectionTitles,
+                        [key]: event.target.value,
+                      },
+                    })}
+                    className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+            <p className="text-xs text-slate-500">
+              The export uses the latest data for this saved report.
+            </p>
+            <button
+              type="button"
+              onClick={exportPdf}
+              className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+              Export PDF with these settings
+            </button>
+          </div>
+        </section>
+      ) : null}
 
       <div className="no-print flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <div>
@@ -134,23 +351,6 @@ export function ReportResults({
           label={`View ${result.populationCount.toLocaleString()} leads`}
         />
       </div>
-
-      <ManagementReadout result={result} />
-
-      {result.definition.groupBy === "responseSpeed" &&
-      (metrics.includes("responseRate") ||
-        metrics.includes("responseWithin24hRate")) ? (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-          <p className="font-semibold">Response rates are not comparable within response-speed groups</p>
-          <p className="mt-1">
-            Response speed is defined by whether and how quickly a lead responded.
-            Showing a response rate inside those groups would make the comparison circular.
-            The overall response rates above still use the observed-outbound population.
-          </p>
-        </div>
-      ) : null}
-
-      <ComparisonReadout result={result} />
 
       <div className="report-summary-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
@@ -179,7 +379,35 @@ export function ReportResults({
           ))}
       </div>
 
-      <MetricEvidencePanel result={result} />
+
+      <ManagementReadout result={result} />
+
+      {result.definition.groupBy === "responseSpeed" &&
+      (metrics.includes("responseRate") ||
+        metrics.includes("responseWithin24hRate")) ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          <p className="font-semibold">Response rates are not comparable within response-speed groups</p>
+          <p className="mt-1">
+            Response speed is defined by whether and how quickly a lead responded.
+            Showing a response rate inside those groups would make the comparison circular.
+            The overall response rates above still use the observed-outbound population.
+          </p>
+        </div>
+      ) : null}
+
+      <ComparisonReadout result={result} />
+
+      <details className="no-print rounded-xl border border-slate-200 bg-white">
+        <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold text-slate-900">
+          Evidence &amp; metric definitions
+          <span className="mt-1 block text-xs font-normal text-slate-500">
+            Expand to inspect metric populations, evidence basis, and denominators.
+          </span>
+        </summary>
+        <div className="border-t border-slate-200 p-4">
+          <MetricEvidencePanel result={result} />
+        </div>
+      </details>
 
       <div className="overflow-x-auto border-y border-slate-200 bg-white">
         <table className="w-full min-w-[760px] border-collapse text-sm">

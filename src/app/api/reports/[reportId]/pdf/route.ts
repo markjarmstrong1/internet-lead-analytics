@@ -8,6 +8,7 @@ import { buildEmailEvidence } from "@/analytics/metrics/email-evidence";
 import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
 import { DEFAULT_REPORT_PDF_OPTIONS, type ReportMetricKey, type ReportResult } from "@/reports/report-types";
 import { createServerReportRepository } from "@/reports/create-server-report-repository";
+import { normalizeReportDefinition } from "@/reports/report-definition";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,7 +23,7 @@ const COLORS = {
 };
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ reportId: string }> },
 ) {
   try {
@@ -35,7 +36,23 @@ export async function GET(
     }
 
     const dataset = await createServerAnalyticsRepository().load();
-    const result = buildReport(dataset, savedReport.definition);
+    const url = new URL(request.url);
+    const optionsJson = url.searchParams.get("pdfOptions");
+    let definition = savedReport.definition;
+
+    if (optionsJson) {
+      try {
+        const requestedOptions: unknown = JSON.parse(optionsJson);
+        definition = normalizeReportDefinition({
+          ...savedReport.definition,
+          pdfOptions: requestedOptions,
+        });
+      } catch {
+        return new Response("Invalid PDF export options", { status: 400 });
+      }
+    }
+
+    const result = buildReport(dataset, definition);
     const pdf = await createPdf(result, dataset);
 
     const filename = safeFilename(savedReport.name);
