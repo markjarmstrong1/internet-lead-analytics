@@ -55,7 +55,7 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
   const doc = new PDFDocument({
     size: "LETTER",
     layout: "landscape",
-    margins: { top: 42, bottom: 42, left: 42, right: 42 },
+    margins: { top: 38, bottom: 38, left: 38, right: 38 },
     bufferPages: true,
     info: {
       Title: result.definition.name,
@@ -73,247 +73,388 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
     doc.on("error", reject);
   });
 
-  const pageWidth = () => doc.page.width - doc.page.margins.left - doc.page.margins.right;
+  const pageWidth = () =>
+    doc.page.width - doc.page.margins.left - doc.page.margins.right;
   const bottom = () => doc.page.height - doc.page.margins.bottom;
+  const left = () => doc.page.margins.left;
+  const metrics = result.definition.metrics;
+  const tableWidth = pageWidth();
 
-  function sectionTitle(title: string, detail?: string) {
-    doc.moveDown(0.8);
-    doc.font("Helvetica-Bold").fontSize(12).fillColor(COLORS.ink).text(title);
+  function heading(title: string, detail?: string) {
+    doc.font("Helvetica-Bold").fontSize(15).fillColor(COLORS.ink)
+      .text(title, left(), doc.y, { width: tableWidth });
+    doc.moveDown(0.2);
     if (detail) {
-      doc.moveDown(0.2);
-      doc.font("Helvetica").fontSize(8.5).fillColor(COLORS.muted).text(detail);
-    }
-    doc.moveDown(0.55);
-  }
-
-  function ensureSpace(height: number) {
-    if (doc.y + height > bottom() - 10) {
-      doc.addPage();
+      doc.font("Helvetica").fontSize(8.5).fillColor(COLORS.muted)
+        .text(detail, left(), doc.y, { width: tableWidth });
+      doc.moveDown(0.45);
+    } else {
+      doc.moveDown(0.6);
     }
   }
 
-  function drawMetricTableHeader(
-    metrics: ReportMetricKey[],
+  function addTopRule() {
+    doc.rect(0, 0, doc.page.width, 7).fill(COLORS.accent);
+  }
+
+  function drawCard(
+    x: number,
+    y: number,
+    width: number,
+    label: string,
+    value: string,
+    detail: string,
+  ) {
+    const height = 76;
+    doc.roundedRect(x, y, width, height, 5)
+      .fillAndStroke(COLORS.soft, COLORS.line);
+    doc.rect(x, y, 3, height).fill(COLORS.accent);
+    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.muted)
+      .text(label.toUpperCase(), x + 11, y + 10, {
+        width: width - 20, height: 18, ellipsis: true,
+      });
+    doc.font("Helvetica-Bold").fontSize(value.length > 13 ? 15 : 21)
+      .fillColor(COLORS.ink)
+      .text(value, x + 11, y + 30, {
+        width: width - 20, height: 25, ellipsis: true,
+      });
+    doc.font("Helvetica").fontSize(7.5).fillColor(COLORS.muted)
+      .text(detail, x + 11, y + 57, {
+        width: width - 20, height: 11, ellipsis: true,
+      });
+  }
+
+  function drawTableHeader(
+    y: number,
     labelWidth: number,
     metricWidth: number,
-    tableX: number,
   ) {
-    const headerY = doc.y;
-    const headerHeight = 36;
-    doc.rect(tableX, headerY, pageWidth(), headerHeight).fill(COLORS.accent);
-    doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.white)
-      .text(result.definition.groupBy === "none" ? "REPORT" : "GROUP", tableX + 8, headerY + 11, {
-        width: labelWidth - 14,
-        height: 25,
-        ellipsis: true,
-      });
+    const headerHeight = 48;
+    doc.rect(left(), y, tableWidth, headerHeight).fill(COLORS.accent);
+    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.white)
+      .text(result.definition.groupBy === "none" ? "REPORT" : "GROUP",
+        left() + 6, y + 17, {
+          width: labelWidth - 12, height: 25, ellipsis: true,
+        });
 
     metrics.forEach((metric, index) => {
-      const label = pdfMetricLabel(metric);
       doc.font("Helvetica-Bold")
-        .fontSize(metrics.length > 9 ? 6.2 : 7)
+        .fontSize(metrics.length > 10 ? 5.5 : metrics.length > 7 ? 6.2 : 7)
         .fillColor(COLORS.white)
-        .text(label, tableX + labelWidth + index * metricWidth + 3, headerY + 5, {
-          width: metricWidth - 6,
-          height: headerHeight - 8,
-          align: "center",
-          lineBreak: true,
-          ellipsis: true,
-        });
+        .text(pdfMetricLabel(metric),
+          left() + labelWidth + index * metricWidth + 2, y + 5, {
+            width: metricWidth - 4,
+            height: headerHeight - 9,
+            align: "center",
+            ellipsis: true,
+          });
     });
-
-    doc.y = headerY + headerHeight;
+    return y + headerHeight;
   }
 
-  const metrics = result.definition.metrics;
-  const tableX = doc.page.margins.left;
-  const tableWidth = pageWidth();
-  const labelWidth = Math.min(170, Math.max(120, tableWidth * 0.25));
-  const metricGroups = chunkMetrics(metrics, 6);
+  function drawHorizontalChart(
+    x: number,
+    y: number,
+    width: number,
+    title: string,
+    metric: ReportMetricKey,
+  ) {
+    const height = 148;
+    doc.roundedRect(x, y, width, height, 4)
+      .fillAndStroke(COLORS.white, COLORS.line);
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(COLORS.ink)
+      .text(title, x + 10, y + 9, { width: width - 20 });
 
-  // Report masthead
-  doc.rect(0, 0, doc.page.width, 9).fill(COLORS.accent);
-  doc.y = 38;
+    const values = result.rows
+      .map((row) => ({
+        label: formatGroupLabel(result.definition.groupBy, row.label),
+        value: row.values[metric],
+      }))
+      .filter((item): item is { label: string; value: number } =>
+        typeof item.value === "number" && Number.isFinite(item.value),
+      )
+      .slice(0, 6);
+
+    if (values.length === 0) {
+      doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
+        .text("Select this measure in the report to chart it.",
+          x + 10, y + 38, { width: width - 20 });
+      return;
+    }
+
+    const max = Math.max(...values.map((item) => item.value), 1);
+    const labelWidth = Math.min(105, width * 0.34);
+    const valueWidth = 42;
+    const barX = x + 10 + labelWidth;
+    const barWidth = width - labelWidth - valueWidth - 30;
+    const rowStart = y + 33;
+    const rowGap = 17;
+
+    values.forEach((item, index) => {
+      const rowY = rowStart + index * rowGap;
+      const label = item.label.length > 18
+        ? `${item.label.slice(0, 17)}…`
+        : item.label;
+      doc.font("Helvetica").fontSize(7).fillColor(COLORS.ink)
+        .text(label, x + 10, rowY, {
+          width: labelWidth - 5, height: 11, ellipsis: true,
+        });
+      doc.roundedRect(barX, rowY + 1, barWidth, 7, 2).fill(COLORS.soft);
+      const fillWidth = Math.max(0, (item.value / max) * barWidth);
+      if (fillWidth > 0) {
+        doc.roundedRect(barX, rowY + 1, fillWidth, 7, 2).fill(COLORS.accent);
+      }
+      const display = metricDefinition(metric)?.format === "percent"
+        ? `${(item.value * 100).toLocaleString("en-US", { maximumFractionDigits: 1 })}%`
+        : formatMetric(metric, item.value);
+      doc.font("Helvetica-Bold").fontSize(7).fillColor(COLORS.ink)
+        .text(display, x + width - valueWidth - 8, rowY, {
+          width: valueWidth, height: 11, align: "right", ellipsis: true,
+        });
+    });
+  }
+
+  // PAGE 1 — Executive summary
+  addTopRule();
+  doc.y = 29;
   doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.accent)
     .text("INTERNET LEAD ANALYTICS");
-  doc.moveDown(0.8);
-
-  doc.font("Helvetica-Bold").fontSize(25).fillColor(COLORS.ink)
-    .text(result.definition.name, { width: pageWidth() });
-  doc.moveDown(0.45);
-
-  doc.font("Helvetica").fontSize(9.5).fillColor(COLORS.muted)
+  doc.moveDown(0.6);
+  doc.font("Helvetica-Bold").fontSize(27).fillColor(COLORS.ink)
+    .text(result.definition.name, left(), doc.y, { width: tableWidth });
+  doc.moveDown(0.35);
+  doc.font("Helvetica").fontSize(9).fillColor(COLORS.muted)
     .text(
       `Reporting period: ${formatDateRange(result.definition.dateRange.start, result.definition.dateRange.end)}   |   Date basis: ${formatDateBasis(result.definition.dateRange.basis)}`,
-      { width: pageWidth() },
+      left(), doc.y, { width: tableWidth },
     );
-  doc.moveDown(0.35);
-  doc.font("Helvetica").fontSize(8.5).fillColor(COLORS.muted)
+  doc.moveDown(0.25);
+  doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
     .text(
-      `${result.populationCount.toLocaleString()} leads in population  ·  ${result.rows.length.toLocaleString()} report groups  ·  Generated ${new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(new Date())}`,
-      { width: pageWidth() },
+      `${result.populationCount.toLocaleString()} leads · ${result.rows.length.toLocaleString()} groups · Generated ${new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(new Date())}`,
+      left(), doc.y, { width: tableWidth },
     );
+  doc.moveDown(1.1);
+  heading("Executive summary", "Headline results for the selected report population");
 
-  doc.moveDown(1);
-  doc.moveTo(tableX, doc.y).lineTo(tableX + tableWidth, doc.y)
-    .lineWidth(1.2).strokeColor(COLORS.line).stroke();
-  doc.moveDown(0.5);
-
-  // Executive summary cards
-  sectionTitle("Executive summary", "Overall results for the selected report population");
-  const cards: Array<{ label: string; value: string; detail: string }> = [
+  const summaryMetrics = metrics.slice(0, 3);
+  const cards = [
     {
-      label: "REPORT POPULATION",
+      label: "Report population",
       value: result.populationCount.toLocaleString(),
       detail: "Matching leads",
     },
-    ...metrics.slice(0, 3).map((metric) => ({
-      label: metricDefinition(metric)?.label ?? metric,
+    ...summaryMetrics.map((metric) => ({
+      label: pdfMetricLabel(metric),
       value: formatMetric(metric, result.summary[metric] ?? null),
-      detail: "Overall result",
+      detail: metricDefinition(metric)?.description ?? "Overall result",
     })),
   ];
-
-  const cardGap = 10;
-  const cardWidth = (tableWidth - cardGap * (cards.length - 1)) / cards.length;
+  const gap = 12;
+  const cardWidth = (tableWidth - gap * (cards.length - 1)) / cards.length;
   const cardY = doc.y;
-  const cardHeight = 69;
+  cards.forEach((card, index) =>
+    drawCard(
+      left() + index * (cardWidth + gap),
+      cardY,
+      cardWidth,
+      card.label,
+      card.value,
+      card.detail,
+    ),
+  );
+  doc.y = cardY + 98;
 
-  cards.forEach((card, index) => {
-    const x = tableX + index * (cardWidth + cardGap);
-    doc.roundedRect(x, cardY, cardWidth, cardHeight, 5)
-      .fillAndStroke(COLORS.soft, COLORS.line);
-    doc.rect(x, cardY, 3, cardHeight).fill(COLORS.accent);
-    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.muted)
-      .text(card.label.toUpperCase(), x + 12, cardY + 10, {
-        width: cardWidth - 22,
-        height: 20,
-        ellipsis: true,
-      });
-    doc.font("Helvetica-Bold").fontSize(card.value.length > 15 ? 15 : 20)
-      .fillColor(COLORS.ink)
-      .text(card.value, x + 12, cardY + 29, {
-        width: cardWidth - 22,
-        height: 24,
-        ellipsis: true,
-      });
-    doc.font("Helvetica").fontSize(7.5).fillColor(COLORS.muted)
-      .text(card.detail, x + 12, cardY + 52, {
-        width: cardWidth - 22,
-        height: 11,
-        ellipsis: true,
-      });
+  heading("What this report covers");
+  const summaryLines = [
+    `Population: ${result.populationCount.toLocaleString()} leads matched the saved report definition.`,
+    `Grouping: ${result.definition.groupBy === "none" ? "one overall result" : result.definition.groupBy}. The results table on page 2 compares these groups using the selected measures.`,
+    `Measures included: ${metrics.map(pdfMetricLabel).join(", ")}.`,
+  ];
+  summaryLines.forEach((line) => {
+    doc.font("Helvetica").fontSize(9).fillColor(COLORS.ink)
+      .text(line, left() + 3, doc.y, { width: tableWidth - 6, lineGap: 2 });
+    doc.moveDown(0.45);
   });
 
-  doc.y = cardY + cardHeight + 22;
-
-  ensureSpace(135);
-  sectionTitle(
-    "Results by group",
-    `${metrics.length} selected measure${metrics.length === 1 ? "" : "s"} · Numeric values are aligned for comparison`,
-  );
-
-  if (result.rows.length === 0) {
-    doc.font("Helvetica").fontSize(9).fillColor(COLORS.muted)
-      .text("No leads match this report definition.", tableX + 8, doc.y + 12);
-    doc.y += 36;
-  } else {
-    metricGroups.forEach((metricGroup, groupIndex) => {
-      if (groupIndex > 0) {
-        ensureSpace(135);
-        doc.moveDown(0.45);
-        sectionTitle(
-          `Additional measures (${groupIndex + 1} of ${metricGroups.length})`,
-          "The same report groups, with additional selected measures.",
-        );
-      }
-
-      const groupLabelWidth = Math.min(155, Math.max(130, tableWidth * 0.22));
-      const metricWidth =
-        (tableWidth - groupLabelWidth) / Math.max(metricGroup.length, 1);
-      const rowHeight = 27;
-
-      const drawHeader = () =>
-        drawMetricTableHeader(
-          metricGroup,
-          groupLabelWidth,
-          metricWidth,
-          tableX,
-        );
-
-      // Keep the table header with at least the first data row.
-      ensureSpace(36 + rowHeight + 12);
-      drawHeader();
-
-      result.rows.forEach((row, rowIndex) => {
-        if (doc.y + rowHeight > bottom() - 12) {
-          doc.addPage();
-          drawHeader();
-        }
-
-        const y = doc.y;
-        if (rowIndex % 2 === 1) {
-          doc.rect(tableX, y, tableWidth, rowHeight).fill(COLORS.soft);
-        }
-        doc.moveTo(tableX, y + rowHeight)
-          .lineTo(tableX + tableWidth, y + rowHeight)
-          .lineWidth(0.35)
-          .strokeColor(COLORS.line)
-          .stroke();
-
-        doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.ink)
-          .text(formatGroupLabel(result.definition.groupBy, row.label),
-            tableX + 8, y + 8, {
-              width: groupLabelWidth - 16,
-              height: 12,
-              ellipsis: true,
-            });
-
-        metricGroup.forEach((metric, index) => {
-          const value = formatMetric(metric, row.values[metric] ?? null);
-          doc.font("Helvetica").fontSize(8)
-            .fillColor(value === "—" ? COLORS.muted : COLORS.ink)
-            .text(value, tableX + groupLabelWidth + index * metricWidth + 3, y + 8, {
-              width: metricWidth - 6,
-              height: 12,
-              align: "right",
-              ellipsis: true,
-            });
-        });
-
-        doc.y = y + rowHeight;
-      });
-    });
-  }
-
-  // Concise definitions section so the PDF retains essential context.
-  ensureSpace(115);
-  sectionTitle("Measurement notes");
+  doc.moveDown(0.5);
+  doc.roundedRect(left(), doc.y, tableWidth, 56, 4)
+    .fillAndStroke(COLORS.soft, COLORS.line);
+  doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.ink)
+    .text("How to read the results", left() + 11, doc.y + 10);
   doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
     .text(
-      "Results reflect the evidence available in the analytics dataset and the report's selected filters. CRM state and observed communication activity are distinct measures. Group comparisons are descriptive and do not establish causation. Timeline coverage indicates linked timeline records, not proof that every event was captured.",
-      { width: pageWidth(), lineGap: 3 },
+      "CRM status, timeline activity, and observed communications represent different evidence sources. Response rates use the report's defined outbound population; they should not be interpreted as proof that a particular source or template caused an outcome.",
+      left() + 11, doc.y + 24, { width: tableWidth - 22, height: 27, lineGap: 2 },
     );
 
-  // Add consistent footers after all pages have been composed.
+  // PAGE 2 — One unified results table and charts
+  doc.addPage();
+  addTopRule();
+  doc.y = 27;
+  heading("Results by group",
+    `${metrics.length} selected measures · One unified table for all selected metrics`);
+
+  if (result.rows.length === 0) {
+    doc.font("Helvetica").fontSize(10).fillColor(COLORS.muted)
+      .text("No leads match this report definition.", left(), doc.y);
+  } else {
+    const labelWidth = metrics.length > 10 ? 100 : 118;
+    const metricWidth = (tableWidth - labelWidth) / Math.max(metrics.length, 1);
+    const rowHeight = 25;
+    let y = drawTableHeader(doc.y, labelWidth, metricWidth);
+
+    result.rows.forEach((row, rowIndex) => {
+      if (y + rowHeight > bottom() - 175) {
+        // Keep the table together on the results page when possible.
+        // If a report has many groups, continue the same table on a new page.
+        doc.addPage();
+        addTopRule();
+        doc.y = 27;
+        heading("Results by group — continued");
+        y = drawTableHeader(doc.y, labelWidth, metricWidth);
+      }
+
+      if (rowIndex % 2 === 1) {
+        doc.rect(left(), y, tableWidth, rowHeight).fill(COLORS.soft);
+      }
+      doc.moveTo(left(), y + rowHeight).lineTo(left() + tableWidth, y + rowHeight)
+        .lineWidth(0.35).strokeColor(COLORS.line).stroke();
+
+      doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.ink)
+        .text(formatGroupLabel(result.definition.groupBy, row.label),
+          left() + 6, y + 7, {
+            width: labelWidth - 12, height: 12, ellipsis: true,
+          });
+
+      metrics.forEach((metric, index) => {
+        const value = formatMetric(metric, row.values[metric] ?? null);
+        doc.font("Helvetica").fontSize(metrics.length > 10 ? 6.2 : 7.5)
+          .fillColor(value === "—" ? COLORS.muted : COLORS.ink)
+          .text(value,
+            left() + labelWidth + index * metricWidth + 2, y + 7, {
+              width: metricWidth - 4, height: 12, align: "right", ellipsis: true,
+            });
+      });
+      y += rowHeight;
+    });
+
+    // Compact charts sit below the table when there is room. If the table
+    // consumes the page, charts get their own continuation page instead.
+    const chartHeight = 148;
+    if (y + chartHeight + 15 > bottom()) {
+      doc.addPage();
+      addTopRule();
+      doc.y = 28;
+      heading("Group comparison charts", "Visual comparisons for selected report measures");
+      y = doc.y;
+    } else {
+      y += 13;
+    }
+
+    const chartGap = 12;
+    const chartWidth = (tableWidth - chartGap) / 2;
+    const firstChart = metrics.includes("leads") ? "leads" : metrics[0];
+    const secondChart = metrics.includes("responseRate")
+      ? "responseRate"
+      : metrics.find((metric) => metric !== firstChart) ?? firstChart;
+
+    drawHorizontalChart(left(), y, chartWidth, pdfMetricLabel(firstChart), firstChart);
+    drawHorizontalChart(
+      left() + chartWidth + chartGap,
+      y,
+      chartWidth,
+      pdfMetricLabel(secondChart),
+      secondChart,
+    );
+  }
+
+  // SUPPORTING PAGES — definitions and calculation notes
+  doc.addPage();
+  addTopRule();
+  doc.y = 30;
+  heading("Measurement details",
+    "Definitions and calculation rules for the measures selected in this report");
+
+  metrics.forEach((metric) => {
+    const definition = metricDefinition(metric);
+    const title = pdfMetricLabel(metric);
+    const description = definition?.description ?? "No additional definition is available.";
+    const format = definition?.format ? `Format: ${definition.format}.` : "";
+    const population = definition?.population
+      ? `Population: ${definition.population.replace(/_/g, " ")}.`
+      : "";
+    const note = [format, population].filter(Boolean).join(" ");
+    const needed = 38 + Math.ceil((description.length + note.length) / 105) * 10;
+    if (doc.y + needed > bottom() - 8) {
+      doc.addPage();
+      addTopRule();
+      doc.y = 30;
+      heading("Measurement details — continued");
+    }
+
+    const y = doc.y;
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(COLORS.ink)
+      .text(title, left(), y, { width: tableWidth });
+    doc.moveDown(0.25);
+    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
+      .text(description, left(), doc.y, { width: tableWidth, lineGap: 2 });
+    doc.moveDown(0.15);
+    if (note) {
+      doc.font("Helvetica-Oblique").fontSize(7.3).fillColor(COLORS.muted)
+        .text(note, left(), doc.y, { width: tableWidth });
+    }
+    doc.moveDown(0.55);
+    doc.moveTo(left(), doc.y).lineTo(left() + tableWidth, doc.y)
+      .lineWidth(0.35).strokeColor(COLORS.line).stroke();
+    doc.moveDown(0.45);
+  });
+
+  const notes = [
+    "Population and date basis: leads are included according to the saved report definition and selected date basis.",
+    "CRM contacted: based on the CRM First Contacted Time value; it is not proof that qualifying outbound activity was observed.",
+    "Observed outbound and responses: based on qualifying communication evidence available in linked timeline data.",
+    "Response rate: observed responses divided by leads with observed outbound evidence. A missing denominator is shown as a dash rather than treated as zero.",
+    "Timeline coverage: indicates linked timeline records, not proof that every communication or event was captured.",
+    "Template comparisons: matched-template uses count qualifying outbound actions, so uses can exceed the number of leads. Group comparisons are descriptive and do not establish causation.",
+  ];
+  if (doc.y + 90 > bottom()) {
+    doc.addPage();
+    addTopRule();
+    doc.y = 30;
+  }
+  heading("Interpretation and limitations");
+  notes.forEach((note) => {
+    if (doc.y + 30 > bottom()) {
+      doc.addPage();
+      addTopRule();
+      doc.y = 30;
+      heading("Interpretation and limitations — continued");
+    }
+    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
+      .text(`•  ${note}`, left() + 2, doc.y, {
+        width: tableWidth - 4, lineGap: 2,
+      });
+    doc.moveDown(0.45);
+  });
+
+  // Add footers only after the content is laid out. No footer-only pages.
   const range = doc.bufferedPageRange();
   for (let i = range.start; i < range.start + range.count; i += 1) {
     doc.switchToPage(i);
     const pageLabel = `Page ${i - range.start + 1} of ${range.count}`;
-    const y = doc.page.height - 27;
+    const y = doc.page.height - 25;
     doc.save();
-    doc.moveTo(doc.page.margins.left, y - 7)
-      .lineTo(doc.page.width - doc.page.margins.right, y - 7)
-      .lineWidth(0.5).strokeColor(COLORS.line).stroke();
-    doc.font("Helvetica").fontSize(7.5).fillColor(COLORS.muted)
-      .text("INTERNET LEAD ANALYTICS  /  MANAGEMENT REPORT", doc.page.margins.left, y, {
-        width: pageWidth() * 0.7,
-        lineBreak: false,
-      });
+    doc.moveTo(doc.page.margins.left, y - 6)
+      .lineTo(doc.page.width - doc.page.margins.right, y - 6)
+      .lineWidth(0.45).strokeColor(COLORS.line).stroke();
+    doc.font("Helvetica").fontSize(7).fillColor(COLORS.muted)
+      .text("INTERNET LEAD ANALYTICS  /  MANAGEMENT REPORT",
+        doc.page.margins.left, y, {
+          width: pageWidth() * 0.7, lineBreak: false,
+        });
     doc.text(pageLabel, doc.page.margins.left, y, {
-      width: pageWidth(),
-      align: "right",
-      lineBreak: false,
+      width: pageWidth(), align: "right", lineBreak: false,
     });
     doc.restore();
   }
