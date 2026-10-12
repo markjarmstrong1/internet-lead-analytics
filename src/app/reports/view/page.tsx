@@ -42,7 +42,10 @@ export default async function ReportViewingPage({
             }
           />
           <SectionPanel title="Report results" description="Export a PDF or CSV, review metric evidence, or investigate the included leads.">
-            <ReportResults result={result} />
+            <ReportResults
+              result={result}
+              pdfUrl={`/api/reports/${encodeURIComponent(savedReport.id)}/pdf`}
+            />
           </SectionPanel>
         </div>
       </AppShell>

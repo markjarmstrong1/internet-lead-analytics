@@ -10,8 +10,10 @@ import type {
 
 export function ReportResults({
   result,
+  pdfUrl,
 }: {
   result: ReportResult;
+  pdfUrl?: string;
 }) {
   const metrics =
     result.definition.metrics;
@@ -94,11 +96,17 @@ export function ReportResults({
         <div className="no-print flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => window.print()}
+            onClick={() => {
+              if (pdfUrl) {
+                window.location.assign(pdfUrl);
+              } else {
+                window.print();
+              }
+            }}
             disabled={result.rows.length === 0}
             className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Export PDF
+            {pdfUrl ? "Download polished PDF" : "Export PDF"}
           </button>
           <button
             type="button"
