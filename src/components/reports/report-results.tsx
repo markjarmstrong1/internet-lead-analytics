@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { metricDefinition } from "@/reports/report-catalog";
@@ -19,6 +19,52 @@ export function ReportResults({
   pdfUrl?: string;
 }) {
   const metrics = result.definition.metrics;
+  const [tableSearch, setTableSearch] = useState("");
+  const [sortKey, setSortKey] = useState<string>("label");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const filteredRows = useMemo(() => {
+    const query = tableSearch.trim().toLocaleLowerCase();
+    const matching = result.rows.filter((row) => {
+      if (!query) return true;
+      return row.label.toLocaleLowerCase().includes(query) ||
+        metrics.some((metric) => {
+          const value = row.values[metric];
+          return value != null && String(value).toLocaleLowerCase().includes(query);
+        });
+    });
+
+    return [...matching].sort((a, b) => {
+      let comparison = 0;
+      if (sortKey === "label") {
+        comparison = a.label.localeCompare(b.label);
+      } else {
+        const av = a.values[sortKey as ReportMetricKey];
+        const bv = b.values[sortKey as ReportMetricKey];
+        if (av == null && bv == null) comparison = 0;
+        else if (av == null) comparison = 1;
+        else if (bv == null) comparison = -1;
+        else comparison = av - bv;
+      }
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+  }, [result.rows, metrics, tableSearch, sortKey, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageRows = filteredRows.slice((safePage - 1) * pageSize, safePage * pageSize);
+
+  function toggleSort(key: string) {
+    if (sortKey === key) {
+      setSortDirection((direction) => direction === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDirection(key === "label" ? "asc" : "desc");
+    }
+    setCurrentPage(1);
+  }
   const [pdfOptionsOpen, setPdfOptionsOpen] = useState(false);
   const [pdfOptions, setPdfOptions] = useState<ReportPdfOptions>(
     result.definition.pdfOptions ?? DEFAULT_REPORT_PDF_OPTIONS,
@@ -409,15 +455,66 @@ export function ReportResults({
         </div>
       </details>
 
+      <section className="no-print rounded-xl border border-slate-200 bg-white p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <label className="block flex-1 text-sm font-medium text-slate-700">
+            Search report groups
+            <input
+              type="search"
+              value={tableSearch}
+              onChange={(event) => {
+                setTableSearch(event.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search group names or values…"
+              className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5"
+            />
+          </label>
+          <label className="block text-sm font-medium text-slate-700">
+            Rows per page
+            <select
+              value={pageSize}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value));
+                setCurrentPage(1);
+              }}
+              className="mt-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+            >
+              <option value={10}>10 rows</option>
+              <option value={25}>25 rows</option>
+              <option value={50}>50 rows</option>
+              <option value={100}>100 rows</option>
+            </select>
+          </label>
+          <button
+            type="button"
+            onClick={() => {
+              setTableSearch("");
+              setSortKey("label");
+              setSortDirection("asc");
+              setCurrentPage(1);
+            }}
+            className="rounded-lg border border-slate-300 px-3 py-2.5 text-sm hover:bg-slate-50"
+          >
+            Reset
+          </button>
+        </div>
+        <p className="mt-3 text-xs text-slate-500">
+          {filteredRows.length === 0 ? 0 : (safePage - 1) * pageSize + 1}
+          {"–"}{Math.min(safePage * pageSize, filteredRows.length)}
+          {" of "}{filteredRows.length} matching groups
+        </p>
+      </section>
+
       <div className="overflow-x-auto border-y border-slate-200 bg-white">
         <table className="w-full min-w-[760px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
               <th className="px-4 py-3 text-left font-semibold">
-                {result.definition.groupBy ===
-                "none"
-                  ? "Report"
-                  : "Group"}
+                <button type="button" onClick={() => toggleSort("label")} className="font-semibold hover:underline">
+                  {result.definition.groupBy === "none" ? "Report" : "Group"}
+                  {sortKey === "label" ? (sortDirection === "asc" ? " ↑" : " ↓") : ""}
+                </button>
               </th>
 
               {metrics.map(
@@ -426,9 +523,10 @@ export function ReportResults({
                     key={metric}
                     className="px-4 py-3 text-right font-semibold"
                   >
-                    {metricDefinition(
-                      metric,
-                    )?.label ?? metric}
+                    <button type="button" onClick={() => toggleSort(metric)} className="font-semibold hover:underline">
+                      {metricDefinition(metric)?.label ?? metric}
+                      {sortKey === metric ? (sortDirection === "asc" ? " ↑" : " ↓") : ""}
+                    </button>
                   </th>
                 ),
               )}
@@ -436,7 +534,7 @@ export function ReportResults({
           </thead>
 
           <tbody>
-            {result.rows.map(
+            {pageRows.map(
               (row) => {
                 const comparison = comparisonState(result, row);
 
@@ -489,7 +587,7 @@ export function ReportResults({
               },
             )}
 
-            {result.rows.length === 0 ? (
+            {filteredRows.length === 0 ? (
               <tr>
                 <td
                   colSpan={metrics.length + 1}
@@ -508,6 +606,16 @@ export function ReportResults({
           </tbody>
         </table>
       </div>
+
+      <nav className="no-print flex flex-wrap items-center justify-between gap-3" aria-label="Report table pagination">
+        <p className="text-sm text-slate-500">Page {safePage} of {totalPages}</p>
+        <div className="flex gap-2">
+          <button type="button" disabled={safePage <= 1} onClick={() => setCurrentPage(1)} className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-40">First</button>
+          <button type="button" disabled={safePage <= 1} onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-40">Previous</button>
+          <button type="button" disabled={safePage >= totalPages} onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-40">Next</button>
+          <button type="button" disabled={safePage >= totalPages} onClick={() => setCurrentPage(totalPages)} className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-40">Last</button>
+        </div>
+      </nav>
     </div>
   );
 }

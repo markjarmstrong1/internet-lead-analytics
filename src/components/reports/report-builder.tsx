@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   REPORT_DATE_BASES,
@@ -16,6 +16,7 @@ import { saveReportAction } from "@/reports/actions";
 import type {
   ReportDefinition,
   ReportMetricKey,
+  ReportResult,
   SavedReport,
 } from "@/reports/report-types";
 
@@ -49,6 +50,40 @@ export function ReportBuilder({
   const [presetSearch, setPresetSearch] = useState("");
   const [presetCategory, setPresetCategory] = useState("All questions");
   const [measureSearch, setMeasureSearch] = useState("");
+  const [preview, setPreview] = useState<ReportResult | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      setPreviewLoading(true);
+      setPreviewError(null);
+      try {
+        const response = await fetch("/api/reports/preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(draft),
+          signal: controller.signal,
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(typeof payload.error === "string" ? payload.error : "Preview could not be calculated.");
+        }
+        setPreview(payload as ReportResult);
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") return;
+        setPreviewError(error instanceof Error ? error.message : "Preview could not be calculated.");
+      } finally {
+        if (!controller.signal.aborted) setPreviewLoading(false);
+      }
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [draft]);
 
   const presetCategories = [
     "All questions",
@@ -830,6 +865,57 @@ export function ReportBuilder({
               </label>
             ))}
           </div>
+        </section>
+
+        <section className="rounded-xl border border-slate-300 bg-slate-50 p-5" aria-live="polite">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Live report preview</p>
+              <h2 className="mt-1 text-lg font-semibold text-slate-950">{draft.name || "Untitled report"}</h2>
+              <p className="mt-1 text-sm text-slate-600">Calculated using the current report configuration.</p>
+            </div>
+            <span className="text-sm text-slate-500">{previewLoading ? "Updating…" : preview ? "Preview up to date" : "Preparing preview"}</span>
+          </div>
+          {previewError ? (
+            <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{previewError}</p>
+          ) : preview ? (
+            <>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-lg border border-slate-200 bg-white p-3">
+                  <p className="text-xs text-slate-500">Matching leads</p>
+                  <p className="mt-1 text-2xl font-semibold tabular-nums">{preview.populationCount.toLocaleString()}</p>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white p-3">
+                  <p className="text-xs text-slate-500">Groups</p>
+                  <p className="mt-1 text-2xl font-semibold tabular-nums">{preview.rows.length.toLocaleString()}</p>
+                </div>
+                {draft.metrics.slice(0, 2).map((metric) => (
+                  <div key={metric} className="rounded-lg border border-slate-200 bg-white p-3">
+                    <p className="text-xs text-slate-500">{metric}</p>
+                    <p className="mt-1 text-2xl font-semibold tabular-nums">
+                      {preview.summary[metric] == null ? "—" : preview.summary[metric]!.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+                <table className="w-full min-w-[440px] text-sm">
+                  <thead className="bg-slate-100 text-left"><tr>
+                    <th className="px-3 py-2">Group</th>
+                    {draft.metrics.slice(0, 3).map((metric) => <th key={metric} className="px-3 py-2 text-right">{metric}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {preview.rows.slice(0, 5).map((row) => <tr key={row.key} className="border-t border-slate-100">
+                      <td className="max-w-[220px] truncate px-3 py-2">{row.label}</td>
+                      {draft.metrics.slice(0, 3).map((metric) => <td key={metric} className="px-3 py-2 text-right tabular-nums">{row.values[metric] == null ? "—" : row.values[metric]!.toLocaleString("en-US", { maximumFractionDigits: 2 })}</td>)}
+                    </tr>)}
+                    {preview.rows.length === 0 ? <tr><td colSpan={Math.min(draft.metrics.length, 3) + 1} className="px-3 py-5 text-center text-slate-500">No leads match these settings.</td></tr> : null}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-2 text-xs text-slate-500">Showing up to five groups. Generate the report to inspect all results and underlying leads.</p>
+            </>
+          ) : <p className="mt-4 text-sm text-slate-500">Calculating preview from current settings…</p>}
         </section>
 
         <div className="flex flex-wrap items-center gap-3 border-t border-slate-200 pt-5">
