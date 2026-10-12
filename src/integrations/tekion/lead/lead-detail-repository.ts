@@ -49,6 +49,12 @@ export type LeadTimelineEvent = {
   details: string;
   metadata: Record<string, unknown>;
   raw_data: Record<string, unknown>;
+  template_code: string | null;
+};
+
+export type LeadTemplateOption = {
+  template_code: string;
+  name: string;
 };
 
 export type LeadTimelineRecord = {
@@ -62,6 +68,7 @@ export type LeadTimelineRecord = {
 export type LeadDetailResult = {
   lead: LeadDetail;
   timeline: LeadTimelineRecord[];
+  templates: LeadTemplateOption[];
 };
 
 export async function getLeadDetail(
@@ -87,6 +94,18 @@ export async function getLeadDetail(
     return null;
   }
 
+  const { data: templateRows, error: templatesError } = await supabase
+    .from("templates")
+    .select("template_code,name")
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
+  if (templatesError) {
+    throw new Error(`Failed to load active templates: ${templatesError.message}`);
+  }
+
+  const templates: LeadTemplateOption[] = templateRows ?? [];
+
   const { data: records, error: recordsError } = await supabase
     .from("timeline_records")
     .select("*")
@@ -107,6 +126,7 @@ export async function getLeadDetail(
     return {
       lead,
       timeline: [],
+      templates,
     };
   }
 
@@ -151,5 +171,6 @@ export async function getLeadDetail(
       events:
         eventsByRecord.get(record.id) ?? [],
     })),
+    templates,
   };
 }

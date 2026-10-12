@@ -77,7 +77,10 @@ export async function LeadDetailPage({
       />
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.65fr)]">
-        <LeadDetailTimeline events={model.events} />
+        <LeadDetailTimeline
+          events={model.events}
+          templates={result.templates}
+        />
 
         <LeadDetailSummary.Analytics
           lead={result.lead}

@@ -65,6 +65,7 @@ const timeline: LeadTimelineRecord[] = [
         details: "Hello",
         metadata: {},
         raw_data: {},
+      template_code: null,
       },
       {
         id: "event-2",
@@ -81,6 +82,7 @@ const timeline: LeadTimelineRecord[] = [
         details: "Thanks",
         metadata: {},
         raw_data: {},
+      template_code: null,
       },
       {
         id: "event-3",
@@ -97,6 +99,7 @@ const timeline: LeadTimelineRecord[] = [
         details: "Follow up",
         metadata: {},
         raw_data: {},
+      template_code: null,
       },
       {
         id: "event-4",
@@ -113,6 +116,7 @@ const timeline: LeadTimelineRecord[] = [
         details: "Appt. created for Friday",
         metadata: {},
         raw_data: {},
+      template_code: null,
       },
     ],
   },

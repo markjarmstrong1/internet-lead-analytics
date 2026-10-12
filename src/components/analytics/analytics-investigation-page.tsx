@@ -1,4 +1,5 @@
 import type { DashboardAnalysis } from "@/analytics/metrics/dashboard";
+import Link from "next/link";
 import { Card, minutes } from "./analytics-section-page";
 
 export function AnalyticsInvestigationPage({
@@ -50,8 +51,19 @@ export function AnalyticsInvestigationPage({
             {rows.map((row) => (
               <tr key={row.leadId} className="hover:bg-slate-50">
                 <td className="py-3">
-                  <div className="font-medium">{row.contactName}</div>
-                  <div className="text-[10px] text-slate-400">{row.leadId}</div>
+                  <Link
+                    href={`/leads/${encodeURIComponent(row.leadId)}`}
+                    className="group inline-flex flex-col rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+                    aria-label={`Open lead ${row.contactName || row.leadId}`}
+                  >
+                    <span className="font-medium text-slate-900 group-hover:text-blue-700 group-hover:underline">
+                      {row.contactName || "Unnamed lead"}
+                      <span aria-hidden="true" className="ml-1 text-xs text-slate-400">↗</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 group-hover:text-blue-600">
+                      {row.leadId}
+                    </span>
+                  </Link>
                 </td>
                 <td className="py-3">{row.source}</td>
                 <td className="py-3">{row.stage}</td>

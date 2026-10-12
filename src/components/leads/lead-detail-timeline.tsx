@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
+import { assignTimelineEventTemplate } from "@/app/actions/assign-timeline-event-template";
 import {
   EvidenceState,
 } from "@/components/app/evidence-state";
 import { SectionPanel } from "@/components/app/section-panel";
 
 import type {
+  LeadTemplateOption,
   LeadTimelineEvent,
 } from "@/integrations/tekion/lead/lead-detail-repository";
 
@@ -17,6 +19,7 @@ import {
 
 type LeadDetailTimelineProps = {
   events: LeadTimelineEvent[];
+  templates: LeadTemplateOption[];
 };
 
 function eventMeta(
@@ -40,11 +43,30 @@ function eventKey(
 
 function EventDetails({
   event,
+  templates,
+  assignedTemplateCode,
+  onAssignTemplate,
   onClose,
 }: {
   event: LeadTimelineEvent;
+  templates: LeadTemplateOption[];
+  assignedTemplateCode: string | null;
+  onAssignTemplate: (code: string | null) => Promise<void>;
   onClose: () => void;
 }) {
+  const [savingTemplate, startTemplateTransition] = useTransition();
+  const [templateError, setTemplateError] = useState<string | null>(null);
+
+  function handleTemplateChange(code: string) {
+    setTemplateError(null);
+    startTemplateTransition(async () => {
+      try {
+        await onAssignTemplate(code || null);
+      } catch (error) {
+        setTemplateError(error instanceof Error ? error.message : "Could not save template.");
+      }
+    });
+  }
   useEffect(() => {
     function handleKeyDown(
       keyboardEvent: KeyboardEvent,
@@ -114,6 +136,35 @@ function EventDetails({
         </div>
 
         <div className="space-y-5 p-5">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <label
+              htmlFor="timeline-event-template"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-500"
+            >
+              Assigned template
+            </label>
+            <select
+              id="timeline-event-template"
+              value={assignedTemplateCode ?? ""}
+              disabled={savingTemplate}
+              onChange={(changeEvent) => handleTemplateChange(changeEvent.target.value)}
+              className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 disabled:opacity-60"
+            >
+              <option value="">No template assigned</option>
+              {templates.map((template) => (
+                <option key={template.template_code} value={template.template_code}>
+                  {template.name} ({template.template_code})
+                </option>
+              ))}
+            </select>
+            <p className="mt-2 text-xs text-slate-500">
+              {savingTemplate ? "Saving assignment…" : "Choose a template to assign or change it. Changes are saved to this timeline event."}
+            </p>
+            {templateError ? (
+              <p role="alert" className="mt-2 text-xs text-red-600">{templateError}</p>
+            ) : null}
+          </div>
+
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
               Activity
@@ -203,9 +254,26 @@ function DetailField({
 
 export function LeadDetailTimeline({
   events,
+  templates,
 }: LeadDetailTimelineProps) {
   const [selectedEvent, setSelectedEvent] =
     useState<LeadTimelineEvent | null>(null);
+  const [templateOverrides, setTemplateOverrides] =
+    useState<Record<string, string | null>>({});
+
+  function assignedCode(event: LeadTimelineEvent): string | null {
+    return Object.prototype.hasOwnProperty.call(templateOverrides, event.id)
+      ? templateOverrides[event.id]
+      : event.template_code ?? null;
+  }
+
+  async function assignTemplate(event: LeadTimelineEvent, code: string | null) {
+    const result = await assignTimelineEventTemplate(event.id, code);
+    if (!result.success) {
+      throw new Error(result.error);
+    }
+    setTemplateOverrides((current) => ({ ...current, [event.id]: code }));
+  }
 
   return (
     <>
@@ -261,6 +329,13 @@ export function LeadDetailTimeline({
                   <p className="mt-1 truncate text-xs text-slate-400">
                     {eventMeta(event) || "Imported source event"}
                   </p>
+                  <p className="mt-1 truncate text-xs">
+                    <span className="font-medium text-slate-500">Template: </span>
+                    <span className={assignedCode(event) ? "text-blue-700" : "text-slate-400"}>
+                      {templates.find((template) => template.template_code === assignedCode(event))?.name
+                        ?? (assignedCode(event) ? assignedCode(event) : "Not assigned")}
+                    </span>
+                  </p>
                 </div>
 
                 <span
@@ -278,6 +353,9 @@ export function LeadDetailTimeline({
       {selectedEvent ? (
         <EventDetails
           event={selectedEvent}
+          templates={templates}
+          assignedTemplateCode={assignedCode(selectedEvent)}
+          onAssignTemplate={(code) => assignTemplate(selectedEvent, code)}
           onClose={() => setSelectedEvent(null)}
         />
       ) : null}
