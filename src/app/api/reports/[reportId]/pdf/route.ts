@@ -267,9 +267,10 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
 
   heading("What this report covers");
   const summaryLines = [
-    `Population: ${result.populationCount.toLocaleString()} leads matched the saved report definition.`,
-    `Grouping: ${result.definition.groupBy === "none" ? "one overall result" : result.definition.groupBy}. The results table on page 2 compares these groups using the selected measures.`,
-    `Measures included: ${metrics.map(pdfMetricLabel).join(", ")}.`,
+    `Population: ${result.populationCount.toLocaleString()} leads matched the saved report definition and its filters.`,
+    `Time basis: ${formatDateBasis(result.definition.dateRange.basis)}. The selected date basis determines which date is used to include a lead or activity in the reporting period.`,
+    `Grouping: ${result.definition.groupBy === "none" ? "one overall result" : result.definition.groupBy}. Group rows organize the same selected population; they should not be interpreted as independent experiments.`,
+    `Measures included: ${metrics.map(pdfMetricLabel).join(", ")}. Definitions, calculation details, numerator and denominator evidence, and known limitations are provided in the supporting pages.`,
   ];
   summaryLines.forEach((line) => {
     doc.font("Helvetica").fontSize(9).fillColor(COLORS.ink)
@@ -278,15 +279,25 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
   });
 
   doc.moveDown(0.5);
-  doc.roundedRect(left(), doc.y, tableWidth, 56, 4)
+  const interpretationText =
+    "CRM status, linked timeline activity, and observed communications are different evidence sources. A CRM-contacted flag does not itself prove that an outbound event was observed. Rates must be read with their stated denominator; unavailable evidence is not the same as a zero result. Differences between groups or templates are descriptive and do not prove causation.";
+  const interpretationY = doc.y;
+  const interpretationTextHeight = doc.font("Helvetica").fontSize(8)
+    .heightOfString(interpretationText, {
+      width: tableWidth - 22,
+      lineGap: 2,
+    });
+  const interpretationHeight = interpretationTextHeight + 34;
+  doc.roundedRect(left(), interpretationY, tableWidth, interpretationHeight, 4)
     .fillAndStroke(COLORS.soft, COLORS.line);
   doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.ink)
-    .text("How to read the results", left() + 11, doc.y + 10);
+    .text("How to read the results", left() + 11, interpretationY + 9);
   doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
-    .text(
-      "CRM status, timeline activity, and observed communications represent different evidence sources. Response rates use the report's defined outbound population; they should not be interpreted as proof that a particular source or template caused an outcome.",
-      left() + 11, doc.y + 24, { width: tableWidth - 22, height: 27, lineGap: 2 },
-    );
+    .text(interpretationText, left() + 11, interpretationY + 23, {
+      width: tableWidth - 22,
+      lineGap: 2,
+    });
+  doc.y = interpretationY + interpretationHeight + 8;
 
   // PAGE 2 — One unified results table and charts
   doc.addPage();
