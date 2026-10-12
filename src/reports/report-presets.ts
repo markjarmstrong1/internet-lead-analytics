@@ -4,6 +4,7 @@ export type ManagementReportPreset = {
   key: string;
   label: string;
   description: string;
+  category: "Lead performance" | "Response & follow-up" | "Appointments & sales" | "Email & templates";
   name: string;
   groupBy: ReportDefinition["groupBy"];
   evidence: Partial<
@@ -15,9 +16,9 @@ export type ManagementReportPreset = {
 export const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
   {
     key: "losing-internet-leads",
-    label: "Where are we losing Internet leads?",
-    description:
-      "Focus on leads with observed outbound but no observed response, then compare where those leads come from.",
+    label: "Lead leakage",
+    description: "Find leads with observed outbound and no observed response; compare by source.",
+    category: "Lead performance",
     name: "Where are we losing Internet leads?",
     groupBy: "source",
     evidence: {
@@ -33,9 +34,9 @@ export const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
   },
   {
     key: "response-patterns",
-    label: "How quickly are people responding?",
-    description:
-      "Compare response rates and response times across lead sources, including leads with observed outbound but no observed response.",
+    label: "Response speed",
+    description: "Compare observed response rates and response times by source.",
+    category: "Response & follow-up",
     name: "How quickly are people responding?",
     groupBy: "source",
     evidence: {
@@ -52,9 +53,9 @@ export const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
   },
   {
     key: "non-responder-commonalities",
-    label: "What do non-responders have in common?",
-    description:
-      "Focus on leads with observed outbound and no observed response, then compare current stage.",
+    label: "Non-responder patterns",
+    description: "Compare leads with observed outbound and no response by current stage.",
+    category: "Lead performance",
     name: "Non-responder commonalities",
     groupBy: "stage",
     evidence: {
@@ -70,9 +71,9 @@ export const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
   },
   {
     key: "positive-outcome-patterns",
-    label: "What patterns are associated with sold / closed leads?",
-    description:
-      "Compare sources using observed activity and the current CRM Sold / Closed outcome measure.",
+    label: "Sold / closed patterns",
+    description: "Compare observed activity and recorded sold/closed outcomes by source.",
+    category: "Appointments & sales",
     name: "Patterns associated with sold / closed leads",
     groupBy: "source",
     evidence: {
@@ -89,9 +90,9 @@ export const MANAGEMENT_REPORT_PRESETS: ManagementReportPreset[] = [
   },
   {
     key: "template-usage",
-    label: "How often are matched templates being used?",
-    description:
-      "Measure total matched-template uses and average uses per lead with observed outbound. This report summarizes overall usage; individual-template attribution needs a separate action-level analysis.",
+    label: "Template usage",
+    description: "Count matched-template actions and average uses per lead.",
+    category: "Email & templates",
     name: "Matched template usage",
     groupBy: "none",
     evidence: {

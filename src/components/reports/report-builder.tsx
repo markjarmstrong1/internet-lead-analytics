@@ -15,6 +15,7 @@ import {
 import { saveReportAction } from "@/reports/actions";
 import type {
   ReportDefinition,
+  ReportMetricKey,
   SavedReport,
 } from "@/reports/report-types";
 
@@ -45,6 +46,29 @@ export function ReportBuilder({
 }: ReportBuilderProps) {
   const [draft, setDraft] =
     useState<ReportDefinition>(definition);
+  const [presetSearch, setPresetSearch] = useState("");
+  const [presetCategory, setPresetCategory] = useState("All questions");
+  const [measureSearch, setMeasureSearch] = useState("");
+
+  const presetCategories = [
+    "All questions",
+    "Lead performance",
+    "Response & follow-up",
+    "Appointments & sales",
+    "Email & templates",
+  ];
+
+  const filteredPresets = MANAGEMENT_REPORT_PRESETS.filter((preset) => {
+    const matchesCategory =
+      presetCategory === "All questions" ||
+      preset.category === presetCategory;
+    const query = presetSearch.trim().toLowerCase();
+    const matchesSearch =
+      !query ||
+      [preset.label, preset.description, preset.category, preset.name]
+        .some((value) => value.toLowerCase().includes(query));
+    return matchesCategory && matchesSearch;
+  });
 
   const selectedBasis =
     REPORT_DATE_BASES.find(
@@ -152,38 +176,56 @@ export function ReportBuilder({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-slate-200 bg-white p-5">
-        <div>
-          <p className="text-sm font-semibold">
-            Start with a management question
-          </p>
-
-          <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
-            Start with a common management question, then adjust the
-            population, grouping, evidence, and measures before generating
-            the report.
-          </p>
-        </div>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {MANAGEMENT_REPORT_PRESETS.map((preset) => (
-            <button
-              key={preset.key}
-              type="button"
-              onClick={() => applyPreset(preset)}
-              className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-slate-400 hover:bg-white"
+      <details className="group rounded-xl border border-slate-200 bg-white">
+        <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-4 py-3.5">
+          <span>
+            <span className="block text-sm font-semibold text-slate-900">Start from a management question</span>
+            <span className="mt-1 block text-xs text-slate-500">Optional shortcuts to prefill your custom report.</span>
+          </span>
+          <span className="text-xs font-medium text-slate-500">
+            {MANAGEMENT_REPORT_PRESETS.length} starting points <span className="ml-1 inline-block transition group-open:rotate-180">↓</span>
+          </span>
+        </summary>
+        <div className="space-y-3 border-t border-slate-200 p-4">
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
+            <input
+              type="search"
+              aria-label="Search management questions"
+              placeholder="Search questions or topics…"
+              value={presetSearch}
+              onChange={(event) => setPresetSearch(event.target.value)}
+              className={inputClass}
+            />
+            <select
+              aria-label="Filter management questions by category"
+              value={presetCategory}
+              onChange={(event) => setPresetCategory(event.target.value)}
+              className={inputClass}
             >
-              <span className="block text-sm font-semibold">
-                {preset.label}
-              </span>
-
-              <span className="mt-1 block text-xs leading-5 text-slate-500">
-                {preset.description}
-              </span>
-            </button>
-          ))}
+              {presetCategories.map((category) => <option key={category} value={category}>{category}</option>)}
+            </select>
+          </div>
+          {filteredPresets.length ? (
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {filteredPresets.map((preset) => (
+                <button
+                  key={preset.key}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                  className="rounded-lg border border-slate-200 bg-white p-3 text-left transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+                >
+                  <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-500">{preset.category}</span>
+                  <span className="mt-1 block text-sm font-semibold text-slate-900">{preset.label}</span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-600">{preset.description}</span>
+                  <span className="mt-2 block text-xs font-medium text-slate-700">Use this setup →</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">No matching questions. Try another search or category.</p>
+          )}
         </div>
-      </section>
+      </details>
 
       <form
         method="get"
@@ -278,6 +320,15 @@ export function ReportBuilder({
           </Field>
         </div>
 
+        <details className="group rounded-xl border border-slate-200 bg-white">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5">
+            <span>
+              <span className="block text-sm font-semibold text-slate-900">Advanced filters</span>
+              <span className="mt-1 block text-xs text-slate-500">Date range, sources, stages, templates, and evidence rules.</span>
+            </span>
+            <span className="text-xs font-medium text-slate-500">Optional <span className="ml-1 inline-block transition group-open:rotate-180">↓</span></span>
+          </summary>
+          <div className="space-y-5 border-t border-slate-200 p-4">
         <div className="grid gap-5 md:grid-cols-2">
           <Field
             label="Start date"
@@ -499,64 +550,79 @@ export function ReportBuilder({
           </div>
         </div>
 
-        <div>
-          <div className="mb-3">
-            <p className="text-sm font-semibold">
-              Measures
-            </p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              Select the measures that should appear in the generated
-              report. Each measure carries an explicit population,
-              evidence requirement, and denominator definition.
-            </p>
           </div>
+        </details>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {REPORT_MEASURES.map(
-              (metric) => {
-                const selected =
-                  draft.metrics.includes(
-                    metric.key,
-                  );
-
-                return (
-                  <label
-                    key={metric.key}
-                    className={[
-                      "flex cursor-pointer gap-3 rounded-xl border p-4 transition",
-                      selected
-                        ? "border-slate-950 bg-slate-50"
-                        : "border-slate-200 bg-white hover:border-slate-400",
-                    ].join(" ")}
-                  >
-                    <input
-                      type="checkbox"
-                      name="metric"
-                      value={metric.key}
-                      checked={selected}
-                      onChange={(event) =>
-                        toggleMetric(
-                          metric.key,
-                          event.target.checked,
-                        )
-                      }
-                      className="mt-1"
-                    />
-
-                    <span>
-                      <span className="block text-sm font-medium">
-                        {metric.label}
-                      </span>
-                      <span className="mt-1 block text-xs leading-5 text-slate-500">
-                        {metric.description}
-                      </span>
-                    </span>
-                  </label>
-                );
-              },
-            )}
+        <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Measures</p>
+              <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-500">Choose what to calculate. Each measure retains its population, evidence, and denominator rules.</p>
+              <p className="mt-2 text-xs font-medium text-slate-700">{draft.metrics.length} selected</p>
+            </div>
+            <input
+              type="search"
+              aria-label="Search report measures"
+              placeholder="Search measures…"
+              value={measureSearch}
+              onChange={(event) => setMeasureSearch(event.target.value)}
+              className={`${inputClass} sm:max-w-xs`}
+            />
           </div>
-        </div>
+          <div className="space-y-3">
+            {(["Lead & outcomes", "Response & follow-up", "Email & templates", "Data coverage"] as const).map((group) => {
+              const query = measureSearch.trim().toLowerCase();
+              const groupMetrics = REPORT_MEASURES.filter((metric) =>
+                getMeasureGroup(metric.key) === group &&
+                (!query ||
+                  metric.label.toLowerCase().includes(query) ||
+                  metric.description.toLowerCase().includes(query) ||
+                  metric.key.toLowerCase().includes(query)),
+              );
+              if (!groupMetrics.length) return null;
+              const selectedCount = groupMetrics.filter((metric) => draft.metrics.includes(metric.key)).length;
+              return (
+                <details
+                  key={group}
+                  open={group === "Lead & outcomes" || group === "Response & follow-up"}
+                  className="rounded-lg border border-slate-200"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3">
+                    <span className="text-sm font-semibold text-slate-800">{group}</span>
+                    <span className="text-xs text-slate-500">{selectedCount} of {groupMetrics.length} selected</span>
+                  </summary>
+                  <div className="grid gap-2 border-t border-slate-200 bg-slate-50/60 p-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {groupMetrics.map((metric) => {
+                      const selected = draft.metrics.includes(metric.key);
+                      return (
+                        <label
+                          key={metric.key}
+                          className={[
+                            "flex cursor-pointer gap-2.5 rounded-lg border p-3 transition",
+                            selected ? "border-slate-800 bg-white" : "border-slate-200 bg-white hover:border-slate-400",
+                          ].join(" ")}
+                        >
+                          <input
+                            type="checkbox"
+                            name="metric"
+                            value={metric.key}
+                            checked={selected}
+                            onChange={(event) => toggleMetric(metric.key, event.target.checked)}
+                            className="mt-0.5"
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-sm font-medium text-slate-900">{metric.label}</span>
+                            <span className="mt-1 block text-xs leading-5 text-slate-500">{metric.description}</span>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+        </section>
 
         <div className="flex flex-wrap items-center gap-3 border-t border-slate-200 pt-5">
           <button
@@ -624,6 +690,38 @@ export function ReportBuilder({
 }
 
 
+
+function getMeasureGroup(key: ReportMetricKey) {
+  switch (key) {
+    case "leads":
+    case "contacted":
+    case "observedOutbound":
+    case "outboundAttempts":
+    case "appointments":
+    case "soldClosed":
+      return "Lead & outcomes";
+
+    case "responded":
+    case "responseWithin24h":
+    case "responseRate":
+    case "responseWithin24hRate":
+    case "medianResponseMinutes":
+      return "Response & follow-up";
+
+    case "templateUses":
+    case "templateUsesPerLead":
+    case "emailSends":
+    case "trackedEmailSends":
+    case "emailsOpened":
+    case "emailOpens":
+    case "emailOpenRate":
+    case "emailTrackingCoverage":
+      return "Email & templates";
+
+    case "timelineCovered":
+      return "Data coverage";
+  }
+}
 
 function Field({
   label,
