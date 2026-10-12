@@ -104,7 +104,7 @@ export function ReportResults({
               }
             }}
             disabled={result.rows.length === 0}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            className="border border-slate-300 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {pdfUrl ? "Download polished PDF" : "Export PDF"}
           </button>
@@ -112,7 +112,7 @@ export function ReportResults({
             type="button"
             onClick={downloadCsv}
             disabled={result.rows.length === 0}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            className="border border-slate-300 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Export CSV
           </button>
@@ -181,7 +181,7 @@ export function ReportResults({
 
       <MetricEvidencePanel result={result} />
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto border-y border-slate-200 bg-white">
         <table className="w-full min-w-[760px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">

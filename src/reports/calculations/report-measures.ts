@@ -4,6 +4,7 @@ import {
   median,
   type LeadObservation,
 } from "@/analytics/observations/analytics-observations";
+import { buildEmailEvidence } from "@/analytics/metrics/email-evidence";
 
 export type ReportMeasureCalculationContext = {
   leads: AnalyticsLead[];
@@ -183,4 +184,56 @@ function ratio(
   return denominator === 0
     ? null
     : numerator / denominator;
+}
+
+
+function emailEvidence(context: ReportMeasureCalculationContext) {
+  return buildEmailEvidence(
+    context.observations.flatMap((observation) => observation.events),
+  );
+}
+
+export function calculateEmailSends(
+  context: ReportMeasureCalculationContext,
+): number {
+  return emailEvidence(context).length;
+}
+
+export function calculateTrackedEmailSends(
+  context: ReportMeasureCalculationContext,
+): number {
+  return emailEvidence(context).filter((email) => email.trackingKnown).length;
+}
+
+export function calculateEmailsOpened(
+  context: ReportMeasureCalculationContext,
+): number {
+  return emailEvidence(context).filter(
+    (email) => email.trackingKnown && email.opens > 0,
+  ).length;
+}
+
+export function calculateEmailOpens(
+  context: ReportMeasureCalculationContext,
+): number {
+  return emailEvidence(context)
+    .filter((email) => email.trackingKnown)
+    .reduce((total, email) => total + email.opens, 0);
+}
+
+export function calculateEmailOpenRate(
+  context: ReportMeasureCalculationContext,
+): number | null {
+  const emails = emailEvidence(context);
+  const tracked = emails.filter((email) => email.trackingKnown);
+  if (tracked.length === 0) return null;
+  return tracked.filter((email) => email.opens > 0).length / tracked.length;
+}
+
+export function calculateEmailTrackingCoverage(
+  context: ReportMeasureCalculationContext,
+): number | null {
+  const emails = emailEvidence(context);
+  if (emails.length === 0) return null;
+  return emails.filter((email) => email.trackingKnown).length / emails.length;
 }

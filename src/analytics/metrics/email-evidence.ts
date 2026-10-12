@@ -8,6 +8,7 @@ export type EmailEvidence = {
   templateCode: string | null;
   opens: number;
   clicks: number;
+  trackingKnown: boolean;
   opened: boolean;
   firstInbound: AnalyticsEvent | null;
   firstInboundChannel: string | null;
@@ -34,11 +35,13 @@ export function parseEmailEvidence(
 ): {
   opens: number;
   clicks: number;
+  trackingKnown: boolean;
 } {
   if (!isEmailSent(event)) {
     return {
       opens: 0,
       clicks: 0,
+      trackingKnown: false,
     };
   }
 
@@ -49,12 +52,14 @@ export function parseEmailEvidence(
     return {
       opens: 0,
       clicks: 0,
+      trackingKnown: false,
     };
   }
 
   return {
     opens: Number(match[1]),
     clicks: Number(match[2]),
+    trackingKnown: true,
   };
 }
 
@@ -84,7 +89,8 @@ export function buildEmailEvidence(
           null,
         opens: evidence.opens,
         clicks: evidence.clicks,
-        opened: evidence.opens > 0,
+        trackingKnown: evidence.trackingKnown,
+        opened: evidence.trackingKnown && evidence.opens > 0,
         firstInbound,
         firstInboundChannel:
           firstInbound?.channel ?? null,

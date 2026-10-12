@@ -37,7 +37,13 @@ export type ReportMetricKey =
   | "medianResponseMinutes"
   | "outboundAttempts"
   | "templateUses"
-  | "templateUsesPerLead";
+  | "templateUsesPerLead"
+  | "emailSends"
+  | "trackedEmailSends"
+  | "emailsOpened"
+  | "emailOpens"
+  | "emailOpenRate"
+  | "emailTrackingCoverage";
 
 export type ReportMeasureEvidence =
   | "none"
@@ -65,6 +71,7 @@ export type ReportMeasure = {
   population: ReportMeasurePopulation;
   evidence: ReportMeasureEvidence;
   denominator: ReportMetricKey | null;
+  numerator?: ReportMetricKey | null;
   calculate: (
     context: ReportMeasureCalculationContext,
   ) => number | null;

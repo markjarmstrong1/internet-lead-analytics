@@ -112,11 +112,12 @@ export function buildReport(
     );
 
     const numeratorMetric: ReportMetricKey | null =
-      metric === "responseRate"
+      measure.numerator ??
+      (metric === "responseRate"
         ? "responded"
         : metric === "responseWithin24hRate"
           ? "responseWithin24h"
-          : null;
+          : null);
 
     summaryDiagnostics[metric] = {
       population: measure.population,

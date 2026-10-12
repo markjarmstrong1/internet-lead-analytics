@@ -1,0 +1,4192 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f7f4;
+  --foreground: #172033;
+  --surface: #ffffff;
+  --surface-muted: #f3f4f1;
+  --surface-elevated: #ffffff;
+  --border: #e2e5e1;
+  --border-strong: #cbd1cc;
+  --muted: #667085;
+  --muted-strong: #475467;
+
+  --accent: #b28a3b;
+  --accent-strong: #96732f;
+  --accent-soft: #f7f1e4;
+  --accent-contrast: #ffffff;
+
+  --sidebar: #151a20;
+  --sidebar-muted: #9aa3ad;
+  --sidebar-border: #29313a;
+
+  --success: #16805a;
+  --success-soft: #e8f5ef;
+  --warning: #a66b00;
+  --warning-soft: #fff4dc;
+  --danger: #c2413b;
+  --danger-soft: #fcebea;
+
+  --button-primary: var(--foreground);
+  --button-primary-foreground: #ffffff;
+  --button-primary-hover: color-mix(in srgb, var(--foreground) 88%, black);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --content-density: 1;
+  --motion-duration: 150ms;
+
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-elevated: 0 12px 30px rgba(16, 24, 40, 0.08);
+
+  --chart-grid: #e2e5e1;
+  --chart-line: #667085;
+  --chart-accent: #b28a3b;
+
+  --display-font: var(--font-geist-sans);
+  --data-font: var(--font-geist-mono);
+}
+
+/* -------------------------------------------------------------------------- */
+/* PROFESSIONAL                                                               */
+/* -------------------------------------------------------------------------- */
+
+[data-theme="professional"] {
+  --background: #f7f7f4;
+  --foreground: #172033;
+  --surface: #ffffff;
+  --surface-muted: #f3f4f1;
+  --surface-elevated: #ffffff;
+  --border: #e2e5e1;
+  --border-strong: #cbd1cc;
+  --muted: #667085;
+  --muted-strong: #475467;
+
+  --accent: #b28a3b;
+  --accent-strong: #96732f;
+  --accent-soft: #f7f1e4;
+  --accent-contrast: #ffffff;
+
+  --sidebar: #151a20;
+  --sidebar-muted: #9aa3ad;
+  --sidebar-border: #29313a;
+
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-elevated: 0 12px 30px rgba(16, 24, 40, 0.08);
+
+  --chart-grid: #e2e5e1;
+  --chart-line: #667085;
+  --chart-accent: #b28a3b;
+}
+
+/* -------------------------------------------------------------------------- */
+/* TECH / F1                                                                  */
+/* -------------------------------------------------------------------------- */
+
+[data-theme="tech"] {
+  --background: #06080b;
+  --foreground: #e8f0f5;
+  --surface: #0d1217;
+  --surface-muted: #111920;
+  --surface-elevated: #151d24;
+  --border: #23303a;
+  --border-strong: #344550;
+  --muted: #778894;
+  --muted-strong: #b5c5cf;
+
+  --accent: #25d8ff;
+  --accent-strong: #6be5ff;
+  --accent-soft: rgba(37, 216, 255, 0.11);
+  --accent-contrast: #041014;
+
+  --sidebar: #030507;
+  --sidebar-muted: #6f818c;
+  --sidebar-border: #1b262e;
+
+  --success: #20d18a;
+  --success-soft: rgba(32, 209, 138, 0.12);
+  --warning: #ffc247;
+  --warning-soft: rgba(255, 194, 71, 0.12);
+  --danger: #ff5b68;
+  --danger-soft: rgba(255, 91, 104, 0.12);
+
+  --button-primary: #25d8ff;
+  --button-primary-foreground: #031016;
+  --button-primary-hover: #6be5ff;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  --shadow-card:
+    0 0 0 1px rgba(37, 216, 255, 0.025),
+    0 10px 30px rgba(0, 0, 0, 0.24);
+
+  --shadow-elevated:
+    0 0 28px rgba(37, 216, 255, 0.08),
+    0 18px 50px rgba(0, 0, 0, 0.45);
+
+  --chart-grid: rgba(37, 216, 255, 0.12);
+  --chart-line: #8195a2;
+  --chart-accent: #25d8ff;
+
+  --display-font: var(--font-geist-sans);
+  --data-font: var(--font-geist-mono);
+}
+
+[data-theme="tech"] {
+  background-image:
+    linear-gradient(rgba(37, 216, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 216, 255, 0.018) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+[data-theme="tech"] body {
+  letter-spacing: 0;
+}
+
+[data-theme="tech"] h1,
+[data-theme="tech"] h2,
+[data-theme="tech"] h3,
+[data-theme="tech"] h4 {
+  letter-spacing: -0.035em;
+}
+
+[data-theme="tech"] table {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] table th {
+  font-family: var(--data-font);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-theme="tech"] input,
+[data-theme="tech"] select,
+[data-theme="tech"] textarea {
+  background: #090e13;
+  border-color: #263640;
+  color: var(--foreground);
+  border-radius: var(--radius-md);
+}
+
+[data-theme="tech"] input:focus,
+[data-theme="tech"] select:focus,
+[data-theme="tech"] textarea:focus {
+  box-shadow: 0 0 0 1px var(--accent), 0 0 18px rgba(37, 216, 255, 0.12);
+}
+
+[data-theme="tech"] header {
+  background: rgba(7, 10, 13, 0.92) !important;
+  backdrop-filter: blur(14px);
+}
+
+[data-theme="tech"] aside {
+  box-shadow: 8px 0 30px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="tech"] .theme-technical {
+  background-image:
+    linear-gradient(rgba(37, 216, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 216, 255, 0.035) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+[data-theme="tech"] .theme-density {
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------- */
+/* EXECUTIVE                                                                  */
+/* -------------------------------------------------------------------------- */
+
+[data-theme="executive"] {
+  --background: #f3f1ec;
+  --foreground: #172234;
+  --surface: #fbfaf7;
+  --surface-muted: #eae8e2;
+  --surface-elevated: #ffffff;
+  --border: #d9d7d0;
+  --border-strong: #bdbbb3;
+  --muted: #687383;
+  --muted-strong: #3d4858;
+
+  --accent: #36516f;
+  --accent-strong: #263e59;
+  --accent-soft: #e6ebf1;
+  --accent-contrast: #ffffff;
+
+  --sidebar: #101a27;
+  --sidebar-muted: #9da9b7;
+  --sidebar-border: #283546;
+
+  --success: #21775b;
+  --success-soft: #e4f0eb;
+  --warning: #9a6b22;
+  --warning-soft: #f5ecda;
+  --danger: #aa4b4b;
+  --danger-soft: #f5e5e5;
+
+  --button-primary: #172234;
+  --button-primary-foreground: #ffffff;
+  --button-primary-hover: #26364d;
+
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --shadow-card: 0 1px 3px rgba(20, 29, 41, 0.035);
+  --shadow-elevated: 0 18px 45px rgba(20, 29, 41, 0.09);
+
+  --chart-grid: #dddcd6;
+  --chart-line: #6d7784;
+  --chart-accent: #36516f;
+
+  --display-font: Georgia, "Times New Roman", serif;
+}
+
+[data-theme="executive"] h1,
+[data-theme="executive"] h2 {
+  font-family: var(--display-font);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+[data-theme="executive"] h3,
+[data-theme="executive"] h4 {
+  letter-spacing: -0.015em;
+}
+
+[data-theme="executive"] header {
+  background: rgba(251, 250, 247, 0.96) !important;
+}
+
+[data-theme="executive"] aside {
+  box-shadow: 4px 0 24px rgba(16, 26, 39, 0.08);
+}
+
+[data-theme="executive"] .theme-density {
+  letter-spacing: 0.005em;
+}
+
+/* -------------------------------------------------------------------------- */
+/* PERFORMANCE                                                                */
+/* -------------------------------------------------------------------------- */
+
+[data-theme="performance"] {
+  --background: #e9edf0;
+  --foreground: #111a22;
+  --surface: #ffffff;
+  --surface-muted: #dfe5e9;
+  --surface-elevated: #ffffff;
+  --border: #c7d0d6;
+  --border-strong: #aeb9c1;
+  --muted: #5e6c77;
+  --muted-strong: #34414a;
+
+  --accent: #ef8b22;
+  --accent-strong: #c96d0e;
+  --accent-soft: #fff0dc;
+  --accent-contrast: #ffffff;
+
+  --sidebar: #151c22;
+  --sidebar-muted: #8e9ba4;
+  --sidebar-border: #2c363e;
+
+  --success: #07945e;
+  --success-soft: #def4ea;
+  --warning: #d48700;
+  --warning-soft: #fff0d0;
+  --danger: #d63d49;
+  --danger-soft: #fde3e5;
+
+  --button-primary: #111a22;
+  --button-primary-foreground: #ffffff;
+  --button-primary-hover: #25313a;
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+
+  --shadow-card: 0 1px 2px rgba(17, 26, 34, 0.08);
+  --shadow-elevated: 0 8px 24px rgba(17, 26, 34, 0.12);
+
+  --chart-grid: #cbd3d8;
+  --chart-line: #586771;
+  --chart-accent: #ef8b22;
+
+  --data-font: var(--font-geist-mono);
+}
+
+[data-theme="performance"] h1,
+[data-theme="performance"] h2,
+[data-theme="performance"] h3,
+[data-theme="performance"] h4 {
+  letter-spacing: -0.035em;
+}
+
+[data-theme="performance"] table {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="performance"] table th {
+  font-family: var(--data-font);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+[data-theme="performance"] header {
+  background: rgba(255, 255, 255, 0.94) !important;
+}
+
+[data-theme="performance"] aside {
+  box-shadow: 6px 0 20px rgba(17, 26, 34, 0.12);
+}
+
+/* -------------------------------------------------------------------------- */
+/* ACCENTS                                                                    */
+/* -------------------------------------------------------------------------- */
+
+[data-accent="blue"] {
+  --accent: #3674d9;
+  --accent-strong: #285bb2;
+  --accent-soft: #eaf1fd;
+  --accent-contrast: #ffffff;
+  --chart-accent: #3674d9;
+}
+
+[data-accent="cyan"] {
+  --accent: #18a8c7;
+  --accent-strong: #11859f;
+  --accent-soft: #e5f7fa;
+  --accent-contrast: #ffffff;
+  --chart-accent: #18a8c7;
+}
+
+[data-accent="violet"] {
+  --accent: #7657c7;
+  --accent-strong: #5f43a9;
+  --accent-soft: #f0ebfb;
+  --accent-contrast: #ffffff;
+  --chart-accent: #7657c7;
+}
+
+[data-accent="red"] {
+  --accent: #c84b4b;
+  --accent-strong: #a83a3a;
+  --accent-soft: #fcebea;
+  --accent-contrast: #ffffff;
+  --chart-accent: #c84b4b;
+}
+
+/* -------------------------------------------------------------------------- */
+/* DENSITY                                                                    */
+/* -------------------------------------------------------------------------- */
+
+[data-density="comfortable"] {
+  --content-density: 1.16;
+}
+
+[data-density="standard"] {
+  --content-density: 1;
+}
+
+[data-density="dense"] {
+  --content-density: 0.86;
+}
+
+[data-density="dense"] .theme-density {
+  --density-space: 0.86rem;
+}
+
+[data-density="comfortable"] .theme-density {
+  --density-space: 1.16rem;
+}
+
+[data-density="standard"] .theme-density {
+  --density-space: 1rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* RADIUS                                                                     */
+/* -------------------------------------------------------------------------- */
+
+[data-radius="sharp"] {
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+}
+
+[data-radius="standard"] {
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+[data-radius="rounded"] {
+  --radius-sm: 9px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* MOTION                                                                     */
+/* -------------------------------------------------------------------------- */
+
+[data-motion="full"] {
+  --motion-duration: 150ms;
+}
+
+[data-motion="reduced"] {
+  --motion-duration: 80ms;
+}
+
+[data-motion="minimal"] {
+  --motion-duration: 0ms;
+}
+
+[data-motion="minimal"] *,
+[data-motion="minimal"] *::before,
+[data-motion="minimal"] *::after {
+  scroll-behavior: auto !important;
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
+  animation-iteration-count: 1 !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CHARTS                                                                     */
+/* -------------------------------------------------------------------------- */
+
+[data-chart="technical"] {
+  --chart-grid: color-mix(in srgb, var(--accent) 18%, transparent);
+  --chart-line: var(--muted-strong);
+}
+
+[data-chart="minimal"] {
+  --chart-grid: transparent;
+}
+
+/* -------------------------------------------------------------------------- */
+/* GLOBAL                                                                     */
+/* -------------------------------------------------------------------------- */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  background: var(--background);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+.theme-radius-sm {
+  border-radius: var(--radius-sm);
+}
+
+.theme-radius-md {
+  border-radius: var(--radius-md);
+}
+
+.theme-radius-lg {
+  border-radius: var(--radius-lg);
+}
+
+.theme-density {
+  --density-space: calc(1rem * var(--content-density));
+}
+
+/* ==========================================================================
+   THEME PERSONALITY SYSTEM
+   Same components. Different product experiences.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   SHARED COMPONENT LANGUAGE
+   -------------------------------------------------------------------------- */
+
+.theme-density {
+  position: relative;
+}
+
+[data-theme] button,
+[data-theme] a,
+[data-theme] input,
+[data-theme] select,
+[data-theme] textarea {
+  transition:
+    background-color var(--motion-duration) ease,
+    border-color var(--motion-duration) ease,
+    color var(--motion-duration) ease,
+    box-shadow var(--motion-duration) ease,
+    transform var(--motion-duration) ease;
+}
+
+[data-theme] table {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme] table tbody tr {
+  transition:
+    background-color var(--motion-duration) ease,
+    box-shadow var(--motion-duration) ease;
+}
+
+/* --------------------------------------------------------------------------
+   PROFESSIONAL
+   Management intelligence / financial BI
+   -------------------------------------------------------------------------- */
+
+[data-theme="professional"] main {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55) 0,
+      rgba(255, 255, 255, 0) 320px
+    );
+}
+
+[data-theme="professional"] h1 {
+  letter-spacing: -0.04em;
+}
+
+[data-theme="professional"] section,
+[data-theme="professional"] article {
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme="professional"] table thead {
+  background: var(--surface-muted);
+}
+
+[data-theme="professional"] table th {
+  color: var(--muted-strong);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-theme="professional"] table tbody tr:hover {
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+[data-theme="professional"] aside a[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   TECH
+   F1 telemetry / engineering workstation
+   -------------------------------------------------------------------------- */
+
+[data-theme="tech"] {
+  --tech-cyan: #28d9ff;
+  --tech-cyan-soft: rgba(40, 217, 255, 0.09);
+  --tech-green: #26e39a;
+  --tech-yellow: #ffd166;
+  --tech-red: #ff5364;
+  --tech-grid: rgba(40, 217, 255, 0.045);
+  --tech-grid-fine: rgba(40, 217, 255, 0.018);
+}
+
+[data-theme="tech"] body {
+  background:
+    radial-gradient(
+      circle at 70% -10%,
+      rgba(40, 217, 255, 0.07),
+      transparent 34rem
+    ),
+    var(--background);
+}
+
+[data-theme="tech"] main {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(40, 217, 255, 0.025),
+      transparent 240px
+    );
+}
+
+[data-theme="tech"] main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--tech-grid-fine) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tech-grid-fine) 1px, transparent 1px),
+    linear-gradient(var(--tech-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tech-grid) 1px, transparent 1px);
+  background-size:
+    8px 8px,
+    8px 8px,
+    80px 80px,
+    80px 80px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+[data-theme="tech"] h1,
+[data-theme="tech"] h2,
+[data-theme="tech"] h3,
+[data-theme="tech"] h4 {
+  letter-spacing: -0.035em;
+}
+
+[data-theme="tech"] h1 {
+  font-weight: 650;
+}
+
+[data-theme="tech"] header {
+  background: rgba(6, 8, 11, 0.9) !important;
+  border-color: #1d2b34 !important;
+  backdrop-filter: blur(16px);
+}
+
+[data-theme="tech"] aside {
+  background:
+    linear-gradient(
+      180deg,
+      #030507 0%,
+      #05090c 100%
+    ) !important;
+  border-right-color: #1a2831 !important;
+  box-shadow: 8px 0 36px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="tech"] aside::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    transparent 5%,
+    var(--tech-cyan) 45%,
+    transparent 80%
+  );
+  opacity: 0.45;
+}
+
+[data-theme="tech"] aside a {
+  border-radius: 3px !important;
+  font-family: var(--data-font);
+  font-size: 11px;
+  letter-spacing: 0.025em;
+}
+
+[data-theme="tech"] aside a:hover {
+  background: var(--tech-cyan-soft) !important;
+  color: #e6fbff !important;
+}
+
+[data-theme="tech"] aside a[aria-current="page"] {
+  position: relative;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(40, 217, 255, 0.16),
+      rgba(40, 217, 255, 0.025)
+    ) !important;
+  color: #e8fbff !important;
+  box-shadow: inset 2px 0 0 var(--tech-cyan);
+}
+
+[data-theme="tech"] section,
+[data-theme="tech"] article {
+  position: relative;
+  overflow: hidden;
+  border-color: #23343e !important;
+  border-radius: 5px !important;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.018),
+      transparent 42%
+    ),
+    var(--surface) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 10px 30px rgba(0, 0, 0, 0.22) !important;
+}
+
+[data-theme="tech"] section::before,
+[data-theme="tech"] article::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 1px;
+  background: var(--tech-cyan);
+  opacity: 0.75;
+}
+
+[data-theme="tech"] section > div:first-child {
+  border-color: #23343e !important;
+}
+
+[data-theme="tech"] section h2 {
+  font-family: var(--data-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+[data-theme="tech"] article p.text-3xl,
+[data-theme="tech"] article p.text-2xl,
+[data-theme="tech"] article p.text-xl {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="tech"] article p.text-3xl::after,
+[data-theme="tech"] article p.text-2xl::after {
+  content: "";
+}
+
+[data-theme="tech"] table thead {
+  background: #080d11 !important;
+}
+
+[data-theme="tech"] table th {
+  border-color: #22323b !important;
+  color: #708894 !important;
+  font-family: var(--data-font);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-theme="tech"] table tbody tr {
+  border-color: #1a2830 !important;
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(40, 217, 255, 0.045) !important;
+  box-shadow: inset 2px 0 0 var(--tech-cyan);
+}
+
+[data-theme="tech"] input,
+[data-theme="tech"] select,
+[data-theme="tech"] textarea {
+  border-color: #273944;
+  background: #080d11;
+  color: var(--foreground);
+  font-family: var(--data-font);
+  font-size: 12px;
+  border-radius: 3px;
+}
+
+[data-theme="tech"] input:focus,
+[data-theme="tech"] select:focus,
+[data-theme="tech"] textarea:focus {
+  border-color: var(--tech-cyan);
+  box-shadow:
+    0 0 0 1px var(--tech-cyan),
+    0 0 22px rgba(40, 217, 255, 0.12);
+}
+
+[data-theme="tech"] input::placeholder,
+[data-theme="tech"] textarea::placeholder {
+  color: #4f626d;
+}
+
+[data-theme="tech"] button {
+  border-radius: 3px;
+}
+
+[data-theme="tech"] button:hover {
+  box-shadow: inset 0 0 0 1px rgba(40, 217, 255, 0.12);
+}
+
+[data-theme="tech"] [class*="bg-white"] {
+  background-color: var(--surface) !important;
+}
+
+[data-theme="tech"] [class*="bg-white/"] {
+  background-color: color-mix(
+    in srgb,
+    var(--surface) 94%,
+    transparent
+  ) !important;
+}
+
+[data-theme="tech"] [class*="shadow-sm"] {
+  box-shadow: 0 0 0 1px #23343e !important;
+}
+
+[data-theme="tech"] .theme-technical {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="tech"] .theme-technical::after {
+  content: "SYSTEM / LIVE";
+  position: absolute;
+  top: 11px;
+  right: 14px;
+  font-family: var(--data-font);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--tech-cyan);
+  opacity: 0.65;
+}
+
+[data-theme="tech"] .tabular-nums {
+  font-family: var(--data-font);
+}
+
+[data-theme="tech"] [class*="text-[11px]"] {
+  letter-spacing: 0.08em;
+}
+
+[data-theme="tech"] ::selection {
+  background: var(--tech-cyan);
+  color: #020b0f;
+}
+
+[data-theme="tech"] ::-webkit-scrollbar-thumb {
+  background: #2d424d;
+}
+
+[data-theme="tech"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--tech-cyan);
+}
+
+/* --------------------------------------------------------------------------
+   EXECUTIVE
+   Boardroom / premium editorial intelligence
+   -------------------------------------------------------------------------- */
+
+[data-theme="executive"] {
+  --executive-ink: #172234;
+  --executive-navy: #304a66;
+  --executive-rule: #d9d6ce;
+}
+
+[data-theme="executive"] body {
+  background:
+    radial-gradient(
+      circle at 90% 0,
+      rgba(48, 74, 102, 0.055),
+      transparent 34rem
+    ),
+    var(--background);
+}
+
+[data-theme="executive"] main {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.42),
+      transparent 360px
+    );
+}
+
+[data-theme="executive"] h1,
+[data-theme="executive"] h2 {
+  font-family: var(--display-font);
+  font-weight: 500;
+}
+
+[data-theme="executive"] h1 {
+  font-size: clamp(2rem, 3vw, 3rem);
+  letter-spacing: -0.045em;
+}
+
+[data-theme="executive"] h2 {
+  letter-spacing: -0.025em;
+}
+
+[data-theme="executive"] header {
+  background: rgba(251, 250, 247, 0.94) !important;
+  border-color: var(--executive-rule) !important;
+  backdrop-filter: blur(14px);
+}
+
+[data-theme="executive"] aside {
+  background: #101a27 !important;
+  border-right-color: #263547 !important;
+  box-shadow: 4px 0 26px rgba(16, 26, 39, 0.09);
+}
+
+[data-theme="executive"] section,
+[data-theme="executive"] article {
+  box-shadow: 0 1px 3px rgba(20, 29, 41, 0.035) !important;
+}
+
+[data-theme="executive"] section > div:first-child {
+  border-color: var(--executive-rule) !important;
+}
+
+[data-theme="executive"] article p.text-3xl,
+[data-theme="executive"] article p.text-2xl,
+[data-theme="executive"] article p.text-xl {
+  font-family: var(--display-font);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+[data-theme="executive"] table th {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: rgba(48, 74, 102, 0.035);
+}
+
+[data-theme="executive"] button {
+  letter-spacing: -0.005em;
+}
+
+/* --------------------------------------------------------------------------
+   PERFORMANCE
+   Race control / operating room
+   -------------------------------------------------------------------------- */
+
+[data-theme="performance"] {
+  --race-orange: #ef8b22;
+  --race-orange-soft: rgba(239, 139, 34, 0.11);
+  --race-green: #07945e;
+  --race-red: #d63d49;
+  --race-line: #c7d0d6;
+}
+
+[data-theme="performance"] body {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(17, 26, 34, 0.035),
+      transparent 300px
+    ),
+    var(--background);
+}
+
+[data-theme="performance"] main {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(17, 26, 34, 0.018) 40px
+    );
+}
+
+[data-theme="performance"] h1,
+[data-theme="performance"] h2,
+[data-theme="performance"] h3,
+[data-theme="performance"] h4 {
+  letter-spacing: -0.04em;
+}
+
+[data-theme="performance"] header {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="performance"] aside {
+  background: #151c22 !important;
+  border-right-color: #2c363e !important;
+  box-shadow: 6px 0 22px rgba(17, 26, 34, 0.12);
+}
+
+[data-theme="performance"] section,
+[data-theme="performance"] article {
+  border-radius: 5px !important;
+  box-shadow: 0 1px 2px rgba(17, 26, 34, 0.08) !important;
+}
+
+[data-theme="performance"] section > div:first-child {
+  border-color: var(--race-line) !important;
+}
+
+[data-theme="performance"] section h2 {
+  font-size: 14px;
+}
+
+[data-theme="performance"] article p.text-3xl,
+[data-theme="performance"] article p.text-2xl,
+[data-theme="performance"] article p.text-xl {
+  font-family: var(--data-font);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="performance"] table {
+  font-size: 12px;
+}
+
+[data-theme="performance"] table thead {
+  background: #edf1f3 !important;
+}
+
+[data-theme="performance"] table th {
+  color: #53616b !important;
+  font-family: var(--data-font);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: var(--race-orange-soft) !important;
+  box-shadow: inset 3px 0 0 var(--race-orange);
+}
+
+[data-theme="performance"] aside a[aria-current="page"] {
+  background: var(--race-orange-soft) !important;
+  color: #f2a34e !important;
+  box-shadow: inset 3px 0 0 var(--race-orange);
+}
+
+[data-theme="performance"] input,
+[data-theme="performance"] select,
+[data-theme="performance"] textarea {
+  border-radius: 4px;
+}
+
+[data-theme="performance"] .tabular-nums {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   THEME-AWARE PAGE HEADERS
+   -------------------------------------------------------------------------- */
+
+[data-theme="tech"] header h1 {
+  position: relative;
+}
+
+[data-theme="tech"] header h1::after {
+  content: "•";
+  display: inline-block;
+  margin-left: 8px;
+  color: var(--tech-cyan);
+  font-family: var(--data-font);
+  font-size: 12px;
+  vertical-align: middle;
+  opacity: 0.8;
+}
+
+[data-theme="performance"] header h1 {
+  position: relative;
+}
+
+[data-theme="performance"] header h1::before {
+  content: "01";
+  display: inline-block;
+  margin-right: 10px;
+  color: var(--race-orange);
+  font-family: var(--data-font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  vertical-align: middle;
+}
+
+[data-theme="executive"] header {
+  padding-bottom: calc(1.75rem * var(--content-density));
+}
+
+/* --------------------------------------------------------------------------
+   DENSITY BEHAVIOR
+   -------------------------------------------------------------------------- */
+
+[data-density="comfortable"] {
+  --content-density: 1.16;
+}
+
+[data-density="standard"] {
+  --content-density: 1;
+}
+
+[data-density="dense"] {
+  --content-density: 0.86;
+}
+
+[data-density="dense"] .theme-density {
+  --density-space: 0.86rem;
+}
+
+[data-density="comfortable"] .theme-density {
+  --density-space: 1.16rem;
+}
+
+[data-density="standard"] .theme-density {
+  --density-space: 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   RADIUS / MOTION / CHARTS
+   -------------------------------------------------------------------------- */
+
+[data-radius="sharp"] {
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+}
+
+[data-radius="standard"] {
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+[data-radius="rounded"] {
+  --radius-sm: 9px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+[data-motion="full"] {
+  --motion-duration: 150ms;
+}
+
+[data-motion="reduced"] {
+  --motion-duration: 80ms;
+}
+
+[data-motion="minimal"] {
+  --motion-duration: 0ms;
+}
+
+[data-motion="minimal"] *,
+[data-motion="minimal"] *::before,
+[data-motion="minimal"] *::after {
+  scroll-behavior: auto !important;
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
+  animation-iteration-count: 1 !important;
+}
+
+[data-chart="technical"] {
+  --chart-grid: color-mix(in srgb, var(--accent) 18%, transparent);
+  --chart-line: var(--muted-strong);
+}
+
+[data-chart="minimal"] {
+  --chart-grid: transparent;
+}
+
+/* ==========================================================================
+   THEME EXPERIENCES
+   Same product architecture. Different operating environments.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Signature components
+   -------------------------------------------------------------------------- */
+
+.theme-signature {
+  overflow: hidden;
+}
+
+.theme-signature-professional,
+.theme-signature-tech,
+.theme-signature-executive,
+.theme-signature-performance {
+  min-height: 68px;
+}
+
+[data-theme="professional"] .theme-signature-professional,
+[data-theme="tech"] .theme-signature-tech,
+[data-theme="executive"] .theme-signature-executive,
+[data-theme="performance"] .theme-signature-performance {
+  display: flex;
+}
+
+.theme-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--tech-green);
+  box-shadow: 0 0 12px rgba(38, 227, 154, 0.7);
+}
+
+.theme-performance-marker {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent);
+  color: var(--accent-strong);
+  font: 700 10px var(--data-font);
+}
+
+.theme-performance-rule {
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0 18px,
+    transparent 18px 24px
+  );
+  opacity: 0.55;
+}
+
+/* --------------------------------------------------------------------------
+   Shared theme-aware chart language
+   -------------------------------------------------------------------------- */
+
+.theme-chart-bar {
+  transition:
+    width var(--motion-duration) ease,
+    opacity var(--motion-duration) ease;
+}
+
+[data-theme="professional"] .theme-chart-bar {
+  background: var(--accent) !important;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  background: linear-gradient(
+    90deg,
+    var(--tech-cyan),
+    #7ef2ff
+  ) !important;
+  box-shadow: 0 0 10px rgba(40, 217, 255, 0.18);
+}
+
+[data-theme="executive"] .theme-chart-bar {
+  background: var(--accent) !important;
+  border-radius: 2px !important;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  background: var(--accent) !important;
+  border-radius: 1px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard composition
+   -------------------------------------------------------------------------- */
+
+.dashboard-kpis {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+[data-theme="executive"] .dashboard-kpis {
+  grid-template-columns:
+    minmax(180px, 1.35fr)
+    repeat(4, minmax(0, 1fr));
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 2px !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+[data-theme="performance"] .dashboard-kpis article {
+  border-radius: 3px !important;
+}
+
+[data-theme="executive"] .dashboard-secondary {
+  max-width: 1100px;
+}
+
+[data-theme="tech"] .dashboard-secondary {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="performance"] .dashboard-secondary {
+  font-size: 0.92em;
+}
+
+[data-theme="performance"] .dashboard-secondary section > div:last-child {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Professional: financial intelligence
+   -------------------------------------------------------------------------- */
+
+[data-theme="professional"] .dashboard-kpis article {
+  position: relative;
+}
+
+[data-theme="professional"] .dashboard-kpis article::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.35;
+}
+
+[data-theme="professional"] .theme-signature {
+  border-top: 2px solid var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Tech: engineering workstation / telemetry
+   -------------------------------------------------------------------------- */
+
+[data-theme="tech"] {
+  --tech-cyan: #28d9ff;
+  --tech-cyan-soft: rgba(40, 217, 255, 0.09);
+  --tech-green: #26e39a;
+  --tech-yellow: #ffd166;
+  --tech-red: #ff5364;
+  --tech-grid: rgba(40, 217, 255, 0.045);
+  --tech-grid-fine: rgba(40, 217, 255, 0.018);
+}
+
+[data-theme="tech"] body {
+  background:
+    radial-gradient(
+      circle at 70% -10%,
+      rgba(40, 217, 255, 0.07),
+      transparent 34rem
+    ),
+    var(--background);
+}
+
+[data-theme="tech"] main {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(40, 217, 255, 0.025),
+      transparent 240px
+    );
+}
+
+[data-theme="tech"] main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--tech-grid-fine) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tech-grid-fine) 1px, transparent 1px),
+    linear-gradient(var(--tech-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tech-grid) 1px, transparent 1px);
+  background-size:
+    8px 8px,
+    8px 8px,
+    80px 80px,
+    80px 80px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+[data-theme="tech"] aside a {
+  border-radius: 3px !important;
+  font-family: var(--data-font);
+  font-size: 11px;
+  letter-spacing: 0.025em;
+}
+
+[data-theme="tech"] aside a[aria-current="page"] {
+  position: relative;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(40, 217, 255, 0.16),
+      rgba(40, 217, 255, 0.025)
+    ) !important;
+  color: #e8fbff !important;
+  box-shadow: inset 2px 0 0 var(--tech-cyan);
+}
+
+[data-theme="tech"] section,
+[data-theme="tech"] article {
+  position: relative;
+  overflow: hidden;
+  border-color: #23343e !important;
+  border-radius: 5px !important;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.018),
+      transparent 42%
+    ),
+    var(--surface) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 10px 30px rgba(0, 0, 0, 0.22) !important;
+}
+
+[data-theme="tech"] section::before,
+[data-theme="tech"] article::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 1px;
+  background: var(--tech-cyan);
+  opacity: 0.75;
+}
+
+[data-theme="tech"] section h2 {
+  font-family: var(--data-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+[data-theme="tech"] article p.text-3xl,
+[data-theme="tech"] article p.text-2xl,
+[data-theme="tech"] article p.text-xl {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="tech"] .theme-signature {
+  border-color: #294450 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(40, 217, 255, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="tech"] .theme-signature-tech {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(40, 217, 255, 0.045),
+      transparent 70%
+    );
+}
+
+[data-theme="tech"] .theme-live {
+  color: var(--tech-green);
+}
+
+[data-theme="tech"] .theme-warning {
+  color: var(--tech-yellow);
+}
+
+[data-theme="tech"] .theme-danger {
+  color: var(--tech-red);
+}
+
+[data-theme="tech"] a:hover,
+[data-theme="tech"] button:hover {
+  text-shadow: 0 0 10px rgba(40, 217, 255, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   Executive: boardroom / editorial
+   -------------------------------------------------------------------------- */
+
+[data-theme="executive"] main {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.35),
+      transparent 360px
+    );
+}
+
+[data-theme="executive"] .theme-signature {
+  border-left: 3px solid var(--accent);
+}
+
+[data-theme="executive"] .theme-signature-executive {
+  min-height: 84px;
+}
+
+[data-theme="executive"] .dashboard-kpis article {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="executive"] .dashboard-kpis article:first-child {
+  border-top: 2px solid var(--accent) !important;
+}
+
+[data-theme="executive"] .dashboard-kpis article p.text-3xl {
+  font-family: var(--display-font);
+  font-size: 2.15rem;
+  font-weight: 500;
+}
+
+[data-theme="executive"] .dashboard-secondary section {
+  box-shadow: none !important;
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: transparent;
+}
+
+[data-theme="executive"] a:hover,
+[data-theme="executive"] button:hover {
+  box-shadow: 0 1px 0 var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Performance: race control / operations
+   -------------------------------------------------------------------------- */
+
+[data-theme="performance"] .dashboard-kpis article {
+  box-shadow: none !important;
+  padding: 0.9rem !important;
+}
+
+[data-theme="performance"] .dashboard-kpis article p.text-3xl {
+  font-family: var(--data-font);
+  font-size: 1.65rem;
+  font-weight: 600;
+}
+
+[data-theme="performance"] .theme-signature {
+  border-top: 3px solid var(--accent);
+  border-radius: 3px !important;
+}
+
+[data-theme="performance"] table th {
+  font-family: var(--data-font);
+}
+
+[data-theme="performance"] table td {
+  font-family: var(--data-font);
+  font-size: 0.78rem;
+}
+
+[data-theme="performance"] .dashboard-secondary section {
+  border-radius: 4px !important;
+}
+
+[data-theme="performance"] a:hover,
+[data-theme="performance"] button:hover {
+  transform: translateY(-1px);
+}
+
+[data-theme="performance"] .theme-data {
+  font-family: var(--data-font);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Chart personalities
+   -------------------------------------------------------------------------- */
+
+[data-theme="professional"] .theme-chart-bar {
+  background: var(--accent) !important;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  background:
+    linear-gradient(
+      90deg,
+      var(--tech-cyan),
+      #7ef2ff
+    ) !important;
+  box-shadow: 0 0 10px rgba(40, 217, 255, 0.18);
+}
+
+[data-theme="executive"] .theme-chart-bar {
+  background: var(--accent) !important;
+  border-radius: 2px !important;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  background: var(--accent) !important;
+  border-radius: 1px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive / accessibility
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1279px) {
+  .dashboard-kpis,
+  [data-theme="executive"] .dashboard-kpis,
+  [data-theme="performance"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="tech"] .theme-live-dot {
+    box-shadow: none;
+  }
+
+  [data-theme="performance"] a:hover,
+  [data-theme="performance"] button:hover {
+    transform: none;
+  }
+}
+
+.theme-showroom {
+  color: var(--foreground);
+}
+
+.theme-showroom-status {
+  background: var(--accent);
+}
+
+.theme-showroom-bar {
+  background: var(--accent);
+  opacity: 0.72;
+}
+
+[data-theme="tech"] .theme-showroom-bar {
+  background: var(--tech-cyan);
+  box-shadow: 0 0 8px rgba(40, 217, 255, 0.22);
+}
+
+[data-theme="performance"] .theme-showroom-bar {
+  background: var(--accent);
+}
+
+[data-theme="executive"] .theme-showroom-bar {
+  background: var(--accent);
+}
+
+
+
+/* ============================================================
+   THEME REFINEMENT 2.0
+   Each personality gets its own visual grammar.
+   ============================================================ */
+
+/* ---------- Shared composition ---------- */
+
+.dashboard-kpis {
+  position: relative;
+}
+
+.dashboard-secondary {
+  position: relative;
+}
+
+.dashboard-kpis > *,
+.dashboard-secondary > * {
+  min-width: 0;
+}
+
+/* ---------- Professional
+   Financial intelligence / institutional / precise ---------- */
+
+[data-theme="professional"] {
+  --theme-heading-spacing: -0.035em;
+  --theme-panel-radius: 10px;
+  --theme-panel-shadow: 0 1px 2px rgba(23, 32, 51, 0.035);
+  --theme-grid-opacity: 0;
+  --theme-rule: var(--border);
+}
+
+[data-theme="professional"] h1,
+[data-theme="professional"] h2,
+[data-theme="professional"] h3 {
+  letter-spacing: var(--theme-heading-spacing);
+}
+
+[data-theme="professional"] .dashboard-kpis {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+[data-theme="professional"] .dashboard-kpis > * {
+  border-radius: var(--theme-panel-radius);
+  box-shadow: var(--theme-panel-shadow);
+}
+
+[data-theme="professional"] .dashboard-kpis > *:first-child {
+  border-top: 2px solid var(--accent);
+}
+
+[data-theme="professional"] .theme-signature {
+  border-left: 3px solid var(--accent);
+  padding-left: 18px;
+}
+
+[data-theme="professional"] .theme-signature-label {
+  letter-spacing: 0.16em;
+}
+
+[data-theme="professional"] .theme-chart-bar {
+  border-radius: 2px;
+}
+
+[data-theme="professional"] table thead th {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+[data-theme="professional"] table tbody tr {
+  transition: background-color 120ms ease;
+}
+
+[data-theme="professional"] table tbody tr:hover {
+  background: var(--surface-muted);
+}
+
+
+/* ---------- Tech
+   Engineering workstation / telemetry / instrument panel ---------- */
+
+[data-theme="tech"] {
+  --background: #0b1015;
+  --surface: #10171e;
+  --surface-muted: #0d141b;
+  --foreground: #e7edf2;
+  --muted: #82909d;
+  --muted-strong: #aeb9c2;
+  --border: #26323d;
+  --border-strong: #354452;
+  --accent: #35d4ff;
+  --accent-strong: #65e0ff;
+  --accent-soft: rgba(53, 212, 255, 0.08);
+  --theme-panel-radius: 4px;
+  --theme-panel-shadow: none;
+  --theme-heading-spacing: -0.02em;
+}
+
+[data-theme="tech"] body {
+  background:
+    linear-gradient(rgba(53, 212, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(53, 212, 255, 0.025) 1px, transparent 1px),
+    var(--background);
+  background-size: 32px 32px;
+}
+
+[data-theme="tech"] .dashboard-kpis {
+  gap: 1px;
+  padding: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  border-radius: 2px;
+  box-shadow: none;
+  background: var(--surface);
+}
+
+[data-theme="tech"] .dashboard-kpis > *::before {
+  content: "";
+  display: block;
+  height: 2px;
+  margin: -1px 0 10px;
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    transparent 75%
+  );
+  opacity: 0.7;
+}
+
+[data-theme="tech"] .theme-signature {
+  position: relative;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(90deg, rgba(53,212,255,.06), transparent 55%),
+    var(--surface);
+  border-radius: 3px;
+  padding: 14px 16px;
+}
+
+[data-theme="tech"] .theme-signature::after {
+  content: "LIVE";
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+}
+
+[data-theme="tech"] .theme-signature-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+}
+
+[data-theme="tech"] .theme-signature-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  border-radius: 1px;
+  box-shadow: 0 0 12px rgba(53, 212, 255, 0.18);
+}
+
+[data-theme="tech"] table thead th {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+[data-theme="tech"] table tbody td {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(53, 212, 255, 0.045);
+}
+
+[data-theme="tech"] .panel,
+[data-theme="tech"] [class*="rounded"] {
+  border-radius: var(--theme-panel-radius);
+}
+
+[data-theme="tech"] .page-header {
+  position: relative;
+}
+
+[data-theme="tech"] .page-header::before {
+  content: "SYSTEM / ANALYTICS";
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+}
+
+
+/* ---------- Executive
+   Editorial / boardroom / premium restraint ---------- */
+
+[data-theme="executive"] {
+  --background: #f5f3ef;
+  --surface: #fbfaf7;
+  --surface-muted: #efede8;
+  --foreground: #20242a;
+  --muted: #74736f;
+  --muted-strong: #4e4e4a;
+  --border: #dcd9d1;
+  --border-strong: #c8c4bb;
+  --accent: #8d6b37;
+  --accent-strong: #72552d;
+  --accent-soft: #eee7da;
+  --theme-panel-radius: 0;
+  --theme-panel-shadow: none;
+}
+
+[data-theme="executive"] h1 {
+  font-size: clamp(2.25rem, 4vw, 3.8rem);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="executive"] h2 {
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+[data-theme="executive"] .dashboard-kpis {
+  gap: 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="executive"] .dashboard-kpis > * {
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 22px 24px;
+}
+
+[data-theme="executive"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="executive"] .theme-signature {
+  display: none;
+}
+
+[data-theme="executive"] table thead th {
+  border-bottom: 1px solid var(--foreground);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--muted-strong);
+}
+
+[data-theme="executive"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: transparent;
+}
+
+[data-theme="executive"] .theme-chart-bar {
+  border-radius: 0;
+}
+
+[data-theme="executive"] .page-header {
+  padding-bottom: 28px;
+}
+
+[data-theme="executive"] .page-header p {
+  max-width: 620px;
+}
+
+
+/* ---------- Performance
+   Race control / operational / fast decisions ---------- */
+
+[data-theme="performance"] {
+  --background: #eef0f1;
+  --surface: #ffffff;
+  --surface-muted: #e3e6e8;
+  --foreground: #171b20;
+  --muted: #69727b;
+  --muted-strong: #39424b;
+  --border: #cbd0d4;
+  --border-strong: #aeb5bb;
+  --accent: #e4572e;
+  --accent-strong: #bd3f1d;
+  --accent-soft: #f9e8e3;
+  --theme-panel-radius: 5px;
+  --theme-panel-shadow: 0 2px 0 rgba(23, 27, 32, 0.08);
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 8px;
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  border-radius: 5px;
+  border-top: 3px solid var(--foreground);
+  box-shadow: var(--theme-panel-shadow);
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent);
+}
+
+[data-theme="performance"] .theme-signature {
+  border: 1px solid var(--border-strong);
+  border-left: 5px solid var(--accent);
+  background: var(--surface);
+  padding: 12px 15px;
+  box-shadow: var(--theme-panel-shadow);
+}
+
+[data-theme="performance"] .theme-signature-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+[data-theme="performance"] .theme-signature-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  border-radius: 1px;
+}
+
+[data-theme="performance"] table thead th {
+  background: #dfe3e6;
+  color: #3b444d;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-theme="performance"] table tbody td {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #f1f3f4;
+}
+
+[data-theme="performance"] .page-header {
+  border-bottom: 2px solid var(--foreground);
+}
+
+[data-theme="performance"] .page-header h1 {
+  font-weight: 750;
+  letter-spacing: -0.045em;
+}
+
+
+/* ---------- Shared theme signature ---------- */
+
+.theme-signature {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px 18px;
+  align-items: center;
+}
+
+.theme-signature-label {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.theme-signature-value {
+  color: var(--foreground);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.theme-signature-meta {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.theme-signature-track {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 3px;
+}
+
+.theme-signature-track span {
+  height: 4px;
+  background: var(--border);
+}
+
+.theme-signature-track span.is-active {
+  background: var(--accent);
+}
+
+@media (max-width: 900px) {
+  [data-theme="professional"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="executive"] h1 {
+    font-size: 2.4rem;
+  }
+
+  [data-theme="executive"] .dashboard-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  [data-theme="executive"] .dashboard-kpis > * {
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="professional"] table tbody tr,
+  [data-theme="tech"] table tbody tr,
+  [data-theme="performance"] table tbody tr {
+    transition: none;
+  }
+}
+
+
+/* ============================================================
+   THEME REFINEMENT 2.1
+   Restraint pass — personality through design, not decoration.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Global restraint
+   ------------------------------------------------------------ */
+
+.theme-signature::after,
+[data-theme="tech"] .page-header::before {
+  display: none !important;
+}
+
+[data-theme="tech"] body {
+  background: var(--background);
+}
+
+[data-theme="tech"] .theme-signature {
+  background: var(--surface);
+}
+
+
+/* ------------------------------------------------------------
+   PROFESSIONAL
+   Quiet institutional intelligence.
+   Think: serious financial software, not SaaS marketing.
+   ------------------------------------------------------------ */
+
+[data-theme="professional"] {
+  --theme-panel-radius: 8px;
+  --theme-panel-shadow: 0 1px 2px rgba(23, 32, 51, 0.025);
+}
+
+[data-theme="professional"] .dashboard-kpis {
+  gap: 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="professional"] .dashboard-kpis > * {
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 18px 20px;
+}
+
+[data-theme="professional"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="professional"] .dashboard-kpis > *:first-child {
+  border-top: 0;
+}
+
+[data-theme="professional"] .theme-signature {
+  border-left: 2px solid var(--accent);
+  padding-left: 16px;
+}
+
+[data-theme="professional"] .theme-signature-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+[data-theme="professional"] .theme-signature-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+[data-theme="professional"] .theme-signature-track {
+  gap: 2px;
+}
+
+[data-theme="professional"] .theme-signature-track span {
+  height: 3px;
+}
+
+[data-theme="professional"] .panel,
+[data-theme="professional"] [class*="shadow"] {
+  box-shadow: var(--theme-panel-shadow);
+}
+
+
+/* ------------------------------------------------------------
+   TECH
+   Engineering workstation.
+   No sci-fi theater. No fake telemetry.
+   Precision, hierarchy and data density create the personality.
+   ------------------------------------------------------------ */
+
+[data-theme="tech"] {
+  --background: #0d1217;
+  --surface: #121920;
+  --surface-muted: #10161c;
+  --border: #26313a;
+  --border-strong: #34414c;
+  --accent: #55c7e8;
+  --accent-strong: #78d6ef;
+  --accent-soft: rgba(85, 199, 232, 0.07);
+}
+
+[data-theme="tech"] body {
+  background: var(--background);
+}
+
+[data-theme="tech"] h1,
+[data-theme="tech"] h2,
+[data-theme="tech"] h3 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+[data-theme="tech"] .dashboard-kpis {
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  position: relative;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 17px 18px;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="tech"] .dashboard-kpis > *::before {
+  display: none;
+}
+
+[data-theme="tech"] .theme-signature {
+  border: 0;
+  border-left: 1px solid var(--border-strong);
+  border-radius: 0;
+  background: transparent;
+  padding: 8px 0 8px 16px;
+}
+
+[data-theme="tech"] .theme-signature-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+[data-theme="tech"] .theme-signature-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.2rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] .theme-signature-track {
+  gap: 2px;
+}
+
+[data-theme="tech"] .theme-signature-track span {
+  height: 2px;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  box-shadow: none;
+}
+
+[data-theme="tech"] table thead th {
+  background: transparent;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="tech"] table tbody tr {
+  border-bottom: 1px solid rgba(38, 49, 58, 0.65);
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(85, 199, 232, 0.035);
+}
+
+
+/* ------------------------------------------------------------
+   EXECUTIVE
+   Editorial restraint.
+   Large type, quiet rules, generous space.
+   Nothing tries to look impressive.
+   ------------------------------------------------------------ */
+
+[data-theme="executive"] {
+  --background: #f6f4f0;
+  --surface: #faf9f6;
+  --surface-muted: #efede8;
+  --border: #dedbd3;
+  --border-strong: #c7c3ba;
+  --accent: #806337;
+  --accent-strong: #664d2a;
+}
+
+[data-theme="executive"] .dashboard-kpis {
+  margin-top: 8px;
+  border-top: 1px solid var(--foreground);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="executive"] .dashboard-kpis > * {
+  min-height: 112px;
+  padding: 24px 22px;
+}
+
+[data-theme="executive"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="executive"] .stat-card-value,
+[data-theme="executive"] [class*="text-3xl"],
+[data-theme="executive"] [class*="text-4xl"] {
+  letter-spacing: -0.05em;
+  font-weight: 500;
+}
+
+[data-theme="executive"] .theme-signature {
+  display: none;
+}
+
+[data-theme="executive"] .page-header {
+  padding-bottom: 32px;
+}
+
+[data-theme="executive"] .page-header h1 {
+  max-width: 780px;
+}
+
+[data-theme="executive"] .page-header p {
+  margin-top: 14px;
+  line-height: 1.8;
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: transparent;
+}
+
+
+/* ------------------------------------------------------------
+   PERFORMANCE
+   Operational precision.
+   Motorsport influence comes from hierarchy and density,
+   not checkered flags and orange everywhere.
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] {
+  --background: #eceeef;
+  --surface: #ffffff;
+  --surface-muted: #e4e7e9;
+  --border: #cbd0d4;
+  --border-strong: #aeb5ba;
+  --accent: #d94b25;
+  --accent-strong: #b93c1d;
+  --accent-soft: #f7e5df;
+}
+
+[data-theme="performance"] h1,
+[data-theme="performance"] h2,
+[data-theme="performance"] h3 {
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 6px;
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  border-top: 2px solid var(--border-strong);
+  box-shadow: 0 1px 2px rgba(20, 26, 31, 0.06);
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent);
+}
+
+[data-theme="performance"] .theme-signature {
+  border-left-width: 3px;
+  box-shadow: none;
+}
+
+[data-theme="performance"] .theme-signature-label {
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+[data-theme="performance"] .theme-signature-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+[data-theme="performance"] .theme-signature-track {
+  gap: 2px;
+}
+
+[data-theme="performance"] .theme-signature-track span {
+  height: 3px;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  box-shadow: none;
+}
+
+[data-theme="performance"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="performance"] .page-header {
+  padding-bottom: 18px;
+}
+
+
+/* ------------------------------------------------------------
+   Responsive corrections
+   ------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  [data-theme="professional"] .dashboard-kpis,
+  [data-theme="tech"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="professional"] .dashboard-kpis > *,
+  [data-theme="tech"] .dashboard-kpis > * {
+    border-bottom: 1px solid var(--border);
+  }
+
+  [data-theme="executive"] .dashboard-kpis > * {
+    min-height: 96px;
+    padding: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  [data-theme="professional"] .dashboard-kpis,
+  [data-theme="tech"] .dashboard-kpis,
+  [data-theme="executive"] .dashboard-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  [data-theme="professional"] .dashboard-kpis > *,
+  [data-theme="tech"] .dashboard-kpis > *,
+  [data-theme="executive"] .dashboard-kpis > * {
+    border-right: 1px solid var(--border);
+  }
+
+  [data-theme="professional"] .dashboard-kpis > *:nth-child(2n),
+  [data-theme="tech"] .dashboard-kpis > *:nth-child(2n),
+  [data-theme="executive"] .dashboard-kpis > *:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+
+/* ============================================================
+   THEME REFINEMENT 2.2
+   Distinct product personalities.
+   Tech = F1 engineering / pit wall.
+   Professional = institutional intelligence.
+   Executive = editorial boardroom.
+   Performance = operations / race control.
+   ============================================================ */
+
+
+/* ============================================================
+   TECH / F1 ENGINEERING
+   ============================================================ */
+
+[data-theme="tech"] {
+  --background: #0a0e12;
+  --surface: #10151a;
+  --surface-muted: #0d1217;
+  --foreground: #e6ebee;
+  --muted: #7c878f;
+  --muted-strong: #b2bcc2;
+  --border: #242c32;
+  --border-strong: #39434b;
+  --accent: #6bc9e6;
+  --accent-strong: #8bd9ee;
+  --accent-soft: rgba(107, 201, 230, .075);
+
+  --theme-panel-radius: 3px;
+}
+
+[data-theme="tech"] body {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] h1,
+[data-theme="tech"] h2,
+[data-theme="tech"] h3 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+[data-theme="tech"] .dashboard-kpis {
+  position: relative;
+  display: grid;
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis::before {
+  content: "PERFORMANCE";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .16em;
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  position: relative;
+  min-height: 104px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 17px 18px;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="tech"] .dashboard-kpis > *::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 2px;
+  background: var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > *:first-child::after {
+  background: var(--accent);
+}
+
+[data-theme="tech"] .theme-signature {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  padding: 14px 16px;
+}
+
+[data-theme="tech"] .theme-signature-label {
+  grid-column: 1 / -1;
+  margin-bottom: 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  color: var(--muted);
+}
+
+[data-theme="tech"] .theme-signature-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -.02em;
+}
+
+[data-theme="tech"] .theme-signature-meta {
+  align-self: end;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+}
+
+[data-theme="tech"] .theme-signature-track {
+  grid-column: 1 / -1;
+  margin-top: 11px;
+  gap: 2px;
+}
+
+[data-theme="tech"] .theme-signature-track span {
+  height: 3px;
+  background: #20272d;
+}
+
+[data-theme="tech"] .theme-signature-track span.is-active {
+  background: var(--accent);
+}
+
+[data-theme="tech"] .dashboard-secondary {
+  position: relative;
+}
+
+[data-theme="tech"] .dashboard-secondary::before {
+  content: "SYSTEM STATUS";
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .16em;
+}
+
+[data-theme="tech"] table {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] table thead th {
+  background: #0c1115;
+  border-bottom: 1px solid var(--border-strong);
+  color: #89949c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+[data-theme="tech"] table tbody tr {
+  border-bottom: 1px solid rgba(57, 67, 75, .55);
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(107, 201, 230, .035);
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  border-radius: 1px;
+  box-shadow: none;
+}
+
+[data-theme="tech"] button,
+[data-theme="tech"] input,
+[data-theme="tech"] select {
+  border-radius: 3px;
+}
+
+[data-theme="tech"] button {
+  font-size: 12px;
+}
+
+[data-theme="tech"] .page-header {
+  border-bottom-color: var(--border-strong);
+}
+
+[data-theme="tech"] .page-header h1 {
+  letter-spacing: -.035em;
+}
+
+
+/* ============================================================
+   PROFESSIONAL / INSTITUTIONAL
+   ============================================================ */
+
+[data-theme="professional"] {
+  --theme-panel-radius: 7px;
+  --theme-panel-shadow: 0 1px 2px rgba(23, 32, 51, .025);
+}
+
+[data-theme="professional"] .dashboard-kpis {
+  gap: 0;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="professional"] .dashboard-kpis > * {
+  min-height: 104px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 18px 20px;
+}
+
+[data-theme="professional"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="professional"] .theme-signature {
+  border-left: 2px solid var(--accent);
+  padding-left: 15px;
+}
+
+[data-theme="professional"] .theme-signature-label {
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+
+[data-theme="professional"] .theme-signature-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="professional"] .theme-chart-bar {
+  border-radius: 2px;
+}
+
+[data-theme="professional"] table thead th {
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 9px;
+  letter-spacing: .11em;
+}
+
+[data-theme="professional"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="professional"] table tbody tr:hover {
+  background: var(--surface-muted);
+}
+
+
+/* ============================================================
+   EXECUTIVE / EDITORIAL
+   ============================================================ */
+
+[data-theme="executive"] {
+  --background: #f6f4f0;
+  --surface: #fbfaf7;
+  --surface-muted: #efede8;
+  --foreground: #202328;
+  --muted: #77746d;
+  --muted-strong: #4d4c48;
+  --border: #ddd9d1;
+  --border-strong: #c3beb5;
+  --accent: #82653a;
+  --accent-strong: #664e2c;
+  --accent-soft: #eee7db;
+  --theme-panel-radius: 0;
+  --theme-panel-shadow: none;
+}
+
+[data-theme="executive"] h1 {
+  max-width: 820px;
+  font-size: clamp(2.5rem, 4.5vw, 4rem);
+  font-weight: 500;
+  line-height: .98;
+  letter-spacing: -.06em;
+}
+
+[data-theme="executive"] h2 {
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -.035em;
+}
+
+[data-theme="executive"] .dashboard-kpis {
+  gap: 0;
+  margin-top: 12px;
+  border-top: 1px solid var(--foreground);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="executive"] .dashboard-kpis > * {
+  min-height: 116px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 25px 22px;
+}
+
+[data-theme="executive"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="executive"] .theme-signature {
+  display: none;
+}
+
+[data-theme="executive"] .page-header {
+  padding-bottom: 34px;
+}
+
+[data-theme="executive"] .page-header p {
+  max-width: 600px;
+  margin-top: 15px;
+  line-height: 1.8;
+}
+
+[data-theme="executive"] table thead th {
+  border-bottom: 1px solid var(--foreground);
+  background: transparent;
+  font-size: 9px;
+  letter-spacing: .14em;
+}
+
+[data-theme="executive"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="executive"] table tbody tr:hover {
+  background: transparent;
+}
+
+[data-theme="executive"] .theme-chart-bar {
+  border-radius: 0;
+}
+
+
+/* ============================================================
+   PERFORMANCE / OPERATIONS
+   ============================================================ */
+
+[data-theme="performance"] {
+  --background: #eceeef;
+  --surface: #fff;
+  --surface-muted: #e3e6e8;
+  --foreground: #181c20;
+  --muted: #68717a;
+  --muted-strong: #3d464e;
+  --border: #c9ced2;
+  --border-strong: #aab2b8;
+  --accent: #d94c26;
+  --accent-strong: #b83d1e;
+  --accent-soft: #f7e4de;
+  --theme-panel-radius: 5px;
+  --theme-panel-shadow: 0 1px 2px rgba(24, 28, 32, .07);
+}
+
+[data-theme="performance"] h1,
+[data-theme="performance"] h2,
+[data-theme="performance"] h3 {
+  font-weight: 700;
+  letter-spacing: -.045em;
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 6px;
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  min-height: 100px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--border-strong);
+  border-radius: 5px;
+  background: var(--surface);
+  box-shadow: var(--theme-panel-shadow);
+  padding: 16px 17px;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent);
+}
+
+[data-theme="performance"] .theme-signature {
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: var(--surface);
+  padding: 12px 15px;
+}
+
+[data-theme="performance"] .theme-signature-label {
+  font-size: 8px;
+  letter-spacing: .12em;
+}
+
+[data-theme="performance"] .theme-signature-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  border-radius: 1px;
+}
+
+[data-theme="performance"] table thead th {
+  background: #dfe3e6;
+  border-bottom: 1px solid var(--border-strong);
+  color: #3d464e;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+[data-theme="performance"] table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #f1f3f4;
+}
+
+[data-theme="performance"] .page-header {
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--foreground);
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+  [data-theme="tech"] .dashboard-kpis,
+  [data-theme="professional"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="tech"] .dashboard-kpis > *,
+  [data-theme="professional"] .dashboard-kpis > * {
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 640px) {
+  [data-theme="tech"] .dashboard-kpis,
+  [data-theme="professional"] .dashboard-kpis,
+  [data-theme="executive"] .dashboard-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  [data-theme="tech"] .dashboard-kpis > *:nth-child(2n),
+  [data-theme="professional"] .dashboard-kpis > *:nth-child(2n),
+  [data-theme="executive"] .dashboard-kpis > *:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+/* ============================================================
+   MATURITY PASS — TECH + PERFORMANCE
+   Less costume. More professional software.
+   ============================================================ */
+
+/* TECH — engineering workstation, not sci-fi dashboard */
+[data-theme="tech"] {
+  --background: #0b0f13;
+  --surface: #11171c;
+  --surface-muted: #0e1419;
+  --surface-elevated: #151c22;
+  --foreground: #dce5ea;
+  --muted: #74828c;
+  --muted-strong: #aab7bf;
+  --border: #263139;
+  --border-strong: #3a464f;
+  --accent: #62c7e3;
+  --accent-strong: #83d7ec;
+  --accent-soft: rgba(98, 199, 227, 0.075);
+  --theme-panel-radius: 3px;
+  --theme-panel-shadow: none;
+}
+
+[data-theme="tech"] body,
+[data-theme="tech"] main {
+  background: var(--background);
+}
+
+[data-theme="tech"] body {
+  background-image: none;
+}
+
+[data-theme="tech"] main::before {
+  display: none;
+}
+
+[data-theme="tech"] header {
+  background: #090d11 !important;
+  backdrop-filter: none;
+}
+
+[data-theme="tech"] aside {
+  background: #080c10 !important;
+  box-shadow: none;
+}
+
+[data-theme="tech"] aside::after {
+  display: none;
+}
+
+[data-theme="tech"] section,
+[data-theme="tech"] article {
+  border-radius: 3px !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+[data-theme="tech"] section::before,
+[data-theme="tech"] article::before {
+  display: none;
+}
+
+[data-theme="tech"] .theme-signature-tech,
+[data-theme="tech"] .theme-signature-performance {
+  display: none !important;
+}
+
+[data-theme="tech"] .dashboard-kpis {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  min-height: 96px;
+  padding: 15px 17px;
+  border-right: 1px solid var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > *::after {
+  left: 17px;
+  right: 17px;
+  height: 1px;
+  background: var(--border);
+}
+
+[data-theme="tech"] .dashboard-kpis > *:first-child::after {
+  background: var(--accent);
+}
+
+[data-theme="tech"] .dashboard-kpis > *:hover {
+  background: rgba(98, 199, 227, 0.025);
+}
+
+[data-theme="tech"] .dashboard-secondary::before {
+  display: none;
+}
+
+[data-theme="tech"] section h2 {
+  font-family: var(--font-geist-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+[data-theme="tech"] section p.text-xs,
+[data-theme="tech"] article p.text-xs {
+  font-size: 11px;
+}
+
+[data-theme="tech"] table thead th {
+  background: #0d1318;
+  color: #81909a;
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(98, 199, 227, 0.028);
+}
+
+[data-theme="tech"] button {
+  box-shadow: none !important;
+}
+
+[data-theme="tech"] input:focus,
+[data-theme="tech"] select:focus,
+[data-theme="tech"] textarea:focus {
+  box-shadow: 0 0 0 1px var(--accent) !important;
+}
+
+[data-theme="tech"] .theme-chart-bar {
+  border-radius: 1px;
+  box-shadow: none;
+}
+
+/* PERFORMANCE — mature operations console */
+[data-theme="performance"] {
+  --background: #eef0f1;
+  --surface: #ffffff;
+  --surface-muted: #e7e9ea;
+  --surface-elevated: #ffffff;
+  --foreground: #1b2024;
+  --muted: #68737b;
+  --muted-strong: #424b52;
+  --border: #cdd2d5;
+  --border-strong: #aeb6bb;
+  --accent: #c95132;
+  --accent-strong: #a84027;
+  --accent-soft: #f5e6e1;
+  --theme-panel-radius: 4px;
+  --theme-panel-shadow: 0 1px 1px rgba(27, 32, 36, 0.04);
+}
+
+[data-theme="performance"] body,
+[data-theme="performance"] main {
+  background: var(--background);
+}
+
+[data-theme="performance"] header {
+  background: #ffffff !important;
+  backdrop-filter: none;
+}
+
+[data-theme="performance"] aside {
+  background: #171d22 !important;
+  box-shadow: none;
+}
+
+[data-theme="performance"] .theme-signature-tech,
+[data-theme="performance"] .theme-signature-performance {
+  display: none !important;
+}
+
+[data-theme="performance"] section,
+[data-theme="performance"] article {
+  border-radius: 4px !important;
+  box-shadow: var(--theme-panel-shadow) !important;
+}
+
+[data-theme="performance"] .dashboard-kpis {
+  gap: 4px;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  min-height: 98px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-top: 3px solid var(--border-strong);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 15px 17px;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:last-child {
+  border-right: 0;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent);
+}
+
+[data-theme="performance"] .dashboard-kpis > *:hover {
+  background: #fafafa;
+}
+
+[data-theme="performance"] section h2 {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+[data-theme="performance"] table thead th {
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #f7f8f8;
+}
+
+[data-theme="performance"] .page-header {
+  border-bottom: 1px solid var(--border-strong);
+}
+
+[data-theme="performance"] .theme-chart-bar {
+  border-radius: 1px;
+  box-shadow: none;
+}
+
+[data-theme="performance"] button {
+  box-shadow: none !important;
+}
+
+/* Both: make the two dense themes feel like working tools rather than demos. */
+[data-theme="tech"] .dashboard-kpis,
+[data-theme="performance"] .dashboard-kpis {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] .dashboard-kpis > *,
+[data-theme="performance"] .dashboard-kpis > * {
+  transition: background-color 100ms ease, border-color 100ms ease;
+}
+
+@media (max-width: 900px) {
+  [data-theme="performance"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="performance"] .dashboard-kpis > * {
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+
+/* ============================================================
+   MATURITY PASS 3 — OPERATIONS + ENGINEERING
+   Structure over decoration.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   PERFORMANCE
+   Operations desk: exception-first, compact, decisive.
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] {
+  --background: #eceeef;
+  --surface: #ffffff;
+  --surface-muted: #f1f3f4;
+  --surface-elevated: #ffffff;
+  --foreground: #171b1f;
+  --muted: #69737b;
+  --muted-strong: #3e474e;
+  --border: #c9ced2;
+  --border-strong: #9ea7ad;
+  --accent: #b94b30;
+  --accent-strong: #963a25;
+  --accent-soft: #f3e4df;
+  --success: #36785a;
+  --warning: #9a681b;
+  --danger: #b43f35;
+  --theme-panel-radius: 3px;
+  --theme-panel-shadow: 0 1px 2px rgba(20, 26, 31, 0.045);
+}
+
+/* Kill decorative atmosphere. */
+[data-theme="performance"] body {
+  background-image: none !important;
+}
+
+[data-theme="performance"] main::before,
+[data-theme="performance"] aside::after {
+  display: none !important;
+}
+
+/* Navigation becomes an operations rail. */
+[data-theme="performance"] aside {
+  background: #171c20 !important;
+  border-right: 1px solid #30373c !important;
+}
+
+[data-theme="performance"] aside a {
+  border-radius: 2px !important;
+}
+
+[data-theme="performance"] aside a[data-active="true"] {
+  background: #242b30 !important;
+  box-shadow: inset 3px 0 0 var(--accent) !important;
+}
+
+/* Workspace has a stronger grid rhythm. */
+[data-theme="performance"] main {
+  background: var(--background);
+}
+
+[data-theme="performance"] section,
+[data-theme="performance"] article {
+  border-radius: 3px !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--theme-panel-shadow) !important;
+}
+
+[data-theme="performance"] section > div:first-child h2 {
+  letter-spacing: -0.015em;
+}
+
+/* Page headers become operational rather than editorial. */
+[data-theme="performance"] .page-header {
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--border-strong) !important;
+}
+
+[data-theme="performance"] .page-header h1 {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+[data-theme="performance"] .page-header p {
+  color: var(--muted-strong);
+}
+
+/* KPI row becomes an instrument panel. */
+[data-theme="performance"] .dashboard-kpis {
+  gap: 1px !important;
+  padding: 0 !important;
+  background: var(--border-strong);
+  border: 1px solid var(--border-strong) !important;
+}
+
+[data-theme="performance"] .dashboard-kpis > * {
+  min-height: 104px;
+  padding: 16px 18px !important;
+  border: 0 !important;
+  border-top: 3px solid transparent !important;
+  border-radius: 0 !important;
+  background: var(--surface) !important;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent) !important;
+}
+
+[data-theme="performance"] .dashboard-kpis > *:hover {
+  background: #f8f9f9 !important;
+}
+
+[data-theme="performance"] .dashboard-kpis > *::after {
+  display: none !important;
+}
+
+/* Numeric hierarchy. */
+[data-theme="performance"] .dashboard-kpis [class*="text-3xl"],
+[data-theme="performance"] .dashboard-kpis [class*="text-4xl"] {
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Secondary panels are flatter and more utilitarian. */
+[data-theme="performance"] .dashboard-secondary {
+  gap: 10px;
+}
+
+[data-theme="performance"] .dashboard-secondary > * {
+  border-radius: 3px !important;
+}
+
+/* Tables should feel like operating data, not marketing cards. */
+[data-theme="performance"] table {
+  border-collapse: collapse;
+}
+
+[data-theme="performance"] table thead th {
+  height: 34px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  background: #e5e8e9 !important;
+  color: #4b555c !important;
+  border-bottom: 1px solid var(--border-strong) !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.075em !important;
+  text-transform: uppercase;
+}
+
+[data-theme="performance"] table tbody td {
+  height: 42px;
+  border-bottom: 1px solid #dde1e3;
+}
+
+[data-theme="performance"] table tbody tr:hover {
+  background: #f5f6f6 !important;
+}
+
+/* Use red as an exception signal, not a theme color everywhere. */
+[data-theme="performance"] .text-\[var\(--accent\)\] {
+  color: var(--accent-strong) !important;
+}
+
+/* Buttons become compact controls. */
+[data-theme="performance"] button {
+  min-height: 34px;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  font-weight: 600;
+}
+
+[data-theme="performance"] input,
+[data-theme="performance"] select,
+[data-theme="performance"] textarea {
+  border-radius: 3px !important;
+  background: #fff !important;
+}
+
+[data-theme="performance"] input:focus,
+[data-theme="performance"] select:focus,
+[data-theme="performance"] textarea:focus {
+  box-shadow: 0 0 0 1px var(--accent) !important;
+}
+
+/* Charts become measurement tools. */
+[data-theme="performance"] .theme-chart-bar {
+  border-radius: 1px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="performance"] .theme-signature {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------
+   TECH
+   F1 engineering workstation: telemetry hierarchy,
+   not "futuristic dashboard".
+   ------------------------------------------------------------ */
+
+[data-theme="tech"] {
+  --background: #090d11;
+  --surface: #10161b;
+  --surface-muted: #0c1217;
+  --surface-elevated: #151c22;
+  --foreground: #dce5e9;
+  --muted: #71808a;
+  --muted-strong: #aebbc2;
+  --border: #253038;
+  --border-strong: #39464f;
+  --accent: #67c9e5;
+  --accent-strong: #8bd8ed;
+  --accent-soft: rgba(103, 201, 229, 0.07);
+  --theme-panel-radius: 2px;
+}
+
+/* No sci-fi texture. */
+[data-theme="tech"] body {
+  background-image: none !important;
+}
+
+[data-theme="tech"] main::before,
+[data-theme="tech"] aside::after {
+  display: none !important;
+}
+
+/* Engineering workstation shell. */
+[data-theme="tech"] aside {
+  background: #080c10 !important;
+  border-right: 1px solid #202a31 !important;
+}
+
+[data-theme="tech"] aside a {
+  border-radius: 2px !important;
+}
+
+[data-theme="tech"] aside a[data-active="true"] {
+  background: #141c22 !important;
+  box-shadow: inset 2px 0 0 var(--accent) !important;
+}
+
+[data-theme="tech"] header {
+  background: #080c10 !important;
+  border-bottom-color: #202a31 !important;
+}
+
+/* Compact engineering page header. */
+[data-theme="tech"] .page-header {
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--border-strong) !important;
+}
+
+[data-theme="tech"] .page-header h1 {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+[data-theme="tech"] .page-header p {
+  color: #84929b;
+}
+
+/* Data panels. */
+[data-theme="tech"] section,
+[data-theme="tech"] article {
+  border-radius: 2px !important;
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="tech"] section::before,
+[data-theme="tech"] article::before {
+  display: none !important;
+}
+
+/* KPI strip: think sector timing / engineering readout. */
+[data-theme="tech"] .dashboard-kpis {
+  gap: 0 !important;
+  padding: 0 !important;
+  border: 1px solid var(--border-strong) !important;
+  background: var(--border-strong);
+}
+
+[data-theme="tech"] .dashboard-kpis > * {
+  min-height: 94px;
+  padding: 14px 16px !important;
+  border: 0 !important;
+  border-right: 1px solid var(--border) !important;
+  border-top: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: var(--surface) !important;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:first-child {
+  border-top-color: var(--accent) !important;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:last-child {
+  border-right: 0 !important;
+}
+
+[data-theme="tech"] .dashboard-kpis > *:hover {
+  background: #131b21 !important;
+}
+
+[data-theme="tech"] .dashboard-kpis > *::after {
+  display: none !important;
+}
+
+/* Engineering-grade numbers. */
+[data-theme="tech"] .dashboard-kpis [class*="text-3xl"],
+[data-theme="tech"] .dashboard-kpis [class*="text-4xl"],
+[data-theme="tech"] .dashboard-kpis [class*="text-2xl"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+}
+
+/* Compact section headers. */
+[data-theme="tech"] section h2 {
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.005em;
+}
+
+[data-theme="tech"] section p.text-xs,
+[data-theme="tech"] article p.text-xs {
+  font-size: 10px !important;
+}
+
+/* Telemetry tables. */
+[data-theme="tech"] table {
+  border-collapse: collapse;
+}
+
+[data-theme="tech"] table thead th {
+  height: 32px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  background: #0b1116 !important;
+  color: #74838d !important;
+  border-bottom: 1px solid var(--border-strong) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+}
+
+[data-theme="tech"] table tbody td {
+  height: 40px;
+  border-bottom: 1px solid #202a30;
+}
+
+[data-theme="tech"] table tbody tr:hover {
+  background: rgba(103, 201, 229, 0.035) !important;
+}
+
+/* Inputs and controls feel like instrumentation. */
+[data-theme="tech"] button {
+  min-height: 32px;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  font-size: 12px;
+}
+
+[data-theme="tech"] input,
+[data-theme="tech"] select,
+[data-theme="tech"] textarea {
+  border-radius: 2px !important;
+  background: #0c1217 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="tech"] input:focus,
+[data-theme="tech"] select:focus,
+[data-theme="tech"] textarea:focus {
+  box-shadow: 0 0 0 1px var(--accent) !important;
+}
+
+/* Quiet telemetry bars. */
+[data-theme="tech"] .theme-chart-bar {
+  border-radius: 1px !important;
+  box-shadow: none !important;
+}
+
+/* Remove all fake status/cockpit copy from the signature component. */
+[data-theme="tech"] .theme-signature,
+[data-theme="performance"] .theme-signature {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------
+   Shared maturity rules
+   ------------------------------------------------------------ */
+
+[data-theme="tech"],
+[data-theme="performance"] {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="tech"] .rounded-2xl,
+[data-theme="performance"] .rounded-2xl {
+  border-radius: var(--theme-panel-radius) !important;
+}
+
+@media (max-width: 900px) {
+  [data-theme="performance"] .dashboard-kpis,
+  [data-theme="tech"] .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-theme="performance"] .dashboard-kpis > *,
+  [data-theme="tech"] .dashboard-kpis > * {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+}
+
+/* ============================================================
+   METRIC PRESENTATION SYSTEM
+   Same evidence. Different reading experience.
+   ============================================================ */
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card-header {
+  min-height: 18px;
+}
+
+.metric-card-label {
+  line-height: 1.2;
+}
+
+.metric-card-reading {
+  position: relative;
+}
+
+.metric-card-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-card-detail {
+  max-width: 30rem;
+}
+
+.metric-card[data-metric-variant="primary"] {
+  border-color: var(--border-strong);
+}
+
+.metric-card[data-metric-variant="primary"] .metric-card-value {
+  font-size: 2.15rem;
+}
+
+.metric-card[data-metric-variant="outcome"] {
+  border-color: color-mix(in srgb, var(--success) 25%, var(--border));
+}
+
+.metric-card[data-metric-variant="outcome"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--success);
+}
+
+.metric-card-state {
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   PROFESSIONAL
+   Financial / institutional intelligence.
+   ------------------------------------------------------------ */
+
+[data-theme="professional"] .metric-card {
+  background: var(--surface);
+  box-shadow: none;
+}
+
+[data-theme="professional"] .metric-card[data-metric-variant="primary"] {
+  border-top: 2px solid var(--accent);
+}
+
+[data-theme="professional"] .metric-card[data-metric-variant="primary"]
+  .metric-card-value {
+  font-size: 2.25rem;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="professional"] .metric-card[data-metric-variant="supporting"]
+  .metric-card-value {
+  font-size: 1.95rem;
+}
+
+[data-theme="professional"] .metric-card[data-metric-variant="outcome"] {
+  border-top: 2px solid var(--success);
+}
+
+[data-theme="professional"] .metric-card-detail {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+/* ------------------------------------------------------------
+   EXECUTIVE
+   Editorial hierarchy. Fewer visual interruptions.
+   ------------------------------------------------------------ */
+
+[data-theme="executive"] .metric-card {
+  min-height: 142px;
+  padding: 22px !important;
+  border-color: transparent;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(25, 30, 35, 0.035);
+}
+
+[data-theme="executive"] .metric-card-label {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+}
+
+[data-theme="executive"] .metric-card-value {
+  margin-top: 18px;
+  font-size: 2.35rem;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+}
+
+[data-theme="executive"] .metric-card-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted-strong);
+}
+
+[data-theme="executive"] .metric-card[data-metric-variant="primary"] {
+  border-left: 2px solid var(--accent);
+}
+
+[data-theme="executive"] .metric-card[data-metric-variant="outcome"] {
+  border-left: 2px solid var(--success);
+}
+
+/* ------------------------------------------------------------
+   TECH
+   Engineering readout / telemetry hierarchy.
+   ------------------------------------------------------------ */
+
+[data-theme="tech"] .metric-card {
+  min-height: 94px;
+  padding: 13px 16px !important;
+  border-radius: 2px !important;
+  border-color: var(--border);
+  background: #10161b !important;
+  box-shadow: none !important;
+}
+
+[data-theme="tech"] .metric-card-header {
+  align-items: baseline;
+}
+
+[data-theme="tech"] .metric-card-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+  letter-spacing: 0.095em;
+}
+
+[data-theme="tech"] .metric-card-value {
+  margin-top: 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.065em;
+}
+
+[data-theme="tech"] .metric-card-detail {
+  margin-top: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  line-height: 1.35;
+  color: #71808a;
+}
+
+[data-theme="tech"] .metric-card[data-metric-variant="primary"] {
+  border-top: 2px solid var(--accent);
+}
+
+[data-theme="tech"] .metric-card[data-metric-variant="primary"]
+  .metric-card-value {
+  color: var(--accent-strong);
+}
+
+[data-theme="tech"] .metric-card[data-metric-variant="outcome"] {
+  border-left: 2px solid #5fae83;
+}
+
+[data-theme="tech"] .metric-card[data-metric-variant="outcome"]::before {
+  display: none;
+}
+
+[data-theme="tech"] .metric-card-state {
+  transform: scale(0.85);
+  transform-origin: right center;
+}
+
+/* ------------------------------------------------------------
+   PERFORMANCE
+   Operations / exception management.
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] .metric-card {
+  min-height: 104px;
+  padding: 15px 17px !important;
+  border-radius: 2px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+[data-theme="performance"] .metric-card-label {
+  font-size: 9px;
+  letter-spacing: 0.085em;
+  color: #59636a;
+}
+
+[data-theme="performance"] .metric-card-value {
+  margin-top: 8px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+}
+
+[data-theme="performance"] .metric-card-detail {
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #68737b;
+}
+
+[data-theme="performance"] .metric-card[data-metric-variant="primary"] {
+  border-top: 3px solid var(--accent);
+}
+
+[data-theme="performance"] .metric-card[data-metric-variant="supporting"] {
+  border-top: 3px solid #8e989e;
+}
+
+[data-theme="performance"] .metric-card[data-metric-variant="outcome"] {
+  border-top: 3px solid var(--success);
+  border-left: 0;
+}
+
+[data-theme="performance"] .metric-card[data-metric-variant="outcome"]::before {
+  display: none;
+}
+
+/* ------------------------------------------------------------
+   ATTENTION / EXCEPTION PRESENTATION
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] .dashboard-secondary section > div > div,
+[data-theme="tech"] .dashboard-secondary section > div > div {
+  border-radius: 2px !important;
+}
+
+[data-theme="performance"] .dashboard-secondary section {
+  box-shadow: none !important;
+}
+
+[data-theme="performance"] .dashboard-secondary
+  [class*="bg-\[var\(--warning-soft\)\]"] {
+  border-left: 3px solid var(--warning) !important;
+}
+
+[data-theme="performance"] .dashboard-secondary
+  [class*="bg-\[var\(--success-soft\)\]"] {
+  border-left: 3px solid var(--success) !important;
+}
+
+/* ------------------------------------------------------------
+   COVERAGE / MEASUREMENT TRACKS
+   ------------------------------------------------------------ */
+
+[data-theme="tech"] .dashboard-secondary .rounded-full {
+  border-radius: 1px !important;
+}
+
+[data-theme="performance"] .dashboard-secondary .rounded-full {
+  border-radius: 1px !important;
+}
+
+[data-theme="performance"] .dashboard-secondary .h-1\.5 {
+  height: 5px !important;
+  background: #dfe3e5 !important;
+}
+
+[data-theme="tech"] .dashboard-secondary .h-1\.5 {
+  height: 3px !important;
+  background: #202a30 !important;
+}
+
+/* ------------------------------------------------------------
+   OPERATING SIGNALS
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] .dashboard-secondary + section > div > div {
+  border-radius: 2px !important;
+  background: #f5f6f6 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="performance"] .dashboard-secondary + section
+  [class*="text-2xl"] {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+[data-theme="tech"] .dashboard-secondary + section > div > div {
+  border-radius: 2px !important;
+  background: #0d1318 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="tech"] .dashboard-secondary + section
+  [class*="text-2xl"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.65rem;
+  color: var(--accent-strong);
+}
+
+/* ------------------------------------------------------------
+   DENSITY
+   ------------------------------------------------------------ */
+
+[data-theme="performance"] .metric-card,
+[data-theme="tech"] .metric-card {
+  transition:
+    border-color 100ms ease,
+    background-color 100ms ease;
+}
+
+[data-theme="performance"] .metric-card:hover {
+  border-color: #8f999f !important;
+}
+
+[data-theme="tech"] .metric-card:hover {
+  border-color: #4b5a64 !important;
+}
+
+@media (max-width: 900px) {
+  [data-theme="executive"] .metric-card {
+    min-height: 125px;
+  }
+
+  [data-theme="tech"] .metric-card,
+  [data-theme="performance"] .metric-card {
+    min-height: 92px;
+  }
+}
+
+
+/* REPORT PDF EXPORT */
+.report-print-header { display: none; }
+
+@media print {
+  @page { size: landscape; margin: 14mm 12mm 16mm; }
+
+  html, body {
+    background: #fff !important;
+    color: #172033 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  body * { visibility: hidden !important; }
+  #report-export-content, #report-export-content * { visibility: visible !important; }
+
+  #report-export-content {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #172033 !important;
+    background: #fff !important;
+    font-size: 9pt !important;
+    line-height: 1.4 !important;
+  }
+
+  #report-export-content .no-print,
+  #report-export-content button,
+  #report-export-content a { display: none !important; }
+
+  #report-export-content .report-print-header {
+    display: block !important;
+    margin: 0 0 16pt !important;
+    padding: 0 0 12pt !important;
+    border-bottom: 2px solid #172033 !important;
+    break-after: avoid !important;
+  }
+
+  #report-export-content .report-print-brand {
+    display: flex !important;
+    justify-content: space-between !important;
+    color: #475569 !important;
+    font-size: 8pt !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.5pt !important;
+  }
+
+  #report-export-content .report-print-brand span {
+    color: #64748b !important;
+    font-size: 7pt !important;
+    letter-spacing: 1pt !important;
+  }
+
+  #report-export-content .report-print-header h1 {
+    margin: 10pt 0 4pt !important;
+    color: #0f172a !important;
+    font-size: 25pt !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.6pt !important;
+    line-height: 1.12 !important;
+  }
+
+  #report-export-content .report-print-subtitle {
+    margin-top: 5pt !important;
+    color: #334155 !important;
+    font-size: 10pt !important;
+    font-weight: 600 !important;
+    text-transform: capitalize !important;
+  }
+
+  #report-export-content .report-print-meta {
+    margin-top: 4pt !important;
+    color: #64748b !important;
+    font-size: 8pt !important;
+  }
+
+  #report-export-content .overflow-x-auto {
+    overflow: visible !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 0 !important;
+  }
+
+  #report-export-content table {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: collapse !important;
+    font-size: 8pt !important;
+  }
+
+  #report-export-content thead { display: table-header-group !important; }
+
+  #report-export-content th {
+    padding: 7px 6px !important;
+    background: #eaf0f6 !important;
+    color: #172033 !important;
+    border-bottom: 1.5px solid #94a3b8 !important;
+    font-size: 7.5pt !important;
+    font-weight: 700 !important;
+    text-align: left !important;
+    vertical-align: bottom !important;
+  }
+
+  #report-export-content td {
+    padding: 6px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #172033 !important;
+    overflow-wrap: anywhere !important;
+    vertical-align: top !important;
+  }
+
+  #report-export-content tbody tr:nth-child(even) { background: #f8fafc !important; }
+  #report-export-content tr,
+  #report-export-content article,
+  #report-export-content section { break-inside: avoid; }
+  #report-export-content h3,
+  #report-export-content h4 { break-after: avoid; color: #0f172a !important; }
+
+  #report-export-content .report-summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8pt !important;
+    margin: 10pt 0 14pt !important;
+  }
+
+  #report-export-content .report-summary-grid article {
+    padding: 11pt !important;
+    border: 1px solid #cbd5e1 !important;
+    border-top: 3px solid #334155 !important;
+    border-radius: 0 !important;
+    background: #f8fafc !important;
+  }
+
+  #report-export-content .report-summary-grid article p:first-child {
+    color: #475569 !important;
+    font-size: 7.5pt !important;
+    font-weight: 600 !important;
+  }
+
+  #report-export-content .report-summary-grid article p:nth-child(2) {
+    margin-top: 5pt !important;
+    color: #0f172a !important;
+    font-size: 20pt !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+  }
+
+  #report-export-content .report-summary-grid article p:last-child {
+    margin-top: 5pt !important;
+    color: #64748b !important;
+    font-size: 7pt !important;
+  }
+
+  #report-export-content .grid { gap: 8pt !important; }
+  #report-export-content .bg-slate-50 { background: #f8fafc !important; }
+  #report-export-content .bg-white { background: #fff !important; }
+  #report-export-content .text-slate-400,
+  #report-export-content .text-slate-500 { color: #475569 !important; }
+  #report-export-content .text-slate-950,
+  #report-export-content .text-slate-900 { color: #0f172a !important; }
+  #report-export-content .rounded-xl,
+  #report-export-content .rounded-lg { border-radius: 3px !important; }
+  #report-export-content .space-y-5 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 12pt !important;
+  }
+}

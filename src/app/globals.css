@@ -4190,3 +4190,38 @@ textarea {
     margin-top: 12pt !important;
   }
 }
+
+
+/* REPORT ANALYTICS — restrained, evidence-first presentation */
+.report-analytics,
+.report-analytics table {
+  font-variant-numeric: tabular-nums;
+}
+.report-analytics table th {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+.report-analytics table td,
+.report-analytics table th {
+  border-bottom: 1px solid var(--border);
+}
+.report-analytics [data-report-summary] {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: none;
+}
+@media print {
+  .report-analytics {
+    color: #171717;
+    background: #fff;
+  }
+  .report-analytics table {
+    break-inside: auto;
+  }
+  .report-analytics tr {
+    break-inside: avoid;
+  }
+}
