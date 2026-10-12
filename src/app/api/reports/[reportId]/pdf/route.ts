@@ -190,6 +190,7 @@ async function createPdf(
     y: number,
     labelWidth: number,
     metricWidth: number,
+    visibleMetrics: ReportMetricKey[] = metrics,
   ) {
     const headerHeight = 48;
     doc.rect(left(), y, tableWidth, headerHeight).fill(COLORS.accent);
@@ -199,9 +200,9 @@ async function createPdf(
           width: labelWidth - 12, height: 25, ellipsis: true,
         });
 
-    metrics.forEach((metric, index) => {
+    visibleMetrics.forEach((metric, index) => {
       doc.font("Helvetica-Bold")
-        .fontSize(metrics.length > 10 ? 5.5 : metrics.length > 7 ? 6.2 : 7)
+        .fontSize(visibleMetrics.length > 7 ? 6.2 : 7)
         .fillColor(COLORS.white)
         .text(pdfMetricLabel(metric),
           left() + labelWidth + index * metricWidth + 2, y + 5, {
@@ -270,7 +271,7 @@ async function createPdf(
     `Population: ${result.populationCount.toLocaleString()} leads matched the saved report definition and its filters.`,
     `Time basis: ${formatDateBasis(result.definition.dateRange.basis)}. The selected date basis determines which date is used to include a lead or activity in the reporting period.`,
     `Grouping: ${result.definition.groupBy === "none" ? "one overall result" : result.definition.groupBy}. Group rows organize the same selected population; they should not be interpreted as independent experiments.`,
-    `Measures included: ${metrics.map(pdfMetricLabel).join(", ")}. Calculation evidence, email engagement, lead outcomes, and known limitations are provided in the supporting pages.`,
+    `Measures included: ${metrics.map(pdfMetricLabel).join(", ")}. Results are split into readable measure panels. Supporting pages explain the calculations and any relevant template or email evidence.`,
   ];
   summaryLines.forEach((line) => {
     doc.font("Helvetica").fontSize(9).fillColor(COLORS.ink)
@@ -299,58 +300,198 @@ async function createPdf(
     });
   doc.y = interpretationY + interpretationHeight + 8;
 
-  // PAGE 2 — One unified results table and charts
-  doc.addPage();
-  addTopRule();
-  doc.y = 27;
-  heading("Results by group",
-    `${metrics.length} selected measures · One unified table for all selected metrics`);
+  // RESULTS — split large measure selections into readable panels.
+  // Every page repeats its column headings; measures are never compressed
+  // into unreadable slivers to force everything onto a single page.
+  const measurePanels = chunkMetrics(metrics, 8);
 
   if (result.rows.length === 0) {
+    doc.addPage();
+    addTopRule();
+    doc.y = 27;
+    heading("Results", "No records matched the saved report definition and filters.");
     doc.font("Helvetica").fontSize(10).fillColor(COLORS.muted)
-      .text("No leads match this report definition.", left(), doc.y);
+      .text("Try widening the date range or reviewing the population filters.", left(), doc.y);
   } else {
-    const labelWidth = metrics.length > 10 ? 100 : 118;
-    const metricWidth = (tableWidth - labelWidth) / Math.max(metrics.length, 1);
-    const rowHeight = 25;
-    let y = drawTableHeader(doc.y, labelWidth, metricWidth);
+    measurePanels.forEach((visibleMetrics, panelIndex) => {
+      doc.addPage();
+      addTopRule();
+      doc.y = 27;
+      heading(
+        panelIndex === 0 ? "Results by group" : "Results by group — continued",
+        `Measures ${panelIndex * 8 + 1}–${panelIndex * 8 + visibleMetrics.length} of ${metrics.length} · ${result.rows.length} groups · Same report population`,
+      );
 
-    result.rows.forEach((row, rowIndex) => {
-      if (y + rowHeight > bottom() - 175) {
-        // Keep the table together on the results page when possible.
-        // If a report has many groups, continue the same table on a new page.
-        doc.addPage();
-        addTopRule();
-        doc.y = 27;
-        heading("Results by group — continued");
-        y = drawTableHeader(doc.y, labelWidth, metricWidth);
-      }
+      const labelWidth = 132;
+      const metricWidth = (tableWidth - labelWidth) / visibleMetrics.length;
+      const rowHeight = 25;
+      let y = drawTableHeader(doc.y, labelWidth, metricWidth, visibleMetrics);
 
-      if (rowIndex % 2 === 1) {
-        doc.rect(left(), y, tableWidth, rowHeight).fill(COLORS.soft);
-      }
-      doc.moveTo(left(), y + rowHeight).lineTo(left() + tableWidth, y + rowHeight)
-        .lineWidth(0.35).strokeColor(COLORS.line).stroke();
+      result.rows.forEach((row, rowIndex) => {
+        if (y + rowHeight > bottom() - 12) {
+          doc.addPage();
+          addTopRule();
+          doc.y = 27;
+          heading(
+            "Results by group — continued",
+            `Measure panel ${panelIndex + 1} of ${measurePanels.length}`,
+          );
+          y = drawTableHeader(doc.y, labelWidth, metricWidth, visibleMetrics);
+        }
 
-      doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.ink)
-        .text(formatGroupLabel(result.definition.groupBy, row.label),
-          left() + 6, y + 7, {
-            width: labelWidth - 12, height: 12, ellipsis: true,
-          });
+        if (rowIndex % 2 === 1) {
+          doc.rect(left(), y, tableWidth, rowHeight).fill(COLORS.soft);
+        }
+        doc.moveTo(left(), y + rowHeight).lineTo(left() + tableWidth, y + rowHeight)
+          .lineWidth(0.35).strokeColor(COLORS.line).stroke();
 
-      metrics.forEach((metric, index) => {
-        const value = formatMetric(metric, row.values[metric] ?? null);
-        doc.font("Helvetica").fontSize(metrics.length > 10 ? 6.2 : 7.5)
-          .fillColor(value === "—" ? COLORS.muted : COLORS.ink)
-          .text(value,
-            left() + labelWidth + index * metricWidth + 2, y + 7, {
-              width: metricWidth - 4, height: 12, align: "right", ellipsis: true,
+        doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.ink)
+          .text(formatGroupLabel(result.definition.groupBy, row.label),
+            left() + 6, y + 7, {
+              width: labelWidth - 12, height: 12, ellipsis: true,
             });
+
+        visibleMetrics.forEach((metric, index) => {
+          const value = formatMetric(metric, row.values[metric] ?? null);
+          doc.font("Helvetica").fontSize(7.5)
+            .fillColor(value === "—" ? COLORS.muted : COLORS.ink)
+            .text(value,
+              left() + labelWidth + index * metricWidth + 2, y + 7, {
+                width: metricWidth - 4, height: 12,
+                align: "right", ellipsis: true,
+              });
+        });
+        y += rowHeight;
       });
-      y += rowHeight;
+    });
+  }
+
+  // TEMPLATE USAGE — count actual matched-template actions, not only the
+  // first template assigned to each lead for the grouped results table.
+  if (result.definition.groupBy === "template" ||
+      metrics.some((metric) => metric === "templateUses" || metric === "templateUsesPerLead")) {
+    const usage = new Map<string, { uses: number; leads: Set<string> }>();
+
+    for (const observation of selectedObservations) {
+      for (const action of observation.templateActions) {
+        const code = action.templateCode?.trim();
+        if (!code) continue;
+        const current = usage.get(code) ?? { uses: 0, leads: new Set<string>() };
+        current.uses += 1;
+        current.leads.add(observation.lead.leadId);
+        usage.set(code, current);
+      }
+    }
+
+    const rankedTemplates = [...usage.entries()]
+      .map(([template, item]) => ({
+        template,
+        uses: item.uses,
+        leads: item.leads.size,
+        usesPerLead: item.leads.size ? item.uses / item.leads.size : null,
+      }))
+      .sort((a, b) => b.uses - a.uses || a.template.localeCompare(b.template));
+
+    doc.addPage();
+    addTopRule();
+    doc.y = 30;
+    heading(
+      "Matched-template usage",
+      "Action-level attribution across the selected report population",
+    );
+
+    const totalUses = rankedTemplates.reduce((sum, item) => sum + item.uses, 0);
+    const distinctUsingLeads = new Set(
+      selectedObservations
+        .filter((observation) => observation.templateActions.some((action) => action.templateCode?.trim()))
+        .map((observation) => observation.lead.leadId),
+    ).size;
+
+    const facts = [
+      `Matched-template actions: ${totalUses.toLocaleString()}.`,
+      `Distinct leads with at least one matched-template action: ${distinctUsingLeads.toLocaleString()} of ${result.populationCount.toLocaleString()} selected leads.`,
+      `Templates with recorded matched actions: ${rankedTemplates.length.toLocaleString()}.`,
+    ];
+    facts.forEach((fact) => {
+      doc.font("Helvetica").fontSize(9).fillColor(COLORS.ink)
+        .text(fact, left(), doc.y, { width: tableWidth });
+      doc.moveDown(0.45);
     });
 
+    doc.moveDown(0.3);
+    const columns = [
+      { label: "TEMPLATE", width: tableWidth * 0.40 },
+      { label: "MATCHED USES", width: tableWidth * 0.18 },
+      { label: "DISTINCT LEADS", width: tableWidth * 0.20 },
+      { label: "USES / USING LEAD", width: tableWidth * 0.22 },
+    ];
+    const headerY = doc.y;
+    doc.rect(left(), headerY, tableWidth, 29).fill(COLORS.accent);
+    let x = left();
+    columns.forEach((column, index) => {
+      doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.white)
+        .text(column.label, x + 5, headerY + 9, {
+          width: column.width - 10,
+          align: index === 0 ? "left" : "right",
+          ellipsis: true,
+        });
+      x += column.width;
+    });
 
+    let y = headerY + 29;
+    if (rankedTemplates.length === 0) {
+      doc.font("Helvetica").fontSize(9).fillColor(COLORS.muted)
+        .text("No canonical matched-template actions were found in this population.", left(), y + 9);
+      y += 30;
+    } else {
+      rankedTemplates.forEach((item, index) => {
+        if (y + 25 > bottom() - 12) {
+          doc.addPage();
+          addTopRule();
+          doc.y = 30;
+          heading("Matched-template usage — continued");
+          y = doc.y;
+        }
+        if (index % 2 === 1) {
+          doc.rect(left(), y, tableWidth, 25).fill(COLORS.soft);
+        }
+        const values = [
+          item.template,
+          item.uses.toLocaleString(),
+          item.leads.toLocaleString(),
+          item.usesPerLead === null ? "—" : item.usesPerLead.toLocaleString("en-US", { maximumFractionDigits: 2 }),
+        ];
+        let cellX = left();
+        values.forEach((value, cellIndex) => {
+          const column = columns[cellIndex];
+          doc.font(cellIndex === 0 ? "Helvetica-Bold" : "Helvetica")
+            .fontSize(8).fillColor(COLORS.ink)
+            .text(value, cellX + 5, y + 7, {
+              width: column.width - 10,
+              align: cellIndex === 0 ? "left" : "right",
+              ellipsis: true,
+            });
+          cellX += column.width;
+        });
+        doc.moveTo(left(), y + 25).lineTo(left() + tableWidth, y + 25)
+          .lineWidth(0.35).strokeColor(COLORS.line).stroke();
+        y += 25;
+      });
+    }
+
+    doc.y = Math.min(y + 14, bottom() - 2);
+    const note = "Important: the grouped results table assigns each lead to its first matched template. This action-level table instead counts each canonical matched-template action under its own template. A lead may appear under multiple templates, so distinct-lead counts across templates are not additive.";
+    const noteHeight = doc.font("Helvetica").fontSize(8).heightOfString(note, { width: tableWidth - 16, lineGap: 2 }) + 14;
+    if (doc.y + noteHeight > bottom()) {
+      doc.addPage();
+      addTopRule();
+      doc.y = 30;
+      heading("Matched-template usage — interpretation");
+    }
+    doc.roundedRect(left(), doc.y, tableWidth, noteHeight, 4)
+      .fillAndStroke(COLORS.soft, COLORS.line);
+    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
+      .text(note, left() + 8, doc.y + 7, { width: tableWidth - 16, lineGap: 2 });
   }
 
   // EVIDENCE PAGE — show the calculation and evidence behind each result.
@@ -416,7 +557,9 @@ async function createPdf(
       ? evidenceLabels[definition.evidence] ?? definition.evidence
       : "Not specified";
     const cohort = diagnostic
-      ? `Eligible leads: ${diagnostic.eligibleLeadCount.toLocaleString()}  ·  With linked timeline records: ${diagnostic.timelineCoveredLeadCount.toLocaleString()}`
+      ? diagnostic.population === "report_population"
+        ? `Selected population: ${diagnostic.eligibleLeadCount.toLocaleString()} leads  ·  With linked timeline records: ${diagnostic.timelineCoveredLeadCount.toLocaleString()}`
+        : `Comparison cohort before evidence filters: ${diagnostic.eligibleLeadCount.toLocaleString()} leads  ·  With linked timeline records: ${diagnostic.timelineCoveredLeadCount.toLocaleString()}`
       : null;
 
     const estimate =
@@ -631,34 +774,6 @@ async function createPdf(
         lineGap: 2,
       });
     doc.moveDown(0.35);
-  });
-
-  const notes = [
-    "Population and date basis: leads are included according to the saved report definition and selected date basis.",
-    "CRM contacted: based on the CRM First Contacted Time value; it is not proof that qualifying outbound activity was observed.",
-    "Observed outbound and responses: based on qualifying communication evidence available in linked timeline data.",
-    "Response rate: observed responses divided by leads with observed outbound evidence. A missing denominator is shown as a dash rather than treated as zero.",
-    "Timeline coverage: indicates linked timeline records, not proof that every communication or event was captured.",
-    "Template comparisons: matched-template uses count qualifying outbound actions, so uses can exceed the number of leads. Group comparisons are descriptive and do not establish causation.",
-  ];
-  if (doc.y + 90 > bottom()) {
-    doc.addPage();
-    addTopRule();
-    doc.y = 30;
-  }
-  heading("Interpretation and limitations");
-  notes.forEach((note) => {
-    if (doc.y + 30 > bottom()) {
-      doc.addPage();
-      addTopRule();
-      doc.y = 30;
-      heading("Interpretation and limitations — continued");
-    }
-    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
-      .text(`•  ${note}`, left() + 2, doc.y, {
-        width: tableWidth - 4, lineGap: 2,
-      });
-    doc.moveDown(0.45);
   });
 
   // Add footers only after the content is laid out. No footer-only pages.
