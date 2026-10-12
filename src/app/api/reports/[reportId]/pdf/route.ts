@@ -6,7 +6,7 @@ import { metricDefinition } from "@/reports/report-catalog";
 import { buildLeadObservations } from "@/analytics/observations/analytics-observations";
 import { buildEmailEvidence } from "@/analytics/metrics/email-evidence";
 import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
-import type { ReportMetricKey, ReportResult } from "@/reports/report-types";
+import { DEFAULT_REPORT_PDF_OPTIONS, type ReportMetricKey, type ReportResult } from "@/reports/report-types";
 import { createServerReportRepository } from "@/reports/create-server-report-repository";
 
 export const runtime = "nodejs";
@@ -84,6 +84,7 @@ async function createPdf(
   const bottom = () => doc.page.height - doc.page.margins.bottom;
   const left = () => doc.page.margins.left;
   const metrics = result.definition.metrics;
+  const pdfOptions = result.definition.pdfOptions ?? DEFAULT_REPORT_PDF_OPTIONS;
   const tableWidth = pageWidth();
 
   // Analyze only leads included in this saved report.
@@ -236,6 +237,7 @@ async function createPdf(
       left(), doc.y, { width: tableWidth },
     );
   doc.moveDown(1.1);
+  if (pdfOptions.includeExecutiveSummary) {
   heading("Executive summary", "Headline results for the selected report population");
 
   const summaryMetrics = metrics.slice(0, 3);
@@ -300,6 +302,10 @@ async function createPdf(
     });
   doc.y = interpretationY + interpretationHeight + 8;
 
+
+  }
+
+  if (pdfOptions.includeDetailedResults) {
   // RESULTS — split large measure selections into readable panels.
   // Every page repeats its column headings; measures are never compressed
   // into unreadable slivers to force everything onto a single page.
@@ -366,10 +372,13 @@ async function createPdf(
     });
   }
 
+
+  }
+
   // TEMPLATE USAGE — count actual matched-template actions, not only the
   // first template assigned to each lead for the grouped results table.
-  if (result.definition.groupBy === "template" ||
-      metrics.some((metric) => metric === "templateUses" || metric === "templateUsesPerLead")) {
+  if (pdfOptions.includeTemplateUsage && (result.definition.groupBy === "template" ||
+      metrics.some((metric) => metric === "templateUses" || metric === "templateUsesPerLead"))) {
     const usage = new Map<string, { uses: number; leads: Set<string> }>();
 
     for (const observation of selectedObservations) {
@@ -494,6 +503,7 @@ async function createPdf(
       .text(note, left() + 8, doc.y + 7, { width: tableWidth - 16, lineGap: 2 });
   }
 
+  if (pdfOptions.includeMetricDefinitions) {
   // EVIDENCE PAGE — show the calculation and evidence behind each result.
   doc.addPage();
   addTopRule();
@@ -653,6 +663,10 @@ async function createPdf(
     doc.moveDown(0.35);
   });
 
+
+  }
+
+  if (pdfOptions.includeEmailEngagement) {
   // EMAIL ENGAGEMENT — connect tracked sends to observed lead outcomes.
   doc.addPage();
   addTopRule();
@@ -775,6 +789,9 @@ async function createPdf(
       });
     doc.moveDown(0.35);
   });
+
+
+  }
 
   // Add footers only after the content is laid out. No footer-only pages.
   const range = doc.bufferedPageRange();

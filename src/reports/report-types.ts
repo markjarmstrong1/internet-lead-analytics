@@ -100,6 +100,22 @@ export type ReportFilters = {
   evidence: ReportEvidenceFilters;
 };
 
+export type ReportPdfOptions = {
+  includeExecutiveSummary: boolean;
+  includeDetailedResults: boolean;
+  includeMetricDefinitions: boolean;
+  includeTemplateUsage: boolean;
+  includeEmailEngagement: boolean;
+};
+
+export const DEFAULT_REPORT_PDF_OPTIONS: ReportPdfOptions = {
+  includeExecutiveSummary: true,
+  includeDetailedResults: true,
+  includeMetricDefinitions: true,
+  includeTemplateUsage: true,
+  includeEmailEngagement: true,
+};
+
 export type ReportDefinition = {
   version: typeof REPORT_DEFINITION_VERSION;
   name: string;
@@ -107,6 +123,7 @@ export type ReportDefinition = {
   filters: ReportFilters;
   groupBy: ReportDimensionKey;
   metrics: ReportMetricKey[];
+  pdfOptions: ReportPdfOptions;
 };
 
 export type SavedReport = {

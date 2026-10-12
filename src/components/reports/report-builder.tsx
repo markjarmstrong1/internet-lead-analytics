@@ -231,6 +231,11 @@ export function ReportBuilder({
         method="get"
         className="space-y-6"
       >
+        <input
+          type="hidden"
+          name="pdfOptions"
+          value={JSON.stringify(draft.pdfOptions)}
+        />
         <div className="grid gap-5 lg:grid-cols-3">
           <Field
             label="Report name"
@@ -621,6 +626,46 @@ export function ReportBuilder({
                 </details>
               );
             })}
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+          <div className="mb-3">
+            <p className="text-sm font-semibold text-slate-900">Report output</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Choose which sections appear in the polished PDF. These choices are saved with this report.
+              They do not change the underlying calculations or CSV export.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {([
+              ["includeExecutiveSummary", "Executive summary", "Headline metrics and report context."],
+              ["includeDetailedResults", "Detailed results", "Grouped results tables."],
+              ["includeMetricDefinitions", "Metric definitions & evidence", "Calculations, denominators, and evidence limitations."],
+              ["includeTemplateUsage", "Matched-template usage", "Action-level usage by matched template."],
+              ["includeEmailEngagement", "Email engagement", "Tracked sends and lead-outcome cohorts."],
+            ] as const).map(([key, label, description]) => (
+              <label key={key} className="flex cursor-pointer gap-2.5 rounded-lg border border-slate-200 p-3 hover:bg-slate-50">
+                <input
+                  type="checkbox"
+                  checked={draft.pdfOptions[key]}
+                  onChange={(event) =>
+                    setDraft((current) => ({
+                      ...current,
+                      pdfOptions: {
+                        ...current.pdfOptions,
+                        [key]: event.target.checked,
+                      },
+                    }))
+                  }
+                  className="mt-0.5"
+                />
+                <span>
+                  <span className="block text-sm font-medium text-slate-900">{label}</span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-500">{description}</span>
+                </span>
+              </label>
+            ))}
           </div>
         </section>
 

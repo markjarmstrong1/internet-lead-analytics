@@ -9,6 +9,8 @@ import {
   type ReportDefinition,
   type ReportDimensionKey,
   type ReportMetricKey,
+  DEFAULT_REPORT_PDF_OPTIONS,
+  type ReportPdfOptions,
 } from "./report-types";
 
 export const DEFAULT_REPORT_DEFINITION: ReportDefinition = {
@@ -34,6 +36,7 @@ export const DEFAULT_REPORT_DEFINITION: ReportDefinition = {
     },
   },
   groupBy: "source",
+  pdfOptions: { ...DEFAULT_REPORT_PDF_OPTIONS },
   metrics: [
     "leads",
     "contacted",
@@ -111,6 +114,7 @@ export function normalizeReportDefinition(
       metrics.length > 0
         ? metrics
         : [...DEFAULT_REPORT_DEFINITION.metrics],
+    pdfOptions: normalizePdfOptions(input.pdfOptions),
   };
 
   if (
@@ -218,6 +222,48 @@ function getResponseWithin24hFilter(
   return selected === "yes" || selected === "no"
     ? selected
     : "any";
+}
+
+function normalizePdfOptions(value: unknown): ReportPdfOptions {
+  let candidate = value;
+
+  // GET-form submissions serialize this object as JSON.
+  if (typeof candidate === "string") {
+    try {
+      candidate = JSON.parse(candidate);
+    } catch {
+      candidate = {};
+    }
+  }
+
+  const input =
+    typeof candidate === "object" && candidate !== null &&
+    !Array.isArray(candidate)
+      ? candidate as Record<string, unknown>
+      : {};
+
+  return {
+    includeExecutiveSummary:
+      typeof input.includeExecutiveSummary === "boolean"
+        ? input.includeExecutiveSummary
+        : DEFAULT_REPORT_PDF_OPTIONS.includeExecutiveSummary,
+    includeDetailedResults:
+      typeof input.includeDetailedResults === "boolean"
+        ? input.includeDetailedResults
+        : DEFAULT_REPORT_PDF_OPTIONS.includeDetailedResults,
+    includeMetricDefinitions:
+      typeof input.includeMetricDefinitions === "boolean"
+        ? input.includeMetricDefinitions
+        : DEFAULT_REPORT_PDF_OPTIONS.includeMetricDefinitions,
+    includeTemplateUsage:
+      typeof input.includeTemplateUsage === "boolean"
+        ? input.includeTemplateUsage
+        : DEFAULT_REPORT_PDF_OPTIONS.includeTemplateUsage,
+    includeEmailEngagement:
+      typeof input.includeEmailEngagement === "boolean"
+        ? input.includeEmailEngagement
+        : DEFAULT_REPORT_PDF_OPTIONS.includeEmailEngagement,
+  };
 }
 
 function normalizeName(
