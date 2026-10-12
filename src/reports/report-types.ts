@@ -100,12 +100,31 @@ export type ReportFilters = {
   evidence: ReportEvidenceFilters;
 };
 
+export type ReportPdfLayoutPreset = "executive" | "detailed" | "data";
+export type ReportPdfOrientation = "portrait" | "landscape";
+export type ReportPdfDensity = "compact" | "comfortable";
+export type ReportPdfMaxRows = "all" | "25" | "50" | "100";
+
+export type ReportPdfSectionTitles = {
+  executiveSummary: string;
+  detailedResults: string;
+  metricDefinitions: string;
+  templateUsage: string;
+  emailEngagement: string;
+};
+
 export type ReportPdfOptions = {
   includeExecutiveSummary: boolean;
   includeDetailedResults: boolean;
   includeMetricDefinitions: boolean;
   includeTemplateUsage: boolean;
   includeEmailEngagement: boolean;
+  layoutPreset: ReportPdfLayoutPreset;
+  orientation: ReportPdfOrientation;
+  density: ReportPdfDensity;
+  maxRows: ReportPdfMaxRows;
+  subtitle: string;
+  sectionTitles: ReportPdfSectionTitles;
 };
 
 export const DEFAULT_REPORT_PDF_OPTIONS: ReportPdfOptions = {
@@ -114,6 +133,18 @@ export const DEFAULT_REPORT_PDF_OPTIONS: ReportPdfOptions = {
   includeMetricDefinitions: true,
   includeTemplateUsage: true,
   includeEmailEngagement: true,
+  layoutPreset: "detailed",
+  orientation: "landscape",
+  density: "comfortable",
+  maxRows: "all",
+  subtitle: "",
+  sectionTitles: {
+    executiveSummary: "Executive summary",
+    detailedResults: "Results by group",
+    metricDefinitions: "Evidence & metric calculations",
+    templateUsage: "Matched-template usage",
+    emailEngagement: "Email engagement & lead outcomes",
+  },
 };
 
 export type ReportDefinition = {

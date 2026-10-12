@@ -58,9 +58,10 @@ async function createPdf(
   result: ReportResult,
   dataset: AnalyticsDataset,
 ): Promise<Buffer> {
+  const pdfOptions = result.definition.pdfOptions ?? DEFAULT_REPORT_PDF_OPTIONS;
   const doc = new PDFDocument({
     size: "LETTER",
-    layout: "landscape",
+    layout: pdfOptions.orientation,
     margins: { top: 38, bottom: 38, left: 38, right: 38 },
     bufferPages: true,
     info: {
@@ -84,8 +85,10 @@ async function createPdf(
   const bottom = () => doc.page.height - doc.page.margins.bottom;
   const left = () => doc.page.margins.left;
   const metrics = result.definition.metrics;
-  const pdfOptions = result.definition.pdfOptions ?? DEFAULT_REPORT_PDF_OPTIONS;
   const tableWidth = pageWidth();
+  const visibleRows = pdfOptions.maxRows === "all"
+    ? result.rows
+    : result.rows.slice(0, Number(pdfOptions.maxRows));
 
   // Analyze only leads included in this saved report.
   const selectedLeadIds = new Set(result.leadIds);
@@ -224,7 +227,12 @@ async function createPdf(
   doc.moveDown(0.6);
   doc.font("Helvetica-Bold").fontSize(27).fillColor(COLORS.ink)
     .text(result.definition.name, left(), doc.y, { width: tableWidth });
-  doc.moveDown(0.35);
+  doc.moveDown(0.2);
+  if (pdfOptions.subtitle.trim()) {
+    doc.font("Helvetica").fontSize(11).fillColor(COLORS.muted)
+      .text(pdfOptions.subtitle, left(), doc.y, { width: tableWidth });
+    doc.moveDown(0.3);
+  }
   doc.font("Helvetica").fontSize(9).fillColor(COLORS.muted)
     .text(
       `Reporting period: ${formatDateRange(result.definition.dateRange.start, result.definition.dateRange.end)}   |   Date basis: ${formatDateBasis(result.definition.dateRange.basis)}`,
@@ -238,7 +246,7 @@ async function createPdf(
     );
   doc.moveDown(1.1);
   if (pdfOptions.includeExecutiveSummary) {
-  heading("Executive summary", "Headline results for the selected report population");
+  heading(pdfOptions.sectionTitles.executiveSummary, "Headline results for the selected report population");
 
   const summaryMetrics = metrics.slice(0, 3);
   const cards = [
@@ -324,16 +332,16 @@ async function createPdf(
       addTopRule();
       doc.y = 27;
       heading(
-        panelIndex === 0 ? "Results by group" : "Results by group — continued",
-        `Measures ${panelIndex * 8 + 1}–${panelIndex * 8 + visibleMetrics.length} of ${metrics.length} · ${result.rows.length} groups · Same report population`,
+        panelIndex === 0 ? pdfOptions.sectionTitles.detailedResults : `${pdfOptions.sectionTitles.detailedResults} — continued`,
+        `Measures ${panelIndex * 8 + 1}–${panelIndex * 8 + visibleMetrics.length} of ${metrics.length} · Showing ${visibleRows.length} of ${result.rows.length} groups · Same report population`,
       );
 
       const labelWidth = 132;
       const metricWidth = (tableWidth - labelWidth) / visibleMetrics.length;
-      const rowHeight = 25;
+      const rowHeight = pdfOptions.density === "compact" ? 20 : 27;
       let y = drawTableHeader(doc.y, labelWidth, metricWidth, visibleMetrics);
 
-      result.rows.forEach((row, rowIndex) => {
+      visibleRows.forEach((row, rowIndex) => {
         if (y + rowHeight > bottom() - 12) {
           doc.addPage();
           addTopRule();
@@ -405,7 +413,7 @@ async function createPdf(
     addTopRule();
     doc.y = 30;
     heading(
-      "Matched-template usage",
+      pdfOptions.sectionTitles.templateUsage,
       "Action-level attribution across the selected report population",
     );
 
@@ -509,7 +517,7 @@ async function createPdf(
   addTopRule();
   doc.y = 30;
   heading(
-    "Evidence & metric calculations",
+    pdfOptions.sectionTitles.metricDefinitions,
     "Numerators, denominators, eligible populations, and evidence limitations",
   );
 
@@ -672,7 +680,7 @@ async function createPdf(
   addTopRule();
   doc.y = 30;
   heading(
-    "Email engagement & lead outcomes",
+    pdfOptions.sectionTitles.emailEngagement,
     "Tracked email activity and subsequent observable outcomes within this report population",
   );
 

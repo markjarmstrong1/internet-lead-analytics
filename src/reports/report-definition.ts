@@ -187,6 +187,7 @@ export function reportDefinitionFromSearchParams(
       first("groupBy") ??
       DEFAULT_REPORT_DEFINITION.groupBy,
     metrics: values("metric"),
+    pdfOptions: first("pdfOptions"),
   });
 }
 
@@ -263,7 +264,54 @@ function normalizePdfOptions(value: unknown): ReportPdfOptions {
       typeof input.includeEmailEngagement === "boolean"
         ? input.includeEmailEngagement
         : DEFAULT_REPORT_PDF_OPTIONS.includeEmailEngagement,
+    layoutPreset:
+      input.layoutPreset === "executive" ||
+      input.layoutPreset === "detailed" ||
+      input.layoutPreset === "data"
+        ? input.layoutPreset
+        : DEFAULT_REPORT_PDF_OPTIONS.layoutPreset,
+    orientation:
+      input.orientation === "portrait" ||
+      input.orientation === "landscape"
+        ? input.orientation
+        : DEFAULT_REPORT_PDF_OPTIONS.orientation,
+    density:
+      input.density === "compact" ||
+      input.density === "comfortable"
+        ? input.density
+        : DEFAULT_REPORT_PDF_OPTIONS.density,
+    maxRows:
+      input.maxRows === "all" ||
+      input.maxRows === "25" ||
+      input.maxRows === "50" ||
+      input.maxRows === "100"
+        ? input.maxRows
+        : DEFAULT_REPORT_PDF_OPTIONS.maxRows,
+    subtitle:
+      typeof input.subtitle === "string"
+        ? input.subtitle.trim().slice(0, 240)
+        : DEFAULT_REPORT_PDF_OPTIONS.subtitle,
+    sectionTitles: normalizePdfSectionTitles(input.sectionTitles),
   };
+}
+
+function normalizePdfSectionTitles(value: unknown): ReportPdfOptions["sectionTitles"] {
+  const input = isRecord(value) ? value : {};
+  const defaults = DEFAULT_REPORT_PDF_OPTIONS.sectionTitles;
+
+  return {
+    executiveSummary: normalizeSectionTitle(input.executiveSummary, defaults.executiveSummary),
+    detailedResults: normalizeSectionTitle(input.detailedResults, defaults.detailedResults),
+    metricDefinitions: normalizeSectionTitle(input.metricDefinitions, defaults.metricDefinitions),
+    templateUsage: normalizeSectionTitle(input.templateUsage, defaults.templateUsage),
+    emailEngagement: normalizeSectionTitle(input.emailEngagement, defaults.emailEngagement),
+  };
+}
+
+function normalizeSectionTitle(value: unknown, fallback: string): string {
+  if (typeof value !== "string") return fallback;
+  const title = value.trim().slice(0, 100);
+  return title || fallback;
 }
 
 function normalizeName(

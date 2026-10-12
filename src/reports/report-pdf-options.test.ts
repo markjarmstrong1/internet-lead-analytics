@@ -12,6 +12,18 @@ describe("report PDF output options", () => {
       includeMetricDefinitions: true,
       includeTemplateUsage: true,
       includeEmailEngagement: true,
+      layoutPreset: "detailed",
+      orientation: "landscape",
+      density: "comfortable",
+      maxRows: "all",
+      subtitle: "",
+      sectionTitles: {
+        executiveSummary: "Executive summary",
+        detailedResults: "Results by group",
+        metricDefinitions: "Evidence & metric calculations",
+        templateUsage: "Matched-template usage",
+        emailEngagement: "Email engagement & lead outcomes",
+      },
     });
   });
 
@@ -32,6 +44,18 @@ describe("report PDF output options", () => {
       includeMetricDefinitions: false,
       includeTemplateUsage: true,
       includeEmailEngagement: false,
+      layoutPreset: "detailed",
+      orientation: "landscape",
+      density: "comfortable",
+      maxRows: "all",
+      subtitle: "",
+      sectionTitles: {
+        executiveSummary: "Executive summary",
+        detailedResults: "Results by group",
+        metricDefinitions: "Evidence & metric calculations",
+        templateUsage: "Matched-template usage",
+        emailEngagement: "Email engagement & lead outcomes",
+      },
     });
   });
 

@@ -174,6 +174,88 @@ export function ReportBuilder({
     });
   }
 
+  function applyPdfPreset(preset: "executive" | "detailed" | "data") {
+    setDraft((current) => {
+      const common = current.pdfOptions;
+      if (preset === "executive") {
+        return {
+          ...current,
+          pdfOptions: {
+            ...common,
+            layoutPreset: preset,
+            orientation: "portrait",
+            density: "comfortable",
+            maxRows: "25",
+            includeExecutiveSummary: true,
+            includeDetailedResults: true,
+            includeMetricDefinitions: false,
+            includeTemplateUsage: false,
+            includeEmailEngagement: false,
+          },
+        };
+      }
+
+      if (preset === "data") {
+        return {
+          ...current,
+          pdfOptions: {
+            ...common,
+            layoutPreset: preset,
+            orientation: "landscape",
+            density: "compact",
+            maxRows: "all",
+            includeExecutiveSummary: false,
+            includeDetailedResults: true,
+            includeMetricDefinitions: false,
+            includeTemplateUsage: true,
+            includeEmailEngagement: true,
+          },
+        };
+      }
+
+      return {
+        ...current,
+        pdfOptions: {
+          ...common,
+          layoutPreset: preset,
+          orientation: "landscape",
+          density: "comfortable",
+          maxRows: "all",
+          includeExecutiveSummary: true,
+          includeDetailedResults: true,
+          includeMetricDefinitions: true,
+          includeTemplateUsage: true,
+          includeEmailEngagement: true,
+        },
+      };
+    });
+  }
+
+  function updatePdfOptions(
+    patch: Partial<ReportDefinition["pdfOptions"]>,
+  ) {
+    setDraft((current) => ({
+      ...current,
+      pdfOptions: { ...current.pdfOptions, ...patch },
+    }));
+  }
+
+  function updateSectionTitle(
+    key: keyof ReportDefinition["pdfOptions"]["sectionTitles"],
+    value: string,
+  ) {
+    setDraft((current) => ({
+      ...current,
+      pdfOptions: {
+        ...current.pdfOptions,
+        sectionTitles: {
+          ...current.pdfOptions.sectionTitles,
+          [key]: value,
+        },
+      },
+    }));
+  }
+
   return (
     <div className="space-y-6">
       <details className="group rounded-xl border border-slate-200 bg-white">
@@ -637,7 +719,88 @@ export function ReportBuilder({
               They do not change the underlying calculations or CSV export.
             </p>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <Field label="Layout preset" description="Start with a presentation style, then customize it.">
+              <select
+                value={draft.pdfOptions.layoutPreset}
+                onChange={(event) => applyPdfPreset(event.target.value as "executive" | "detailed" | "data")}
+                className={inputClass}
+              >
+                <option value="executive">Executive summary</option>
+                <option value="detailed">Detailed analysis</option>
+                <option value="data">Data-heavy</option>
+              </select>
+            </Field>
+            <Field label="Page orientation" description="Choose portrait or landscape pages.">
+              <select
+                value={draft.pdfOptions.orientation}
+                onChange={(event) => updatePdfOptions({ orientation: event.target.value as "portrait" | "landscape" })}
+                className={inputClass}
+              >
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+              </select>
+            </Field>
+            <Field label="Table density" description="Compact rows fit more groups on each page.">
+              <select
+                value={draft.pdfOptions.density}
+                onChange={(event) => updatePdfOptions({ density: event.target.value as "compact" | "comfortable" })}
+                className={inputClass}
+              >
+                <option value="compact">Compact</option>
+                <option value="comfortable">Comfortable</option>
+              </select>
+            </Field>
+            <Field label="Maximum result rows" description="Limit the grouped results table; choose All to include every group.">
+              <select
+                value={draft.pdfOptions.maxRows}
+                onChange={(event) => updatePdfOptions({ maxRows: event.target.value as "all" | "25" | "50" | "100" })}
+                className={inputClass}
+              >
+                <option value="all">All groups</option>
+                <option value="25">Top 25 groups</option>
+                <option value="50">Top 50 groups</option>
+                <option value="100">Top 100 groups</option>
+              </select>
+            </Field>
+            <div className="md:col-span-2">
+              <Field label="Report subtitle" description="Optional context shown under the report name on the PDF cover.">
+                <input
+                  value={draft.pdfOptions.subtitle}
+                  onChange={(event) => updatePdfOptions({ subtitle: event.target.value })}
+                  maxLength={240}
+                  placeholder="e.g. Monthly internet lead performance review"
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-lg border border-slate-200 p-4">
+            <p className="text-sm font-semibold text-slate-900">Customize section headings</p>
+            <p className="mt-1 mb-4 text-xs leading-5 text-slate-500">Leave a heading unchanged to keep its standard wording. Blank values use the default heading.</p>
+            <div className="grid gap-4 md:grid-cols-2">
+              {([
+                ["executiveSummary", "Executive summary heading"],
+                ["detailedResults", "Detailed results heading"],
+                ["metricDefinitions", "Evidence and calculations heading"],
+                ["templateUsage", "Template usage heading"],
+                ["emailEngagement", "Email engagement heading"],
+              ] as const).map(([key, label]) => (
+                <label key={key} className="block">
+                  <span className="text-sm font-medium text-slate-800">{label}</span>
+                  <input
+                    value={draft.pdfOptions.sectionTitles[key]}
+                    onChange={(event) => updateSectionTitle(key, event.target.value)}
+                    maxLength={100}
+                    className={`${inputClass} mt-1`}
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {([
               ["includeExecutiveSummary", "Executive summary", "Headline metrics and report context."],
               ["includeDetailedResults", "Detailed results", "Grouped results tables."],
