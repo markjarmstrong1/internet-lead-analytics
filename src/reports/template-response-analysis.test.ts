@@ -163,6 +163,126 @@ describe("buildTemplateResponseAnalysis", () => {
     expect(result.actions).toEqual([]);
   });
 
+  it("ends attribution when another outbound communication has no template code", () => {
+    const result = buildTemplateResponseAnalysis(
+      dataset(
+        [lead("lead-1")],
+        [
+          event({
+            sourceEventId: "template-outbound",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+            templateCode: "TEMPLATE_A",
+          }),
+          event({
+            sourceEventId: "untemplated-outbound",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            templateCode: null,
+          }),
+          event({
+            sourceEventId: "inbound-response",
+            occurredAt: "2026-09-10T10:10:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+        ],
+      ),
+    );
+
+    expect(result.totalMatchedTemplateActions).toBe(1);
+    expect(result.totalRespondedActions).toBe(0);
+    expect(result.actions[0]).toMatchObject({
+      templateCode: "TEMPLATE_A",
+      respondedWithinWindow: false,
+      responseAt: null,
+    });
+  });
+
+  it("counts only the first inbound response for a template action", () => {
+    const result = buildTemplateResponseAnalysis(
+      dataset(
+        [lead("lead-1")],
+        [
+          event({
+            sourceEventId: "template-outbound",
+            templateCode: "TEMPLATE_A",
+          }),
+          event({
+            sourceEventId: "first-inbound",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+          event({
+            sourceEventId: "second-inbound",
+            occurredAt: "2026-09-10T10:10:00.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+        ],
+      ),
+    );
+
+    expect(result.totalMatchedTemplateActions).toBe(1);
+    expect(result.totalRespondedActions).toBe(1);
+    expect(result.actions[0]).toMatchObject({
+      responseAt: "2026-09-10T10:05:00.000Z",
+      responseMinutes: 5,
+      respondedWithinWindow: true,
+    });
+  });
+
+  it("does not treat an inbound event at the exact outbound timestamp as a response", () => {
+    const result = buildTemplateResponseAnalysis(
+      dataset(
+        [lead("lead-1")],
+        [
+          event({
+            sourceEventId: "template-outbound",
+            templateCode: "TEMPLATE_A",
+          }),
+          event({
+            sourceEventId: "same-time-inbound",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+        ],
+      ),
+    );
+
+    expect(result.totalMatchedTemplateActions).toBe(1);
+    expect(result.totalRespondedActions).toBe(0);
+    expect(result.actions[0].respondedWithinWindow).toBe(false);
+  });
+
+  it("does not count an inbound response beyond the exact 24-hour boundary", () => {
+    const result = buildTemplateResponseAnalysis(
+      dataset(
+        [lead("lead-1")],
+        [
+          event({
+            sourceEventId: "template-outbound",
+            templateCode: "TEMPLATE_A",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+          }),
+          event({
+            sourceEventId: "late-inbound",
+            occurredAt: "2026-09-11T10:00:01.000Z",
+            rawType: "Text Received",
+            actorType: "unknown",
+            direction: "inbound",
+          }),
+        ],
+      ),
+    );
+
+    expect(result.totalRespondedActions).toBe(0);
+    expect(result.actions[0].respondedWithinWindow).toBe(false);
+  });
+
   it("rejects invalid response windows", () => {
     expect(() =>
       buildTemplateResponseAnalysis(dataset([], []), -1),
