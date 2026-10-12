@@ -3,6 +3,9 @@ import PDFDocument from "pdfkit";
 import { createServerAnalyticsRepository } from "@/analytics/data/create-server-analytics-repository";
 import { buildReport } from "@/reports/build-report";
 import { metricDefinition } from "@/reports/report-catalog";
+import { buildLeadObservations } from "@/analytics/observations/analytics-observations";
+import { buildEmailEvidence } from "@/analytics/metrics/email-evidence";
+import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
 import type { ReportMetricKey, ReportResult } from "@/reports/report-types";
 import { createServerReportRepository } from "@/reports/create-server-report-repository";
 
@@ -33,7 +36,7 @@ export async function GET(
 
     const dataset = await createServerAnalyticsRepository().load();
     const result = buildReport(dataset, savedReport.definition);
-    const pdf = await createPdf(result);
+    const pdf = await createPdf(result, dataset);
 
     const filename = safeFilename(savedReport.name);
 
@@ -51,7 +54,10 @@ export async function GET(
   }
 }
 
-async function createPdf(result: ReportResult): Promise<Buffer> {
+async function createPdf(
+  result: ReportResult,
+  dataset: AnalyticsDataset,
+): Promise<Buffer> {
   const doc = new PDFDocument({
     size: "LETTER",
     layout: "landscape",
@@ -79,6 +85,62 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
   const left = () => doc.page.margins.left;
   const metrics = result.definition.metrics;
   const tableWidth = pageWidth();
+
+  // Analyze only leads included in this saved report.
+  const selectedLeadIds = new Set(result.leadIds);
+  const selectedObservations = buildLeadObservations(dataset)
+    .filter((observation) => selectedLeadIds.has(observation.lead.leadId));
+
+  const emailByLead = selectedObservations.map((observation) => ({
+    observation,
+    trackedEmails: buildEmailEvidence(observation.events)
+      .filter((email) => email.trackingKnown),
+  }));
+
+  const trackedEmails = emailByLead.flatMap((item) => item.trackedEmails);
+  const openedEmails = trackedEmails.filter((email) => email.opened);
+  const noOpenEmails = trackedEmails.filter((email) => !email.opened);
+  const clickedEmails = trackedEmails.filter((email) => email.clicks > 0);
+  const sendsFollowedByInbound = trackedEmails.filter(
+    (email) => email.firstInbound !== null,
+  );
+  const openedSendsFollowedByInbound = openedEmails.filter(
+    (email) => email.firstInbound !== null,
+  );
+  const noOpenSendsFollowedByInbound = noOpenEmails.filter(
+    (email) => email.firstInbound !== null,
+  );
+
+  // Lead-level cohorts are different from email-send counts.
+  // Leads without usable email tracking are excluded from both cohorts.
+  const openedLeadCohort = emailByLead.filter(
+    (item) => item.trackedEmails.some((email) => email.opened),
+  );
+  const noOpenLeadCohort = emailByLead.filter(
+    (item) =>
+      item.trackedEmails.length > 0 &&
+      item.trackedEmails.every((email) => !email.opened),
+  );
+
+  function leadOutcomeCounts(
+    cohort: typeof openedLeadCohort,
+  ) {
+    return {
+      leads: cohort.length,
+      responses: cohort.filter(
+        (item) => item.observation.evidence.response.state === "observed",
+      ).length,
+      appointments: cohort.filter(
+        (item) => item.observation.appointmentEvidence,
+      ).length,
+      soldClosed: cohort.filter(
+        (item) => item.observation.soldClosed,
+      ).length,
+    };
+  }
+
+  const openedLeadOutcomes = leadOutcomeCounts(openedLeadCohort);
+  const noOpenLeadOutcomes = leadOutcomeCounts(noOpenLeadCohort);
 
   function heading(title: string, detail?: string) {
     doc.font("Helvetica-Bold").fontSize(15).fillColor(COLORS.ink)
@@ -152,68 +214,6 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
     return y + headerHeight;
   }
 
-  function drawHorizontalChart(
-    x: number,
-    y: number,
-    width: number,
-    title: string,
-    metric: ReportMetricKey,
-  ) {
-    const height = 148;
-    doc.roundedRect(x, y, width, height, 4)
-      .fillAndStroke(COLORS.white, COLORS.line);
-    doc.font("Helvetica-Bold").fontSize(9).fillColor(COLORS.ink)
-      .text(title, x + 10, y + 9, { width: width - 20 });
-
-    const values = result.rows
-      .map((row) => ({
-        label: formatGroupLabel(result.definition.groupBy, row.label),
-        value: row.values[metric],
-      }))
-      .filter((item): item is { label: string; value: number } =>
-        typeof item.value === "number" && Number.isFinite(item.value),
-      )
-      .slice(0, 6);
-
-    if (values.length === 0) {
-      doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
-        .text("Select this measure in the report to chart it.",
-          x + 10, y + 38, { width: width - 20 });
-      return;
-    }
-
-    const max = Math.max(...values.map((item) => item.value), 1);
-    const labelWidth = Math.min(105, width * 0.34);
-    const valueWidth = 42;
-    const barX = x + 10 + labelWidth;
-    const barWidth = width - labelWidth - valueWidth - 30;
-    const rowStart = y + 33;
-    const rowGap = 17;
-
-    values.forEach((item, index) => {
-      const rowY = rowStart + index * rowGap;
-      const label = item.label.length > 18
-        ? `${item.label.slice(0, 17)}…`
-        : item.label;
-      doc.font("Helvetica").fontSize(7).fillColor(COLORS.ink)
-        .text(label, x + 10, rowY, {
-          width: labelWidth - 5, height: 11, ellipsis: true,
-        });
-      doc.roundedRect(barX, rowY + 1, barWidth, 7, 2).fill(COLORS.soft);
-      const fillWidth = Math.max(0, (item.value / max) * barWidth);
-      if (fillWidth > 0) {
-        doc.roundedRect(barX, rowY + 1, fillWidth, 7, 2).fill(COLORS.accent);
-      }
-      const display = metricDefinition(metric)?.format === "percent"
-        ? `${(item.value * 100).toLocaleString("en-US", { maximumFractionDigits: 1 })}%`
-        : formatMetric(metric, item.value);
-      doc.font("Helvetica-Bold").fontSize(7).fillColor(COLORS.ink)
-        .text(display, x + width - valueWidth - 8, rowY, {
-          width: valueWidth, height: 11, align: "right", ellipsis: true,
-        });
-    });
-  }
-
   // PAGE 1 — Executive summary
   addTopRule();
   doc.y = 29;
@@ -270,7 +270,7 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
     `Population: ${result.populationCount.toLocaleString()} leads matched the saved report definition and its filters.`,
     `Time basis: ${formatDateBasis(result.definition.dateRange.basis)}. The selected date basis determines which date is used to include a lead or activity in the reporting period.`,
     `Grouping: ${result.definition.groupBy === "none" ? "one overall result" : result.definition.groupBy}. Group rows organize the same selected population; they should not be interpreted as independent experiments.`,
-    `Measures included: ${metrics.map(pdfMetricLabel).join(", ")}. Definitions, calculation details, numerator and denominator evidence, and known limitations are provided in the supporting pages.`,
+    `Measures included: ${metrics.map(pdfMetricLabel).join(", ")}. Calculation evidence, email engagement, lead outcomes, and known limitations are provided in the supporting pages.`,
   ];
   summaryLines.forEach((line) => {
     doc.font("Helvetica").fontSize(9).fillColor(COLORS.ink)
@@ -350,34 +350,7 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
       y += rowHeight;
     });
 
-    // Compact charts sit below the table when there is room. If the table
-    // consumes the page, charts get their own continuation page instead.
-    const chartHeight = 148;
-    if (y + chartHeight + 15 > bottom()) {
-      doc.addPage();
-      addTopRule();
-      doc.y = 28;
-      heading("Group comparison charts", "Visual comparisons for selected report measures");
-      y = doc.y;
-    } else {
-      y += 13;
-    }
 
-    const chartGap = 12;
-    const chartWidth = (tableWidth - chartGap) / 2;
-    const firstChart = metrics.includes("leads") ? "leads" : metrics[0];
-    const secondChart = metrics.includes("responseRate")
-      ? "responseRate"
-      : metrics.find((metric) => metric !== firstChart) ?? firstChart;
-
-    drawHorizontalChart(left(), y, chartWidth, pdfMetricLabel(firstChart), firstChart);
-    drawHorizontalChart(
-      left() + chartWidth + chartGap,
-      y,
-      chartWidth,
-      pdfMetricLabel(secondChart),
-      secondChart,
-    );
   }
 
   // EVIDENCE PAGE — show the calculation and evidence behind each result.
@@ -537,45 +510,127 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
     doc.moveDown(0.35);
   });
 
-  // SUPPORTING PAGES — definitions and calculation notes
+  // EMAIL ENGAGEMENT — connect tracked sends to observed lead outcomes.
   doc.addPage();
   addTopRule();
   doc.y = 30;
-  heading("Measurement details",
-    "Definitions and calculation rules for the measures selected in this report");
+  heading(
+    "Email engagement & lead outcomes",
+    "Tracked email activity and subsequent observable outcomes within this report population",
+  );
 
-  metrics.forEach((metric) => {
-    const definition = metricDefinition(metric);
-    const title = pdfMetricLabel(metric);
-    const description = definition?.description ?? "No additional definition is available.";
-    const format = definition?.format ? `Format: ${definition.format}.` : "";
-    const population = definition?.population
-      ? `Population: ${definition.population.replace(/_/g, " ")}.`
-      : "";
-    const note = [format, population].filter(Boolean).join(" ");
-    const needed = 38 + Math.ceil((description.length + note.length) / 105) * 10;
-    if (doc.y + needed > bottom() - 8) {
+  const emailSummary = [
+    `Qualifying email sends observed: ${buildEmailEvidence(
+      selectedObservations.flatMap((observation) => observation.events),
+    ).length.toLocaleString()}.`,
+    `Tracked sends: ${trackedEmails.length.toLocaleString()} · Sends with at least one recorded open: ${openedEmails.length.toLocaleString()} · Tracked sends with no recorded open: ${noOpenEmails.length.toLocaleString()}.`,
+    `Recorded opens across tracked sends: ${trackedEmails.reduce((total, email) => total + email.opens, 0).toLocaleString()} · Tracked sends with a recorded click: ${clickedEmails.length.toLocaleString()}.`,
+    `Tracked sends followed by an observed inbound communication before another outbound communication: ${sendsFollowedByInbound.length.toLocaleString()} of ${trackedEmails.length.toLocaleString()}.`,
+    `Among those sends: ${openedSendsFollowedByInbound.length.toLocaleString()} opened sends and ${noOpenSendsFollowedByInbound.length.toLocaleString()} sends with no recorded open were followed by an observed inbound communication.`,
+  ];
+
+  emailSummary.forEach((line) => {
+    doc.font("Helvetica").fontSize(8.5).fillColor(COLORS.ink)
+      .text(line, left() + 2, doc.y, {
+        width: tableWidth - 4,
+        lineGap: 2,
+      });
+    doc.moveDown(0.45);
+  });
+
+  doc.moveDown(0.35);
+  doc.font("Helvetica-Bold").fontSize(10).fillColor(COLORS.ink)
+    .text("Lead outcomes by email-open cohort", left(), doc.y);
+  doc.moveDown(0.3);
+  doc.font("Helvetica").fontSize(7.8).fillColor(COLORS.muted)
+    .text(
+      "Each lead is counted once per cohort. Only leads with at least one tracked email are included; leads with no usable email tracking are excluded.",
+      left(), doc.y, { width: tableWidth, lineGap: 2 },
+    );
+  doc.moveDown(0.6);
+
+  const cohortColumns = [
+    { label: "LEAD COHORT", width: tableWidth * 0.42 },
+    { label: "LEADS", width: tableWidth * 0.13 },
+    { label: "OBSERVED RESPONSES", width: tableWidth * 0.17 },
+    { label: "APPOINTMENTS", width: tableWidth * 0.14 },
+    { label: "SOLD / CLOSED", width: tableWidth * 0.14 },
+  ];
+  const cohortHeaderY = doc.y;
+  doc.rect(left(), cohortHeaderY, tableWidth, 29).fill(COLORS.accent);
+  let columnX = left();
+  cohortColumns.forEach((column) => {
+    doc.font("Helvetica-Bold").fontSize(7).fillColor(COLORS.white)
+      .text(column.label, columnX + 4, cohortHeaderY + 8, {
+        width: column.width - 8,
+        height: 16,
+        align: column.label === "LEAD COHORT" ? "left" : "right",
+        ellipsis: true,
+      });
+    columnX += column.width;
+  });
+
+  const cohortRows = [
+    { label: "At least one email opened", ...openedLeadOutcomes },
+    { label: "Tracked emails, none recorded open", ...noOpenLeadOutcomes },
+  ];
+  let cohortY = cohortHeaderY + 29;
+  cohortRows.forEach((row, rowIndex) => {
+    if (rowIndex % 2 === 1) {
+      doc.rect(left(), cohortY, tableWidth, 27).fill(COLORS.soft);
+    }
+    const values = [
+      row.label,
+      row.leads.toLocaleString(),
+      row.responses.toLocaleString(),
+      row.appointments.toLocaleString(),
+      row.soldClosed.toLocaleString(),
+    ];
+    let x = left();
+    values.forEach((value, index) => {
+      const column = cohortColumns[index];
+      doc.font(index === 0 ? "Helvetica-Bold" : "Helvetica")
+        .fontSize(7.8).fillColor(COLORS.ink)
+        .text(value, x + 4, cohortY + 8, {
+          width: column.width - 8,
+          height: 12,
+          align: index === 0 ? "left" : "right",
+          ellipsis: true,
+        });
+      x += column.width;
+    });
+    doc.moveTo(left(), cohortY + 27).lineTo(left() + tableWidth, cohortY + 27)
+      .lineWidth(0.35).strokeColor(COLORS.line).stroke();
+    cohortY += 27;
+  });
+  doc.y = cohortY + 16;
+
+  const emailInterpretation = [
+    "Open rate is based on unique tracked sends with at least one recorded open, divided by tracked sends. It is not the percentage of leads who opened an email.",
+    "The lead cohort comparison counts each lead once. A lead may receive multiple emails; the send-level counts above are not unique-lead counts.",
+    "A response after a send means an inbound communication was observed after that send and before another outbound communication. It does not establish that the response happened after an open.",
+    "Recorded opens and clicks are tracking signals, not proof a person read the message. Email opens may be affected by privacy features or automated systems.",
+    "These comparisons are descriptive, not causal. Differences between cohorts do not prove that opening an email caused a response, appointment, or sale.",
+  ];
+
+  doc.font("Helvetica-Bold").fontSize(9).fillColor(COLORS.ink)
+    .text("How to interpret this evidence", left(), doc.y);
+  doc.moveDown(0.35);
+  emailInterpretation.forEach((note) => {
+    const estimatedHeight = doc.font("Helvetica").fontSize(7.8)
+      .heightOfString(note, { width: tableWidth - 12, lineGap: 2 }) + 7;
+    if (doc.y + estimatedHeight > bottom() - 8) {
       doc.addPage();
       addTopRule();
       doc.y = 30;
-      heading("Measurement details — continued");
+      heading("Email engagement & lead outcomes — continued");
     }
-
-    const y = doc.y;
-    doc.font("Helvetica-Bold").fontSize(9).fillColor(COLORS.ink)
-      .text(title, left(), y, { width: tableWidth });
-    doc.moveDown(0.25);
-    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
-      .text(description, left(), doc.y, { width: tableWidth, lineGap: 2 });
-    doc.moveDown(0.15);
-    if (note) {
-      doc.font("Helvetica-Oblique").fontSize(7.3).fillColor(COLORS.muted)
-        .text(note, left(), doc.y, { width: tableWidth });
-    }
-    doc.moveDown(0.55);
-    doc.moveTo(left(), doc.y).lineTo(left() + tableWidth, doc.y)
-      .lineWidth(0.35).strokeColor(COLORS.line).stroke();
-    doc.moveDown(0.45);
+    doc.font("Helvetica").fontSize(7.8).fillColor(COLORS.muted)
+      .text(`•  ${note}`, left() + 2, doc.y, {
+        width: tableWidth - 4,
+        lineGap: 2,
+      });
+    doc.moveDown(0.35);
   });
 
   const notes = [

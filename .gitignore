@@ -42,3 +42,4 @@ next-env.d.ts
 
 # Local snapshots created during report redesign
 .report-redesign-backup-*/
+.email-engagement-backup-*/
