@@ -36,6 +36,7 @@ describe("email evidence", () => {
     ).toEqual({
       opens: 3,
       clicks: 1,
+      trackingKnown: true,
     });
   });
 
@@ -50,6 +51,7 @@ describe("email evidence", () => {
     ).toEqual({
       opens: 0,
       clicks: 0,
+      trackingKnown: true,
     });
   });
 

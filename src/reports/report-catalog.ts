@@ -264,7 +264,6 @@ export const REPORT_MEASURES: ReportMeasure[] = [
     denominator: "leads",
     calculate: calculateTemplateUsesPerLead,
   },
-  ,
   {
     key: "emailSends",
     label: "Email sends",

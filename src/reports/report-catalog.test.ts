@@ -21,7 +21,7 @@ describe("report catalog", () => {
   });
 
   it("defines measures as first-class report concepts", () => {
-    expect(REPORT_MEASURES).toHaveLength(14);
+    expect(REPORT_MEASURES).toHaveLength(20);
 
     expect(
       measureDefinition("responseRate"),

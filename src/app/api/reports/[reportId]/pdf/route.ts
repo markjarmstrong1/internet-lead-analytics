@@ -369,6 +369,163 @@ async function createPdf(result: ReportResult): Promise<Buffer> {
     );
   }
 
+  // EVIDENCE PAGE — show the calculation and evidence behind each result.
+  doc.addPage();
+  addTopRule();
+  doc.y = 30;
+  heading(
+    "Evidence & metric calculations",
+    "Numerators, denominators, eligible populations, and evidence limitations",
+  );
+
+  const evidenceLabels: Record<string, string> = {
+    none: "No specific evidence requirement",
+    crm_state: "CRM state",
+    observed_outbound: "Qualifying outbound timeline activity",
+    observed_response: "Observed inbound response evidence",
+    observed_appointment: "Observed appointment evidence",
+    crm_outcome: "CRM outcome state",
+  };
+  const populationLabels: Record<string, string> = {
+    report_population: "Selected report population",
+    observed_outbound_population: "Leads with observed outbound",
+    responding_population: "Leads with observed response",
+  };
+
+  metrics.forEach((metric) => {
+    const definition = metricDefinition(metric);
+    const diagnostic = result.summaryDiagnostics[metric];
+    const description =
+      definition?.description ?? "No metric definition is available.";
+    const numeratorMetric =
+      definition?.numerator ??
+      (metric === "responseRate"
+        ? "responded"
+        : metric === "responseWithin24hRate"
+          ? "responseWithin24h"
+          : metric === "emailOpenRate"
+            ? "emailsOpened"
+            : metric === "emailTrackingCoverage"
+              ? "trackedEmailSends"
+              : null);
+
+    const calculation =
+      diagnostic?.denominatorMetric
+        ? `${numeratorMetric ? pdfMetricLabel(numeratorMetric) : "Numerator"}: ${
+            diagnostic.numerator === null
+              ? "unavailable"
+              : formatMetric(numeratorMetric ?? metric, diagnostic.numerator)
+          }  /  ${pdfMetricLabel(diagnostic.denominatorMetric)}: ${
+            diagnostic.denominator === null
+              ? "unavailable"
+              : formatMetric(
+                  diagnostic.denominatorMetric,
+                  diagnostic.denominator,
+                )
+          }`
+        : null;
+
+    const population = diagnostic
+      ? populationLabels[diagnostic.population] ?? diagnostic.population
+      : definition?.population?.replace(/_/g, " ") ?? "Not specified";
+    const evidence = definition?.evidence
+      ? evidenceLabels[definition.evidence] ?? definition.evidence
+      : "Not specified";
+    const cohort = diagnostic
+      ? `Eligible leads: ${diagnostic.eligibleLeadCount.toLocaleString()}  ·  With linked timeline records: ${diagnostic.timelineCoveredLeadCount.toLocaleString()}`
+      : null;
+
+    const estimate =
+      54 +
+      Math.ceil(
+        (description.length +
+          (calculation?.length ?? 0) +
+          (cohort?.length ?? 0)) / 115,
+      ) * 12;
+
+    if (doc.y + estimate > bottom() - 8) {
+      doc.addPage();
+      addTopRule();
+      doc.y = 30;
+      heading(
+        "Evidence & metric calculations — continued",
+        "Calculation notes for the remaining selected measures",
+      );
+    }
+
+    const startY = doc.y;
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(COLORS.ink)
+      .text(pdfMetricLabel(metric), left(), startY, {
+        width: tableWidth,
+      });
+    doc.moveDown(0.2);
+    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
+      .text(description, left(), doc.y, {
+        width: tableWidth,
+        lineGap: 2,
+      });
+    doc.moveDown(0.2);
+    doc.font("Helvetica").fontSize(7.5).fillColor(COLORS.ink)
+      .text(`Population: ${population}  ·  Evidence: ${evidence}`, left(), doc.y, {
+        width: tableWidth,
+        lineGap: 1,
+      });
+    doc.moveDown(0.15);
+
+    if (calculation) {
+      doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.ink)
+        .text(`Calculation: ${calculation}`, left(), doc.y, {
+          width: tableWidth,
+          lineGap: 1,
+        });
+      doc.moveDown(0.15);
+    }
+
+    if (cohort) {
+      doc.font("Helvetica").fontSize(7.2).fillColor(COLORS.muted)
+        .text(cohort, left(), doc.y, {
+          width: tableWidth,
+        });
+      doc.moveDown(0.15);
+    }
+
+    doc.moveDown(0.15);
+    doc.moveTo(left(), doc.y).lineTo(left() + tableWidth, doc.y)
+      .lineWidth(0.35).strokeColor(COLORS.line).stroke();
+    doc.moveDown(0.4);
+  });
+
+  const evidenceCaveats = [
+    "Email open rate counts unique tracked email sends with at least one recorded open, divided by tracked sends. Repeated opens on one send do not count as multiple opened emails.",
+    "Email tracking coverage is tracked sends divided by qualifying email sends. A send with no usable tracking details is unknown, not a confirmed zero-open send.",
+    "Counts based on linked timeline events describe evidence available to this system; they do not prove every real-world event was captured.",
+    "Rates are only meaningful with their stated denominator. A missing or zero denominator is unavailable, not a zero-percent result.",
+    "Group and template comparisons are descriptive associations. They do not establish that a source, message, or template caused an outcome.",
+  ];
+
+  doc.moveDown(0.25);
+  if (doc.y + 75 > bottom()) {
+    doc.addPage();
+    addTopRule();
+    doc.y = 30;
+  }
+  heading("Evidence limitations", "Read these notes before drawing conclusions");
+  evidenceCaveats.forEach((note) => {
+    const estimate = 18 + Math.ceil(note.length / 120) * 10;
+    if (doc.y + estimate > bottom()) {
+      doc.addPage();
+      addTopRule();
+      doc.y = 30;
+      heading("Evidence limitations — continued");
+    }
+    doc.font("Helvetica").fontSize(7.7).fillColor(COLORS.muted)
+      .text(`•  ${note}`, left() + 2, doc.y, {
+        width: tableWidth - 4,
+        lineGap: 2,
+      });
+    doc.moveDown(0.35);
+  });
+
   // SUPPORTING PAGES — definitions and calculation notes
   doc.addPage();
   addTopRule();

@@ -382,9 +382,16 @@ function MetricEvidencePanel({
                     {diagnostic.numerator === null
                       ? "Numerator unavailable"
                       : formatMetric(
-                          metric === "responseRate"
-                            ? "responded"
-                            : "responseWithin24h",
+                          metricDefinition(metric)?.numerator ??
+                            (metric === "responseRate"
+                              ? "responded"
+                              : metric === "responseWithin24hRate"
+                                ? "responseWithin24h"
+                                : metric === "emailOpenRate"
+                                  ? "emailsOpened"
+                                  : metric === "emailTrackingCoverage"
+                                    ? "trackedEmailSends"
+                                    : metric),
                           diagnostic.numerator,
                         )}
                     {" / "}
