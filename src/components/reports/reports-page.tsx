@@ -47,12 +47,20 @@ export function ReportsPage({
           }
           description="Build reusable management reports from the same analytical evidence used throughout the application."
           actions={
-            <Link
-              href="/reports"
-              className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
-            >
-              New report
-            </Link>
+            <>
+              <Link
+                href="/reports/template-responses"
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+              >
+                Template response analysis
+              </Link>
+              <Link
+                href="/reports"
+                className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+              >
+                New report
+              </Link>
+            </>
           }
         />
 
