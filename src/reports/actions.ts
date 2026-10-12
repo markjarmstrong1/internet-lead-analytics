@@ -55,7 +55,7 @@ export async function saveReportAction(
   revalidatePath("/reports");
 
   redirect(
-    `/reports?reportId=${encodeURIComponent(
+    `/reports/builder?reportId=${encodeURIComponent(
       report.id,
     )}`,
   );

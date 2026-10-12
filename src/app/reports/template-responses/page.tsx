@@ -2,6 +2,7 @@ import { AppShell } from "@/components/app/app-shell";
 import { PageHeader } from "@/components/app/page-header";
 import { SectionPanel } from "@/components/app/section-panel";
 import { TemplateResponseReport } from "@/components/reports/template-response-report";
+import { ReportsNavigation } from "@/components/reports/reports-navigation";
 import { createServerAnalyticsRepository } from "@/analytics/data/create-server-analytics-repository";
 import { buildTemplateResponseAnalysis } from "@/reports/template-response-analysis";
 
@@ -19,6 +20,8 @@ export default async function TemplateResponsesPage() {
           title="Template response analysis"
           description="Compare canonical template-coded outbound actions by their observed inbound response within 24 hours."
         />
+
+        <ReportsNavigation />
 
         <SectionPanel
           title="Response performance"

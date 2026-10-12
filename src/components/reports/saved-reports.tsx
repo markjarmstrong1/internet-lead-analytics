@@ -47,7 +47,7 @@ export function SavedReports({
               ].join(" ")}
             >
               <Link
-                href={`/reports?reportId=${encodeURIComponent(
+                href={`/reports/builder?reportId=${encodeURIComponent(
                   report.id,
                 )}`}
                 aria-current={

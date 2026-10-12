@@ -7,6 +7,7 @@ import { SectionPanel } from "@/components/app/section-panel";
 import { ReportBuilder } from "./report-builder";
 import { ReportResults } from "./report-results";
 import { SavedReports } from "./saved-reports";
+import { ReportsNavigation } from "./reports-navigation";
 
 import type {
   ReportDefinition,
@@ -69,6 +70,8 @@ export function ReportsPage({
             </>
           }
         />
+
+        <ReportsNavigation />
 
         <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
           <SavedReports

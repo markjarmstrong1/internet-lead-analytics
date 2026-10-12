@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app/app-shell";
 import { PageHeader } from "@/components/app/page-header";
 import { SectionPanel } from "@/components/app/section-panel";
 import { ReportResults } from "@/components/reports/report-results";
+import { ReportsNavigation } from "@/components/reports/reports-navigation";
 import { buildReport } from "@/reports/build-report";
 import { createServerReportRepository } from "@/reports/create-server-report-repository";
 
@@ -37,10 +38,11 @@ export default async function ReportViewingPage({
             actions={
               <>
                 <Link href="/reports/view" className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">All reports</Link>
-                <Link href={`/reports?reportId=${encodeURIComponent(savedReport.id)}`} className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800">Edit report</Link>
+                <Link href={`/reports/builder?reportId=${encodeURIComponent(savedReport.id)}`} className="rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800">Edit report</Link>
               </>
             }
           />
+          <ReportsNavigation />
           <SectionPanel title="Report results" description="Export a PDF or CSV, review metric evidence, or investigate the included leads.">
             <ReportResults
               result={result}
@@ -66,6 +68,7 @@ export default async function ReportViewingPage({
             </>
           }
         />
+        <ReportsNavigation />
         <SectionPanel title="Saved reports" description="Open a report to view results, or edit its definition.">
           {savedReports.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center">
@@ -91,7 +94,7 @@ export default async function ReportViewingPage({
                   </dl>
                   <div className="mt-auto flex flex-wrap gap-2 pt-5">
                     <Link href={`/reports/view?reportId=${encodeURIComponent(report.id)}`} className="rounded-lg bg-slate-950 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">View report</Link>
-                    <Link href={`/reports?reportId=${encodeURIComponent(report.id)}`} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Edit report</Link>
+                    <Link href={`/reports/builder?reportId=${encodeURIComponent(report.id)}`} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Edit report</Link>
                   </div>
                 </article>
               ))}

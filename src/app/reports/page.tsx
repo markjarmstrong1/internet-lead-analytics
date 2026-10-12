@@ -1,127 +1,31 @@
-import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
-import { createServerAnalyticsRepository } from "@/analytics/data/create-server-analytics-repository";
-
-import {
-  DEFAULT_REPORT_DEFINITION,
-  reportDefinitionFromSearchParams,
-} from "@/reports/report-definition";
-import { buildReport } from "@/reports/build-report";
-import { buildLeadObservations } from "@/analytics/observations/analytics-observations";
+import Link from "next/link";
+import { AppShell } from "@/components/app/app-shell";
+import { PageHeader } from "@/components/app/page-header";
+import { ReportsHome } from "@/components/reports/reports-home";
+import { ReportsNavigation } from "@/components/reports/reports-navigation";
 import { createServerReportRepository } from "@/reports/create-server-report-repository";
-
-import { ReportsPage } from "@/components/reports/reports-page";
 
 export const dynamic = "force-dynamic";
 
-type SearchParams = Record<
-  string,
-  string | string[] | undefined
->;
-
-export default async function ReportsRoute({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const params = await searchParams;
-
-  const reportRepository =
-    createServerReportRepository();
-
-  const savedReports =
-    await reportRepository.list();
-
-  const reportId =
-    typeof params.reportId === "string"
-      ? params.reportId
-      : null;
-
-  const savedReport = reportId
-    ? await reportRepository.findById(
-        reportId,
-      )
-    : null;
-
-  const definition = savedReport
-    ? savedReport.definition
-    : reportId
-      ? DEFAULT_REPORT_DEFINITION
-      : reportDefinitionFromSearchParams(
-          params,
-        );
-
-  const dataset =
-    await createServerAnalyticsRepository().load();
-
-  const result = buildReport(
-    dataset,
-    definition,
-  );
+export default async function ReportsHomePage() {
+  const reports = await createServerReportRepository().list();
 
   return (
-    <ReportsPage
-      definition={definition}
-      result={result}
-      savedReports={savedReports}
-      savedReport={savedReport}
-      options={buildOptions(dataset)}
-    />
-  );
-}
-
-function buildOptions(
-  dataset: AnalyticsDataset,
-) {
-  return {
-    sources: uniqueSorted(
-      dataset.leads.map(
-        (lead) =>
-          lead.source.trim() ||
-          "Unknown",
-      ),
-    ),
-    sourceGroups: uniqueSorted(
-      dataset.leads.map(
-        (lead) =>
-          lead.sourceGroup.trim() ||
-          "Unknown",
-      ),
-    ),
-    stages: uniqueSorted(
-      dataset.leads.map(
-        (lead) =>
-          lead.stage.trim() ||
-          "Unknown",
-      ),
-    ),
-    statuses: uniqueSorted(
-      dataset.leads.map(
-        (lead) =>
-          lead.status.trim() ||
-          "Unknown",
-      ),
-    ),
-    templates: uniqueSorted(
-      buildLeadObservations(dataset)
-        .flatMap((observation) =>
-          observation.templateActions.map(
-            (action) => action.templateCode,
-          ),
-        )
-        .filter(
-          (template): template is string =>
-            template !== null,
-        ),
-    ),
-  };
-}
-
-function uniqueSorted(
-  values: string[],
-): string[] {
-  return [
-    ...new Set(values),
-  ].sort((left, right) =>
-    left.localeCompare(right),
+    <AppShell>
+      <div className="mx-auto max-w-[1500px] space-y-7 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <PageHeader
+          eyebrow="Workspace / Management intelligence"
+          title="Reports"
+          description="Build, organize, and review management reports from your lead analytics."
+          actions={
+            <Link href="/reports/builder" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+              + Create report
+            </Link>
+          }
+        />
+        <ReportsNavigation />
+        <ReportsHome reports={reports} />
+      </div>
+    </AppShell>
   );
 }
