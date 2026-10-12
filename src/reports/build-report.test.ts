@@ -1244,6 +1244,57 @@ describe("buildReport", () => {
     ]);
   });
 
+  it("groups a lead by its first matched template while counting every matched template use", () => {
+    const result = buildReport(
+      dataset(
+        [
+          lead("multiple-templates"),
+        ],
+        [
+          event({
+            sourceEventId: "first-template-use",
+            occurredAt: "2026-09-10T10:00:00.000Z",
+            templateCode: "TEMPLATE_A",
+          }),
+          event({
+            sourceEventId: "second-template-use",
+            occurredAt: "2026-09-10T10:05:00.000Z",
+            templateCode: "TEMPLATE_B",
+          }),
+        ],
+      ),
+      normalizeReportDefinition({
+        groupBy: "template",
+        metrics: [
+          "leads",
+          "templateUses",
+          "templateUsesPerLead",
+        ],
+      }),
+    );
+
+    expect(result.populationCount).toBe(1);
+    expect(result.leadIds).toEqual(["multiple-templates"]);
+    expect(result.summary).toEqual({
+      leads: 1,
+      templateUses: 2,
+      templateUsesPerLead: 2,
+    });
+    expect(result.rows).toEqual([
+      {
+        key: "TEMPLATE_A",
+        label: "TEMPLATE_A",
+        leadIds: ["multiple-templates"],
+        values: {
+          leads: 1,
+          templateUses: 2,
+          templateUsesPerLead: 2,
+        },
+      },
+    ]);
+    expectPopulationIntegrity(result);
+  });
+
   it("does not treat inferred template text as canonical matched-template evidence", () => {
     const result = buildReport(
       dataset(

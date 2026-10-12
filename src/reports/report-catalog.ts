@@ -99,9 +99,9 @@ export const REPORT_DIMENSIONS: ReportDimension[] = [
   },
   {
     key: "template",
-    label: "Matched template",
+    label: "First matched template",
     description:
-      "Compare report measures by template code observed on qualifying outbound communications.",
+      "Assign each lead to its first matched template code observed on qualifying outbound communications. Template-use measures still count all matched template actions, so uses can exceed leads. Grouped response rates are observational associations, not proof that a template caused a response.",
   },
 ];
 
