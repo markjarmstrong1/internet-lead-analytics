@@ -256,6 +256,19 @@ export function ReportResults({
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label className="block text-sm font-medium text-slate-700">
+              PDF theme
+              <select
+                value={pdfOptions.theme}
+                onChange={(event) => setPdfOptions({ ...pdfOptions, theme: event.target.value as ReportPdfOptions["theme"] })}
+                className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5"
+              >
+                <option value="executive">Executive — navy</option>
+                <option value="modern">Modern — teal</option>
+                <option value="minimal">Minimal — monochrome</option>
+                <option value="premium">Premium — charcoal & gold</option>
+              </select>
+            </label>
+            <label className="block text-sm font-medium text-slate-700">
               Report style
               <select
                 value={pdfOptions.layoutPreset}

@@ -102,6 +102,7 @@ export type ReportFilters = {
 
 export type ReportPdfLayoutPreset = "executive" | "detailed" | "data";
 export type ReportPdfOrientation = "portrait" | "landscape";
+export type ReportPdfTheme = "executive" | "modern" | "minimal" | "premium";
 export type ReportPdfDensity = "compact" | "comfortable";
 export type ReportPdfMaxRows = "all" | "25" | "50" | "100";
 
@@ -120,6 +121,7 @@ export type ReportPdfOptions = {
   includeTemplateUsage: boolean;
   includeEmailEngagement: boolean;
   layoutPreset: ReportPdfLayoutPreset;
+  theme: ReportPdfTheme;
   orientation: ReportPdfOrientation;
   density: ReportPdfDensity;
   maxRows: ReportPdfMaxRows;
@@ -134,6 +136,7 @@ export const DEFAULT_REPORT_PDF_OPTIONS: ReportPdfOptions = {
   includeTemplateUsage: true,
   includeEmailEngagement: true,
   layoutPreset: "detailed",
+  theme: "executive",
   orientation: "landscape",
   density: "comfortable",
   maxRows: "all",

@@ -13,6 +13,7 @@ import {
   type ManagementReportPreset,
 } from "@/reports/report-presets";
 import { saveReportAction } from "@/reports/actions";
+import { DEFAULT_REPORT_DEFINITION } from "@/reports/report-definition";
 import type {
   ReportDefinition,
   ReportMetricKey,
@@ -206,6 +207,46 @@ export function ReportBuilder({
             ? metrics
             : current.metrics,
       };
+    });
+  }
+
+  function selectAllMetrics() {
+    setDraft((current) => ({
+      ...current,
+      metrics: REPORT_MEASURES.map((metric) => metric.key),
+    }));
+  }
+
+  function resetMetrics() {
+    setDraft((current) => ({
+      ...current,
+      metrics: [...DEFAULT_REPORT_DEFINITION.metrics],
+    }));
+  }
+
+  function moveMetric(
+    metric: ReportMetricKey,
+    direction: -1 | 1,
+  ) {
+    setDraft((current) => {
+      const index = current.metrics.indexOf(metric);
+      const nextIndex = index + direction;
+
+      if (
+        index < 0 ||
+        nextIndex < 0 ||
+        nextIndex >= current.metrics.length
+      ) {
+        return current;
+      }
+
+      const metrics = [...current.metrics];
+      [metrics[index], metrics[nextIndex]] = [
+        metrics[nextIndex],
+        metrics[index],
+      ];
+
+      return { ...current, metrics };
     });
   }
 
@@ -680,7 +721,25 @@ export function ReportBuilder({
             <div>
               <p className="text-sm font-semibold text-slate-900">Measures</p>
               <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-500">Choose what to calculate. Each measure retains its population, evidence, and denominator rules.</p>
-              <p className="mt-2 text-xs font-medium text-slate-700">{draft.metrics.length} selected</p>
+              <p className="mt-2 text-xs font-medium text-slate-700">
+                {draft.metrics.length} of {REPORT_MEASURES.length} measures selected
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={selectAllMetrics}
+                  className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium hover:bg-slate-50"
+                >
+                  Select all
+                </button>
+                <button
+                  type="button"
+                  onClick={resetMetrics}
+                  className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium hover:bg-slate-50"
+                >
+                  Reset to defaults
+                </button>
+              </div>
             </div>
             <input
               type="search"
@@ -691,6 +750,54 @@ export function ReportBuilder({
               className={`${inputClass} sm:max-w-xs`}
             />
           </div>
+          {draft.metrics.length > 0 ? (
+            <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Selected measure order
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                This order controls the measure columns in your report and exports.
+              </p>
+              <ol className="mt-2 space-y-1.5">
+                {draft.metrics.map((metric, index) => {
+                  const measure = REPORT_MEASURES.find(
+                    (item) => item.key === metric,
+                  );
+                  return (
+                    <li
+                      key={metric}
+                      className="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2"
+                    >
+                      <span className="w-5 shrink-0 text-xs tabular-nums text-slate-400">
+                        {index + 1}.
+                      </span>
+                      <span className="min-w-0 flex-1 text-sm text-slate-800">
+                        {measure?.label ?? metric}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => moveMetric(metric, -1)}
+                        disabled={index === 0}
+                        aria-label={`Move ${measure?.label ?? metric} earlier`}
+                        className="rounded border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveMetric(metric, 1)}
+                        disabled={index === draft.metrics.length - 1}
+                        aria-label={`Move ${measure?.label ?? metric} later`}
+                        className="rounded border border-slate-200 px-2 py-1 text-xs hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        ↓
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          ) : null}
           <div className="space-y-3">
             {(["Lead & outcomes", "Response & follow-up", "Email & templates", "Data coverage"] as const).map((group) => {
               const query = measureSearch.trim().toLowerCase();
@@ -755,6 +862,18 @@ export function ReportBuilder({
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <Field label="PDF theme" description="Controls PDF colors and accents independently of layout.">
+              <select
+                value={draft.pdfOptions.theme}
+                onChange={(event) => updatePdfOptions({ theme: event.target.value as ReportDefinition["pdfOptions"]["theme"] })}
+                className={inputClass}
+              >
+                <option value="executive">Executive — navy</option>
+                <option value="modern">Modern — teal</option>
+                <option value="minimal">Minimal — monochrome</option>
+                <option value="premium">Premium — charcoal & gold</option>
+              </select>
+            </Field>
             <Field label="Layout preset" description="Start with a presentation style, then customize it.">
               <select
                 value={draft.pdfOptions.layoutPreset}

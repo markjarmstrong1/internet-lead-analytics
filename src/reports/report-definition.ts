@@ -270,6 +270,13 @@ function normalizePdfOptions(value: unknown): ReportPdfOptions {
       input.layoutPreset === "data"
         ? input.layoutPreset
         : DEFAULT_REPORT_PDF_OPTIONS.layoutPreset,
+    theme:
+      input.theme === "executive" ||
+      input.theme === "modern" ||
+      input.theme === "minimal" ||
+      input.theme === "premium"
+        ? input.theme
+        : DEFAULT_REPORT_PDF_OPTIONS.theme,
     orientation:
       input.orientation === "portrait" ||
       input.orientation === "landscape"

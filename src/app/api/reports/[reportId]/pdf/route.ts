@@ -13,14 +13,24 @@ import { normalizeReportDefinition } from "@/reports/report-definition";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const COLORS = {
-  ink: "#172033",
-  muted: "#64748b",
-  line: "#dbe2ea",
-  soft: "#f4f7fb",
-  accent: "#244b75",
-  white: "#ffffff",
-};
+const PDF_THEMES = {
+  executive: {
+    ink: "#172033", muted: "#64748b", line: "#dbe2ea",
+    soft: "#f4f7fb", accent: "#244b75", white: "#ffffff",
+  },
+  modern: {
+    ink: "#16302f", muted: "#58706e", line: "#d4e4e1",
+    soft: "#eff7f5", accent: "#0f766e", white: "#ffffff",
+  },
+  minimal: {
+    ink: "#181818", muted: "#595959", line: "#d5d5d5",
+    soft: "#f5f5f5", accent: "#404040", white: "#ffffff",
+  },
+  premium: {
+    ink: "#292725", muted: "#756d62", line: "#ddd4c6",
+    soft: "#f7f3ec", accent: "#9a783f", white: "#ffffff",
+  },
+} as const;
 
 export async function GET(
   request: Request,
@@ -76,6 +86,7 @@ async function createPdf(
   dataset: AnalyticsDataset,
 ): Promise<Buffer> {
   const pdfOptions = result.definition.pdfOptions ?? DEFAULT_REPORT_PDF_OPTIONS;
+  const COLORS = PDF_THEMES[pdfOptions.theme] ?? PDF_THEMES.executive;
   const doc = new PDFDocument({
     size: "LETTER",
     layout: pdfOptions.orientation,
@@ -166,13 +177,13 @@ async function createPdf(
   function heading(title: string, detail?: string) {
     doc.font("Helvetica-Bold").fontSize(15).fillColor(COLORS.ink)
       .text(title, left(), doc.y, { width: tableWidth });
-    doc.moveDown(0.2);
+    doc.moveDown(0.12);
     if (detail) {
       doc.font("Helvetica").fontSize(8.5).fillColor(COLORS.muted)
         .text(detail, left(), doc.y, { width: tableWidth });
-      doc.moveDown(0.45);
+      doc.moveDown(0.25);
     } else {
-      doc.moveDown(0.6);
+      doc.moveDown(0.3);
     }
   }
 
@@ -188,21 +199,21 @@ async function createPdf(
     value: string,
     detail: string,
   ) {
-    const height = 76;
+    const height = 64;
     doc.roundedRect(x, y, width, height, 5)
       .fillAndStroke(COLORS.soft, COLORS.line);
     doc.rect(x, y, 3, height).fill(COLORS.accent);
     doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.muted)
-      .text(label.toUpperCase(), x + 11, y + 10, {
+      .text(label.toUpperCase(), x + 11, y + 8, {
         width: width - 20, height: 18, ellipsis: true,
       });
     doc.font("Helvetica-Bold").fontSize(value.length > 13 ? 15 : 21)
       .fillColor(COLORS.ink)
-      .text(value, x + 11, y + 30, {
-        width: width - 20, height: 25, ellipsis: true,
+      .text(value, x + 11, y + 25, {
+        width: width - 20, height: 22, ellipsis: true,
       });
     doc.font("Helvetica").fontSize(7.5).fillColor(COLORS.muted)
-      .text(detail, x + 11, y + 57, {
+      .text(detail, x + 11, y + 48, {
         width: width - 20, height: 11, ellipsis: true,
       });
   }
@@ -213,11 +224,11 @@ async function createPdf(
     metricWidth: number,
     visibleMetrics: ReportMetricKey[] = metrics,
   ) {
-    const headerHeight = 48;
+    const headerHeight = 34;
     doc.rect(left(), y, tableWidth, headerHeight).fill(COLORS.accent);
     doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.white)
       .text(result.definition.groupBy === "none" ? "REPORT" : "GROUP",
-        left() + 6, y + 17, {
+        left() + 6, y + 10, {
           width: labelWidth - 12, height: 25, ellipsis: true,
         });
 
@@ -261,7 +272,7 @@ async function createPdf(
       `${result.populationCount.toLocaleString()} leads · ${result.rows.length.toLocaleString()} groups · Generated ${new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(new Date())}`,
       left(), doc.y, { width: tableWidth },
     );
-  doc.moveDown(1.1);
+  doc.moveDown(0.55);
   if (pdfOptions.includeExecutiveSummary) {
   heading(pdfOptions.sectionTitles.executiveSummary, "Headline results for the selected report population");
 
@@ -291,7 +302,7 @@ async function createPdf(
       card.detail,
     ),
   );
-  doc.y = cardY + 98;
+  doc.y = cardY + 76;
 
   heading("What this report covers");
   const summaryLines = [

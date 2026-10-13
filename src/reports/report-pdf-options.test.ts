@@ -13,6 +13,7 @@ describe("report PDF output options", () => {
       includeTemplateUsage: true,
       includeEmailEngagement: true,
       layoutPreset: "detailed",
+      theme: "executive",
       orientation: "landscape",
       density: "comfortable",
       maxRows: "all",
@@ -45,6 +46,7 @@ describe("report PDF output options", () => {
       includeTemplateUsage: true,
       includeEmailEngagement: false,
       layoutPreset: "detailed",
+      theme: "executive",
       orientation: "landscape",
       density: "comfortable",
       maxRows: "all",
@@ -61,10 +63,18 @@ describe("report PDF output options", () => {
 
   it("defaults invalid or missing option values safely", () => {
     const definition = normalizeReportDefinition({
-      pdfOptions: { includeDetailedResults: "no" },
+      pdfOptions: { includeDetailedResults: "no", theme: "neon" },
     });
 
     expect(definition.pdfOptions.includeDetailedResults).toBe(true);
     expect(definition.pdfOptions.includeExecutiveSummary).toBe(true);
+    expect(definition.pdfOptions.theme).toBe("executive");
+  });
+
+  it("accepts each supported PDF theme", () => {
+    for (const theme of ["executive", "modern", "minimal", "premium"] as const) {
+      expect(normalizeReportDefinition({ pdfOptions: { theme } }).pdfOptions.theme)
+        .toBe(theme);
+    }
   });
 });
