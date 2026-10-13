@@ -175,7 +175,7 @@ async function createPdf(
   const noOpenLeadOutcomes = leadOutcomeCounts(noOpenLeadCohort);
 
   function heading(title: string, detail?: string) {
-    doc.font("Helvetica-Bold").fontSize(15).fillColor(COLORS.ink)
+    doc.font(pdfOptions.theme === "premium" ? "Times-Bold" : "Helvetica-Bold").fontSize(pdfOptions.theme === "minimal" ? 13 : 15).fillColor(COLORS.ink)
       .text(title, left(), doc.y, { width: tableWidth });
     doc.moveDown(0.12);
     if (detail) {
@@ -188,7 +188,21 @@ async function createPdf(
   }
 
   function addTopRule() {
-    doc.rect(0, 0, doc.page.width, 7).fill(COLORS.accent);
+    switch (pdfOptions.theme) {
+      case "modern":
+        doc.rect(0, 0, doc.page.width, 4).fill(COLORS.accent);
+        doc.rect(0, 4, doc.page.width, 2).fill(COLORS.line);
+        break;
+      case "minimal":
+        doc.rect(left(), 0, pageWidth(), 1).fill(COLORS.line);
+        break;
+      case "premium":
+        doc.rect(0, 0, doc.page.width, 10).fill(COLORS.ink);
+        doc.rect(0, 10, doc.page.width, 2).fill(COLORS.accent);
+        break;
+      default:
+        doc.rect(0, 0, doc.page.width, 7).fill(COLORS.accent);
+    }
   }
 
   function drawCard(
@@ -199,21 +213,41 @@ async function createPdf(
     value: string,
     detail: string,
   ) {
-    const height = 64;
-    doc.roundedRect(x, y, width, height, 5)
-      .fillAndStroke(COLORS.soft, COLORS.line);
-    doc.rect(x, y, 3, height).fill(COLORS.accent);
+    const height = pdfOptions.density === "compact" ? 58 : 64;
+    const theme = pdfOptions.theme;
+
+    if (theme === "minimal") {
+      doc.rect(x, y, width, height).fillAndStroke(COLORS.white, COLORS.line);
+      doc.moveTo(x, y + height - 1).lineTo(x + width, y + height - 1)
+        .lineWidth(0.7).strokeColor(COLORS.ink).stroke();
+    } else if (theme === "modern") {
+      doc.roundedRect(x, y, width, height, 8)
+        .fillAndStroke(COLORS.soft, COLORS.line);
+      doc.roundedRect(x, y + height - 4, width, 4, 2).fill(COLORS.accent);
+    } else if (theme === "premium") {
+      doc.roundedRect(x, y, width, height, 2)
+        .fillAndStroke(COLORS.soft, COLORS.accent);
+      doc.rect(x, y, width, 3).fill(COLORS.accent);
+    } else {
+      doc.roundedRect(x, y, width, height, 5)
+        .fillAndStroke(COLORS.soft, COLORS.line);
+      doc.rect(x, y, 3, height).fill(COLORS.accent);
+    }
+
     doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.muted)
       .text(label.toUpperCase(), x + 11, y + 8, {
         width: width - 20, height: 18, ellipsis: true,
       });
-    doc.font("Helvetica-Bold").fontSize(value.length > 13 ? 15 : 21)
-      .fillColor(COLORS.ink)
+
+    const valueFont = theme === "premium" ? "Times-Bold" : "Helvetica-Bold";
+    const valueSize = value.length > 13 ? 15 : theme === "minimal" ? 20 : 21;
+    doc.font(valueFont).fontSize(valueSize).fillColor(COLORS.ink)
       .text(value, x + 11, y + 25, {
         width: width - 20, height: 22, ellipsis: true,
       });
+
     doc.font("Helvetica").fontSize(7.5).fillColor(COLORS.muted)
-      .text(detail, x + 11, y + 48, {
+      .text(detail, x + 11, y + height - 15, {
         width: width - 20, height: 11, ellipsis: true,
       });
   }
@@ -225,8 +259,25 @@ async function createPdf(
     visibleMetrics: ReportMetricKey[] = metrics,
   ) {
     const headerHeight = 34;
-    doc.rect(left(), y, tableWidth, headerHeight).fill(COLORS.accent);
-    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(COLORS.white)
+    const theme = pdfOptions.theme;
+    const isQuietHeader = theme === "minimal" || theme === "premium";
+    const headerTextColor = isQuietHeader ? COLORS.ink : COLORS.white;
+
+    if (theme === "minimal") {
+      doc.rect(left(), y, tableWidth, headerHeight).fill(COLORS.white);
+      doc.moveTo(left(), y + headerHeight - 1)
+        .lineTo(left() + tableWidth, y + headerHeight - 1)
+        .lineWidth(1).strokeColor(COLORS.ink).stroke();
+    } else if (theme === "premium") {
+      doc.rect(left(), y, tableWidth, headerHeight).fill(COLORS.soft);
+      doc.rect(left(), y + headerHeight - 2, tableWidth, 2).fill(COLORS.accent);
+    } else if (theme === "modern") {
+      doc.roundedRect(left(), y, tableWidth, headerHeight, 5).fill(COLORS.accent);
+    } else {
+      doc.rect(left(), y, tableWidth, headerHeight).fill(COLORS.accent);
+    }
+
+    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(headerTextColor)
       .text(result.definition.groupBy === "none" ? "REPORT" : "GROUP",
         left() + 6, y + 10, {
           width: labelWidth - 12, height: 25, ellipsis: true,
@@ -235,7 +286,7 @@ async function createPdf(
     visibleMetrics.forEach((metric, index) => {
       doc.font("Helvetica-Bold")
         .fontSize(visibleMetrics.length > 7 ? 6.2 : 7)
-        .fillColor(COLORS.white)
+        .fillColor(headerTextColor)
         .text(pdfMetricLabel(metric),
           left() + labelWidth + index * metricWidth + 2, y + 5, {
             width: metricWidth - 4,
@@ -248,12 +299,14 @@ async function createPdf(
   }
 
   // PAGE 1 — Executive summary
+
+  // PAGE 1 — Executive summary
   addTopRule();
   doc.y = 29;
   doc.font("Helvetica-Bold").fontSize(8).fillColor(COLORS.accent)
     .text("INTERNET LEAD ANALYTICS");
   doc.moveDown(0.6);
-  doc.font("Helvetica-Bold").fontSize(27).fillColor(COLORS.ink)
+  doc.font(pdfOptions.theme === "premium" ? "Times-Bold" : "Helvetica-Bold").fontSize(pdfOptions.theme === "premium" ? 31 : pdfOptions.theme === "minimal" ? 24 : 27).fillColor(COLORS.ink)
     .text(result.definition.name, left(), doc.y, { width: tableWidth });
   doc.moveDown(0.2);
   if (pdfOptions.subtitle.trim()) {
