@@ -5572,3 +5572,53 @@ textarea {
   object-fit: contain !important;
   flex: 1 1 auto !important;
 }
+
+
+/* MANTIK V0 FINAL LOGO OVERRIDE */
+.mantik-v0 .mv0-brand {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 112px;
+  height: 112px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+  overflow: hidden;
+}
+
+.mantik-v0 .mv0-brand-logo {
+  display: block;
+  width: 100%;
+  max-width: 212px;
+  height: auto;
+  max-height: 80px;
+  object-fit: contain;
+  flex: 0 1 auto;
+}
+
+
+/* MANTIK V0 CROPPED LOGO FIX */
+.mantik-v0 .mv0-sidebar .mv0-brand {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 112px !important;
+  min-height: 112px !important;
+  padding: 12px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.mantik-v0 .mv0-sidebar .mv0-brand-logo {
+  display: block !important;
+  width: 100% !important;
+  max-width: 216px !important;
+  height: 84px !important;
+  max-height: 84px !important;
+  flex: 0 1 216px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
