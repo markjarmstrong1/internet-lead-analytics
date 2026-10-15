@@ -23,6 +23,25 @@ function isConnectedCall(event: AnalyticsEvent): boolean {
   return call && connected && event.direction !== "outbound";
 }
 
+function isConversationStageEvent(events: AnalyticsEvent[]): AnalyticsEvent | null {
+  for (const event of events) {
+    if (isConnectedCall(event)) return event;
+  }
+  const firstInboundAt = events.find(isInboundCustomerCommunication)?.occurredAt;
+  if (!firstInboundAt) return null;
+  const firstInboundTime = Date.parse(firstInboundAt);
+  const followupOutbound = events.find((event) =>
+    event.direction?.toLowerCase() === "outbound" &&
+    /employee|staff|salesperson|agent/i.test(event.actorType) &&
+    Date.parse(event.occurredAt) > firstInboundTime,
+  );
+  if (!followupOutbound) return null;
+  const outboundTime = Date.parse(followupOutbound.occurredAt);
+  return events.find((event) =>
+    isInboundCustomerCommunication(event) && Date.parse(event.occurredAt) > outboundTime,
+  ) ?? null;
+}
+
 function isAppointmentCreated(event: AnalyticsEvent): boolean {
   const text = [event.rawType, event.category, event.details].join(" ").toLowerCase();
   return /appt\. created|appointment created|appointment scheduled|appointment set/.test(text)
