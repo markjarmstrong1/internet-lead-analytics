@@ -64,60 +64,60 @@ type Props = {
 
 const navigation = [
   {
-    label: "Dashboard",
+    label: "Overview",
     href: "/app/v0",
-    group: "INTELLIGENCE",
+    group: "WORKFLOWS",
     icon: "◫",
-    description: "Current operating picture",
+    description: "Understand performance and management priorities",
   },
   {
-    label: "Leads",
-    href: "/app/v0/leads",
-    group: "INTELLIGENCE",
-    icon: "◎",
-    description: "Investigate individual leads",
-  },
-  {
-    label: "Analytics",
+    label: "Analyze",
     href: "/app/v0/analytics",
-    group: "INTELLIGENCE",
+    group: "WORKFLOWS",
     icon: "⌁",
-    description: "Understand observed outcomes",
+    description: "Compare populations and investigate outcomes",
   },
   {
-    label: "Reports",
+    label: "Investigate",
+    href: "/app/v0/leads",
+    group: "WORKFLOWS",
+    icon: "◎",
+    description: "Search leads and reconstruct what happened",
+  },
+  {
+    label: "Findings & Reports",
     href: "/app/v0/reports",
-    group: "INTELLIGENCE",
+    group: "WORKFLOWS",
     icon: "▤",
-    description: "Management reporting",
-  },
-  {
-    label: "Sources",
-    href: "/app/v0/sources",
-    group: "INTELLIGENCE",
-    icon: "⌖",
-    description: "Source performance and coverage",
-  },
-  {
-    label: "Methods",
-    href: "/app/v0/methods",
-    group: "INTELLIGENCE",
-    icon: "⌘",
-    description: "Templates and analytical methods",
+    description: "Review findings and communicate evidence",
   },
   {
     label: "Exceptions",
     href: "/app/v0/exceptions",
-    group: "OPERATIONS",
+    group: "WORKFLOWS",
     icon: "△",
-    description: "Issues requiring investigation",
+    description: "Prioritize evidence gaps and unusual outcomes",
+  },
+  {
+    label: "Data & Sources",
+    href: "/app/v0/sources",
+    group: "DATA & OPERATIONS",
+    icon: "⌖",
+    description: "Inspect source populations and evidence coverage",
+  },
+  {
+    label: "Methods",
+    href: "/app/v0/methods",
+    group: "DATA & OPERATIONS",
+    icon: "⌘",
+    description: "Review templates and analytical methods",
   },
   {
     label: "Imports",
     href: "/app/v0/imports",
-    group: "OPERATIONS",
+    group: "DATA & OPERATIONS",
     icon: "⇧",
-    description: "Source evidence intake",
+    description: "Manage incoming source evidence",
   },
 ];
 
@@ -197,11 +197,11 @@ function eventMatchesFilter(event: Event, filter: TimelineFilter) {
 
 function pageTitle(view: string) {
   const titles: Record<string, string> = {
-    dashboard: "Dashboard",
-    leads: "Leads",
-    analytics: "Analytics",
-    reports: "Reports",
-    sources: "Source intelligence",
+    dashboard: "Overview",
+    leads: "Investigate",
+    analytics: "Analyze",
+    reports: "Findings & Reports",
+    sources: "Data & Sources",
     methods: "Methods",
     exceptions: "Exceptions",
     imports: "Imports",
@@ -308,7 +308,7 @@ export function MantikV0Workspace({
 
         <div className="mv0-workspace-label">WORKSPACE</div>
         <nav aria-label="MANTIK navigation" className="mv0-nav">
-          {["INTELLIGENCE", "OPERATIONS"].map((group) => (
+          {["WORKFLOWS", "DATA & OPERATIONS"].map((group) => (
             <div key={group}>
               <p className="mv0-nav-group">{group}</p>
               {navigation
@@ -612,7 +612,7 @@ function DashboardView({
         description="A decision-focused view of lead activity, customer engagement, and observed outcomes."
         action={
           <Link href="/app/v0/analytics" className="mv0-button">
-            Explore analytics ↗
+            Open analysis ↗
           </Link>
         }
       />
