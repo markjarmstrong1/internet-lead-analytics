@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ProgressionAnalysis } from "@/analytics/progression/progression-types";
+import type { ProgressionDashboardData } from "@/analytics/progression/progression-dashboard-types";
 
-type State = { data: ProgressionAnalysis | null; loading: boolean; error: string | null };
+type State = { data: ProgressionDashboardData | null; loading: boolean; error: string | null };
 
 export function useProgressionAnalysis(): State {
   const [state, setState] = useState<State>({ data: null, loading: true, error: null });
@@ -12,7 +12,7 @@ export function useProgressionAnalysis(): State {
     fetch("/api/analytics/progression", { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("Progression data could not be loaded.");
-        return response.json() as Promise<ProgressionAnalysis>;
+        return response.json() as Promise<ProgressionDashboardData>;
       })
       .then((data) => setState({ data, loading: false, error: null }))
       .catch((error: unknown) => {
