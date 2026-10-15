@@ -42,5 +42,7 @@ describe("buildProgressionAnalysis", () => {
     expect(result.transitions[0].eligibleLeadCount).toBe(1);
     expect(result.transitions[0].progressedLeadCount).toBe(1);
     expect(result.transitions[0].rate).toBe(1);
+    expect(result.funnel.find((stage) => stage.stage === "engaged")?.progressedFromPreviousCount).toBe(1);
+    expect(result.funnel.find((stage) => stage.stage === "engaged")?.eligibleCount).toBe(1);
   });
 });
