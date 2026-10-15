@@ -7,8 +7,13 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const analysis = await loadProgressionAnalysis();
+    const report = buildProgressionReport(analysis);
     return NextResponse.json({
       ...analysis,
+      associations: {
+        strongest: report.strongestAssociations,
+        weakest: report.weakestAssociations,
+      },
       leads: analysis.leads.map(({ lead, entries, evidenceCoverage, events }) => ({
         leadId: lead.leadId,
         source: lead.source,

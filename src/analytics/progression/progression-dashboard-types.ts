@@ -32,5 +32,9 @@ export type ProgressionDashboardLead = {
 };
 
 export type ProgressionDashboardData = Omit<ProgressionAnalysis, "leads"> & {
+  associations: {
+    strongest: ProgressionAssociation[];
+    weakest: ProgressionAssociation[];
+  };
   leads: ProgressionDashboardLead[];
 };
