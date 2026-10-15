@@ -45,7 +45,7 @@ export function calculateTransition(leads: LeadProgression[], fromStage: Progres
   const progressedIds = new Set(progressed.map((lead) => lead.lead.leadId));
   const dropoffCount = eligible.length - progressed.length;
   return {
-    fromStage, toStage, eligibleLeadCount: eligible.length, progressedLeadCount: progressed.length,
+    fromStage, toStage, eligibleLeadCount: eligible.length, progressedLeadCount: progressed.length, unresolvedLeadCount: unresolved.length, unresolvedLeadIds: unresolved.map((lead) => lead.lead.leadId),
     rate: eligible.length ? progressed.length / eligible.length : null,
     dropoffCount, dropoffRate: eligible.length ? dropoffCount / eligible.length : null,
     medianMinutes: median(durations), timedLeadCount: durations.length,
