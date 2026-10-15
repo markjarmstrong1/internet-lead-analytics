@@ -31,7 +31,7 @@ export function buildProgressionAnalysis(dataset: AnalyticsDataset, rules: Progr
     .map((stage, index) => {
       const count = leads.filter((lead) => lead.entries.some((item) => item.stage === stage && item.status === "qualified")).length;
       const previous = index > 0 ? transitions[index - 1] : null;
-      return { stage, count, rateFromPrevious: previous?.rate ?? null, eligibleCount: previous?.eligibleLeadCount ?? leads.length };
+      return { stage, count, progressedFromPreviousCount: previous?.progressedLeadCount ?? null, rateFromPrevious: previous?.rate ?? null, eligibleCount: previous?.eligibleLeadCount ?? leads.length };
     });
   const completeLeadCount = leads.filter((lead) => lead.evidenceCoverage.status === "complete").length;
   const partialLeadCount = leads.filter((lead) => lead.evidenceCoverage.status === "partial").length;
