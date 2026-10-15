@@ -36,7 +36,7 @@ export function TransitionAnalysisCard({ transition }: { transition: StageTransi
       <Metric label="Transition rate" value={percent(transition.rate)} />
       <Metric label="Median time" value={duration(transition.medianMinutes)} />
     </div>
-    <p className="mt-4 text-sm text-slate-600">Drop-off: {transition.dropoffCount.toLocaleString()} ({percent(transition.dropoffRate)}). Timestamp coverage: {transition.timedLeadCount} of {transition.progressedLeadCount} progressed leads.</p>
+    <p className="mt-4 text-sm text-slate-600">Drop-off: {transition.dropoffCount.toLocaleString()} ({percent(transition.dropoffRate)}). Unresolved next-stage evidence: {transition.unresolvedLeadCount}. Timestamp coverage: {transition.timedLeadCount} of {transition.progressedLeadCount} progressed leads.</p>
     <div className="mt-4 grid gap-4 md:grid-cols-2">
       <MetricList title="Common paths" items={transition.commonPaths.map((item) => ({ label: item.path.join(" → "), count: item.occurrences }))} />
       <MetricList title="Observed channels" items={transition.channels.map((item) => ({ label: item.channel, count: item.occurrences }))} />
