@@ -24,7 +24,7 @@ insert into public.progression_rule_definitions
 values
   ('lead-created-v1', 'new_lead', 1, 'Lead created', 'Canonical lead has a valid creation timestamp.', 'source_record', '{"source":"leads.creation_time"}'::jsonb),
   ('customer-response-v1', 'engaged', 1, 'Customer engagement', 'Qualifying inbound customer communication or observed connected call.', 'observed_event', '{"event":"inbound_customer_communication_or_connected_call"}'::jsonb),
-  ('two-way-interaction-v1', 'conversation', 1, 'Conversation', 'Observed customer reply or connected phone interaction; this rule does not infer intent from outbound attempts.', 'observed_event', '{"event":"inbound_customer_communication_or_connected_call"}'::jsonb),
+  ('two-way-interaction-v1', 'conversation', 1, 'Conversation', 'A subsequent two-way exchange after engagement or a later connected phone call is observed.', 'observed_event', '{"event":"subsequent_two_way_exchange_or_later_connected_call"}'::jsonb),
   ('appointment-created-v1', 'appointment', 1, 'Appointment recorded', 'Timeline evidence records a qualifying appointment creation.', 'observed_event', '{"event":"appointment_created_not_deleted"}'::jsonb),
   ('show-attendance-v1', 'show', 1, 'Show attendance', 'Timeline evidence explicitly supports attendance or arrival.', 'observed_event', '{"event":"explicit_show_or_arrival"}'::jsonb),
   ('sale-outcome-v1', 'sold', 1, 'Sale outcome', 'A sold date or explicit sale outcome is present in the canonical lead/source evidence.', 'source_outcome', '{"source":"lead.sold_date_or_explicit_sale_event"}'::jsonb)
