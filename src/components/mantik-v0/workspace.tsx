@@ -121,6 +121,13 @@ const navigation = [
     icon: "⇧",
     description: "Manage incoming source evidence",
   },
+  {
+    label: "Developer",
+    href: "/app/v0/developer",
+    group: "DEVELOPER",
+    icon: "⌘",
+    description: "Inspect and maintain the local project workspace",
+  },
 ];
 
 const timelineFilters = [
@@ -200,6 +207,7 @@ function eventMatchesFilter(event: Event, filter: TimelineFilter) {
 function pageTitle(view: string) {
   const titles: Record<string, string> = {
     dashboard: "Overview",
+    developer: "Developer",
     leads: "Investigate",
     analytics: "Analyze",
     reports: "Findings & Reports",
@@ -317,7 +325,7 @@ export function MantikV0Workspace({
 
         <div className="mv0-workspace-label">WORKSPACE</div>
         <nav aria-label="MANTIK navigation" className="mv0-nav">
-          {["WORKFLOWS", "DATA & OPERATIONS"].map((group) => (
+          {["WORKFLOWS", "DATA & OPERATIONS", "DEVELOPER"].map((group) => (
             <div key={group}>
               <p className="mv0-nav-group">{group}</p>
               {navigation
@@ -487,6 +495,8 @@ export function MantikV0Workspace({
 
           {view === "methods" && <MethodsView />}
 
+          {view === "developer" && <DeveloperView />}
+
           {view === "exceptions" && (
             <ExceptionsView
               leads={exceptions}
@@ -504,6 +514,7 @@ export function MantikV0Workspace({
             "imports",
             "methods",
             "exceptions",
+            "developer",
           ].includes(view) && (
             <section className="mv0-panel">
               <p className="mv0-eyebrow">WORKSPACE</p>
@@ -519,6 +530,72 @@ export function MantikV0Workspace({
         </main>
       </div>
     </div>
+  );
+}
+
+function DeveloperView() {
+  const approvedCommands = [
+    ["npm test -- --run", "Run the test suite"],
+    ["npm run lint", "Check code quality"],
+    ["npm run build", "Verify the production build"],
+  ];
+
+  return (
+    <>
+      <PageHeading
+        eyebrow="LOCAL DEVELOPMENT"
+        title="Developer workspace"
+        description="A controlled workspace for maintaining MANTIK in your existing local project folder."
+        action={<Link href="/app/v0" className="mv0-button mv0-button-secondary">Back to overview</Link>}
+      />
+
+      <div className="mv0-metrics-grid">
+        <Metric label="Execution location" value="Local Mac" detail="~/Desktop/internet-lead-analytics" />
+        <Metric label="Local agent" value="Not connected" detail="Command execution is disabled until the local agent is installed." state="NOT CONNECTED" />
+        <Metric label="Access policy" value="Restricted" detail="No public shell endpoint or arbitrary command API." />
+      </div>
+
+      <Panel title="Terminal" description="The terminal interface is prepared, but intentionally cannot execute commands until it is connected to the local agent.">
+        <div className="overflow-hidden rounded-lg border border-slate-700 bg-[#10151b] font-mono text-xs leading-6 text-slate-300">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700 px-4 py-3">
+            <span className="text-emerald-400">MANTIK Developer Workspace</span>
+            <span className="rounded-full border border-amber-500/40 px-2 py-0.5 text-amber-300">AGENT OFFLINE</span>
+          </div>
+          <div className="min-h-44 p-5">
+            <p className="text-slate-500">Target: ~/Desktop/internet-lead-analytics</p>
+            <p className="mt-3 text-slate-300">The interface is ready. Connect the local agent to enable execution.</p>
+            <p className="mt-2 text-amber-300">Safety: no arbitrary shell commands are accepted by the web application.</p>
+            <div className="mt-5 border-t border-slate-700 pt-3 text-slate-500">$ terminal input disabled until local agent is installed</div>
+          </div>
+        </div>
+      </Panel>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Panel title="Approved development tasks" description="The first agent version will expose named tasks, not a general-purpose shell.">
+          <div className="mv0-rule-list">
+            {approvedCommands.map(([command, detail]) => (
+              <Fact key={command} label={command} value={detail} />
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Files and Git" description="Repository tools will remain bounded to the project folder.">
+          <div className="mv0-rule-list">
+            <Fact label="Files" value="Repository tree and bounded file editor; path traversal and secret files blocked." />
+            <Fact label="Git" value="Branch, worktree status, changed files, and reviewed diffs." />
+            <Fact label="Writes" value="No commit or push action in the initial version." />
+          </div>
+        </Panel>
+      </div>
+
+      <Panel title="Local agent setup" description="This page does not execute commands itself. The next step is a small Node.js process running on your Mac.">
+        <div className="mv0-rule-list">
+          <Fact label="Network binding" value="Loopback only (127.0.0.1); never expose through a public tunnel." />
+          <Fact label="Authentication" value="Short-lived pairing token and strict origin checks." />
+          <Fact label="Execution" value="Allowlisted tasks, bounded output, and request timeouts." />
+          <Fact label="File access" value="Repository-root validation, with environment files and Git internals excluded." />
+        </div>
+      </Panel>
+    </>
   );
 }
 
