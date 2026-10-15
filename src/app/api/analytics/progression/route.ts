@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { loadProgressionAnalysis } from "@/analytics/progression/load-progression-analysis";
+import { buildProgressionReport } from "@/analytics/progression/build-progression-report";
 
 export const dynamic = "force-dynamic";
 
