@@ -1,4 +1,5 @@
 import type { ProgressionAnalysis, StageEntry, EvidenceCoverageStatus } from "./progression-types";
+import type { ProgressionAssociation } from "./progression-report-types";
 
 export type ProgressionDashboardLead = {
   leadId: string;
