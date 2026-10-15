@@ -24,7 +24,7 @@ export const DEFAULT_PROGRESSION_RULES: ProgressionRule[] = [
     stage: "conversation",
     version: 1,
     label: "Conversation",
-    description: "Observed customer reply or connected phone interaction.",
+    description: "A subsequent two-way exchange after engagement or a later connected phone call is observed.",
     qualificationBasis: "observed_event",
     isActive: true,
   },
