@@ -22,7 +22,7 @@ export function ProgressionOverview({ data }: { data: ProgressionDashboardData }
 export function ProgressionFunnel({ data }: { data: ProgressionDashboardData }) {
   return <Panel title="Lead funnel"><div className="space-y-4">
     {data.funnel.map((stage, index) => <div key={stage.stage}>
-      <div className="mb-1 flex items-baseline justify-between gap-3 text-sm"><span className="font-medium text-slate-800">{stageLabels[stage.stage]}</span><span className="tabular-nums text-slate-700">{stage.count.toLocaleString()} <span className="text-slate-400">{index ? `· ${percent(stage.rateFromPrevious)} from prior stage` : "· cohort baseline"}</span></span></div>
+      <div className="mb-1 flex items-baseline justify-between gap-3 text-sm"><span className="font-medium text-slate-800">{stageLabels[stage.stage]}</span><span className="tabular-nums text-slate-700">{stage.count.toLocaleString()} <span className="text-slate-400">{index ? `· ${stage.progressedFromPreviousCount === null ? "—" : `${stage.progressedFromPreviousCount}/${stage.eligibleCount} eligible`} · ${percent(stage.rateFromPrevious)} transition rate` : "· cohort baseline"}</span></span></div>
       <div className="h-2 overflow-hidden rounded bg-slate-100"><div className="h-full rounded bg-slate-700" style={{ width: `${data.leadCount ? Math.min(100, stage.count / data.leadCount * 100) : 0}%` }} /></div>
     </div>)}
   </div></Panel>;
