@@ -51,6 +51,8 @@ function compareFactor(
 function buildAssociations(analysis: ProgressionAnalysis): ProgressionAssociation[] {
   const results: ProgressionAssociation[] = [];
   for (const transition of analysis.transitions) {
+    // A factor cannot explain differences in an outcome that never varies in this eligible cohort.
+    if (transition.eligibleLeadCount === 0 || transition.progressedLeadCount === 0 || transition.progressedLeadCount === transition.eligibleLeadCount) continue;
     const factors = new Map<string, ProgressionAssociation["kind"]>();
     const eligible = analysis.leads.filter((lead) => {
       const from = lead.entries.find((entry) => entry.stage === transition.fromStage);
@@ -98,7 +100,7 @@ export function buildProgressionReport(analysis: ProgressionAnalysis): Progressi
       "Associations are descriptive comparisons, not causal estimates.",
     ]),
     section("Biggest Drop-off", largest ? `${stageLabel[largest.fromStage]} → ${stageLabel[largest.toStage]}: ${largest.dropoffCount} of ${largest.eligibleLeadCount} eligible leads lack a recorded qualifying next-stage event.` : "No transition has an eligible lead population.", largest ? [`Recorded drop-off rate: ${largest.dropoffRate === null ? "not calculable" : (largest.dropoffRate * 100).toFixed(1) + "%"}`, `Unresolved next-stage evidence: ${largest.unresolvedLeadCount}`, `Elapsed-time sample: ${largest.timedLeadCount} leads`] : [] , largest?.droppedLeadIds ?? []),
-    section("Strongest Associations", associations[0] ? `${associations[0].factor} is associated with a ${((associations[0].rateDifference ?? 0) * 100).toFixed(1)} percentage-point difference in observed progression for its eligible comparison.` : "No factor has enough exposed and unexposed leads to report a stable comparison.", associations.slice(0, 5).map((item) => `${item.factor}: with ${item.progressedWithFactor}/${item.exposedLeadCount}; without ${item.progressedWithoutFactor}/${item.unexposedLeadCount}`)),
+    section("Strongest Associations", associations[0] ? `${associations[0].factor} is associated with a ${((associations[0].rateDifference ?? 0) * 100).toFixed(1)} percentage-point difference in observed progression for its eligible comparison.`  : "No factor has enough exposed and unexposed leads with a varying observed outcome to report a stable comparison.", associations.slice(0, 5).map((item) => `${item.factor}: with ${item.progressedWithFactor}/${item.exposedLeadCount}; without ${item.progressedWithoutFactor}/${item.unexposedLeadCount}`)),
     section("Weakest Associations", associations.length > 0 ? `${associations[associations.length - 1].factor} has the lowest observed rate difference among factors meeting the minimum cohort-size rule.` : "No factor comparison met the minimum cohort-size rule.", associations.slice(-5).reverse().map((item) => `${item.factor}: with ${item.progressedWithFactor}/${item.exposedLeadCount}; without ${item.progressedWithoutFactor}/${item.unexposedLeadCount}`)),
     section("Common Paths", paths.length ? "Most frequent observed event sequences between qualifying stage entries." : "No observed paths were available for this cohort.", paths.slice(0, 5).map((item) => `${item.transition}: ${item.path.join(" → ")} (${item.occurrences})`)),
     section("Unresolved Questions", `${analysis.unresolvedQuestions.reduce((sum, item) => sum + item.leadCount, 0)} unresolved evidence exceptions were identified across the listed categories.`, analysis.unresolvedQuestions.map((item) => `${item.label}: ${item.leadCount}`), [...new Set(analysis.unresolvedQuestions.flatMap((item) => item.leadIds))]),
@@ -116,8 +118,8 @@ export function buildProgressionReport(analysis: ProgressionAnalysis): Progressi
     unresolvedQuestions: analysis.unresolvedQuestions,
     methodology: {
       qualificationRuleVersions: analysis.ruleVersions,
-      associationDescription: "Progression rates compare eligible leads with a qualifying observed factor against eligible leads without that factor. Differences are associational and unadjusted.",
-      limitations: ["No causal conclusions are made.", "Small or incomplete cohorts may be unstable.", "Missing events do not prove that an action did not occur.", "Show attendance requires explicit event evidence.", "Association comparisons are not adjusted for source, salesperson, lead intent, or other confounders."],
+      associationDescription: "Progression rates compare eligible leads with a qualifying observed factor against eligible leads without that factor. Comparisons are omitted when the eligible transition outcome has no variation. Differences are associational and unadjusted.",
+      limitations: ["No causal conclusions are made.", "Small or incomplete cohorts may be unstable.", "Associations are suppressed when every eligible lead has the same observed outcome.", "Missing events do not prove that an action did not occur.", "Show attendance requires explicit event evidence.", "Association comparisons are not adjusted for source, salesperson, lead intent, or other confounders."],
     },
   };
 }
