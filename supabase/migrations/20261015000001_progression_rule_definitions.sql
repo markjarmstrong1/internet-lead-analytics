@@ -28,14 +28,7 @@ values
   ('appointment-created-v1', 'appointment', 1, 'Appointment recorded', 'Timeline evidence records a qualifying appointment creation.', 'observed_event', '{"event":"appointment_created_not_deleted"}'::jsonb),
   ('show-attendance-v1', 'show', 1, 'Show attendance', 'Timeline evidence explicitly supports attendance or arrival.', 'observed_event', '{"event":"explicit_show_or_arrival"}'::jsonb),
   ('sale-outcome-v1', 'sold', 1, 'Sale outcome', 'A sold date or explicit sale outcome is present in the canonical lead/source evidence.', 'source_outcome', '{"source":"lead.sold_date_or_explicit_sale_event"}'::jsonb)
-on conflict (rule_key) do update set
-  stage_key = excluded.stage_key,
-  version = excluded.version,
-  label = excluded.label,
-  description = excluded.description,
-  qualification_basis = excluded.qualification_basis,
-  definition = excluded.definition,
-  updated_at = now();
+on conflict (rule_key) do nothing;
 
 alter table public.progression_rule_definitions enable row level security;
 revoke all on public.progression_rule_definitions from anon, authenticated;
