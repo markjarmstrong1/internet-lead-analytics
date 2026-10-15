@@ -122,15 +122,15 @@ export function qualifyStage(input: {
       evidence = [evidenceForEvent(matched, "observed", "explicit_show_attendance", "Timeline contains explicit showroom attendance evidence.")];
     }
   } else if (stage === "sold") {
-    enteredAt = validTimestamp(lead.soldDate) ?? validTimestamp(lead.closedTime);
+    enteredAt = validTimestamp(lead.soldDate);
     if (enteredAt) {
       evidence = [{
         classification: "observed",
-        basis: lead.soldDate ? "canonical_lead.sold_date" : "canonical_lead.closed_time",
+        basis: "canonical_lead.sold_date",
         eventIds: [],
         timelineRecordIds: lead.timelineRecordIds,
         sourceFiles: [],
-        summary: "Canonical lead outcome timestamp supports a sale/closed outcome.",
+        summary: "Canonical sold date supports a sale outcome.",
       }];
     } else {
       matched = ordered.find(isSaleEvent) ?? null;
