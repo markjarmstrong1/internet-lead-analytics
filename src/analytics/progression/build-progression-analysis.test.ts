@@ -20,6 +20,7 @@ describe("buildProgressionAnalysis", () => {
     const entries = result.leads[0].entries;
     expect(entries.find((item) => item.stage === "new_lead")?.status).toBe("qualified");
     expect(entries.find((item) => item.stage === "engaged")?.status).toBe("qualified");
+    expect(entries.find((item) => item.stage === "conversation")?.status).toBe("not_qualified");
     expect(entries.find((item) => item.stage === "appointment")?.status).toBe("qualified");
     expect(entries.find((item) => item.stage === "show")?.status).toBe("not_qualified");
     expect(entries.find((item) => item.stage === "sold")?.status).toBe("qualified");
