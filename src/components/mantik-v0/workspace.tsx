@@ -460,8 +460,7 @@ export function MantikV0Workspace({
             <AnalyticsView
               metrics={metrics}
               leads={leads}
-              sourceCounts={sourceCounts}
-              stageCounts={stageCounts}
+              timelineLeadIds={timelineLeadIds}
             />
           )}
 
@@ -1101,75 +1100,348 @@ function LeadInvestigation({
 function AnalyticsView({
   metrics,
   leads,
-  sourceCounts,
-  stageCounts,
+  timelineLeadIds,
 }: {
   metrics: DashboardMetrics;
   leads: Lead[];
-  sourceCounts: [string, number][];
-  stageCounts: [string, number][];
+  timelineLeadIds: string[];
 }) {
+  type SortKey = "leads" | "engaged" | "contacted" | "coverage" | "source";
+  type CoverageFilter = "all" | "covered" | "missing";
+
+  const [query, setQuery] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("leads");
+  const [sortDescending, setSortDescending] = useState(true);
+  const [coverageFilter, setCoverageFilter] = useState<CoverageFilter>("all");
+  const [selectedSource, setSelectedSource] = useState("");
+
+  const linkedIds = useMemo(() => new Set(timelineLeadIds), [timelineLeadIds]);
+
+  const sourceRows = useMemo(() => {
+    const grouped = new Map<string, Lead[]>();
+
+    for (const lead of leads) {
+      const source = sourceName(lead);
+      const group = grouped.get(source) ?? [];
+      group.push(lead);
+      grouped.set(source, group);
+    }
+
+    return [...grouped.entries()].map(([source, sourceLeads]) => {
+      const linked = sourceLeads.filter((lead) => linkedIds.has(lead.id)).length;
+      const engaged = sourceLeads.filter((lead) => Boolean(lead.lastEngagedAt)).length;
+      const contacted = sourceLeads.filter((lead) => Boolean(lead.lastContactedAt)).length;
+
+      return {
+        source,
+        leads: sourceLeads.length,
+        engaged,
+        contacted,
+        linked,
+        missing: sourceLeads.length - linked,
+        coverage: sourceLeads.length ? linked / sourceLeads.length : 0,
+        engagementRate: sourceLeads.length ? engaged / sourceLeads.length : 0,
+        records: sourceLeads,
+      };
+    });
+  }, [leads, linkedIds]);
+
+  const filteredRows = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+
+    const filtered = sourceRows.filter((row) => {
+      const matchesQuery = !needle || row.source.toLowerCase().includes(needle);
+      const matchesCoverage =
+        coverageFilter === "all" ||
+        (coverageFilter === "covered" && row.missing === 0) ||
+        (coverageFilter === "missing" && row.missing > 0);
+
+      return matchesQuery && matchesCoverage;
+    });
+
+    return filtered.sort((a, b) => {
+      let comparison = 0;
+
+      if (sortKey === "source") {
+        comparison = a.source.localeCompare(b.source);
+      } else if (sortKey === "coverage") {
+        comparison = a.coverage - b.coverage;
+      } else if (sortKey === "engaged") {
+        comparison = a.engagementRate - b.engagementRate;
+      } else {
+        comparison = a[sortKey] - b[sortKey];
+      }
+
+      return sortDescending ? -comparison : comparison;
+    });
+  }, [sourceRows, query, coverageFilter, sortKey, sortDescending]);
+
+  const activeSource =
+    filteredRows.find((row) => row.source === selectedSource) ??
+    filteredRows[0] ??
+    null;
+
+  function changeSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDescending((current) => !current);
+    } else {
+      setSortKey(key);
+      setSortDescending(key !== "source");
+    }
+  }
+
+  function sortLabel(key: SortKey, label: string) {
+    return (
+      <button
+        type="button"
+        className="mv0-analytics-sort"
+        onClick={() => changeSort(key)}
+        aria-label={`Sort by ${label}`}
+      >
+        {label}
+        <span aria-hidden="true">
+          {sortKey === key ? (sortDescending ? " ↓" : " ↑") : " ↕"}
+        </span>
+      </button>
+    );
+  }
+
+  const percent = (value: number) => `${Math.round(value * 100)}%`;
+
   return (
-    <>
-      <PageHeading
-        eyebrow="ANALYTICS / EVIDENCE-BASED QUESTIONS"
-        title="What works, what doesn't, and what remains unknown?"
-        description="Start with observed populations and move toward the records supporting each conclusion."
-      />
-      <div className="mv0-metrics-grid">
-        <Metric label="Lead population" value={metrics.totalLeads} detail="Canonical records" />
-        <Metric label="Timeline coverage" value={`${metrics.timelineLeads} / ${metrics.totalLeads}`} detail="Leads with linked timelines" />
-        <Metric label="Outbound activity" value={metrics.observedOutboundLeads} detail="Leads with observed outbound evidence" />
-        <Metric label="Inbound response" value={metrics.inboundResponseLeads} detail="Leads with observed inbound response evidence" />
-        <Metric label="Observed sales" value={metrics.sales} detail="Existing outcome definition" />
+    <section className="mv0-analytics">
+      <div className="mv0-analytics-heading">
+        <div>
+          <div className="mv0-eyebrow">ANALYTICS / INVESTIGATION WORKSPACE</div>
+          <h1>Source and population analysis</h1>
+          <p>
+            Compare recorded populations, inspect evidence coverage, and open
+            individual lead records. Observed fields are not causal explanations.
+          </p>
+        </div>
+        <div className="mv0-analytics-scope">
+          <span>LEAD POPULATION</span>
+          <strong>{leads.length.toLocaleString("en-US")}</strong>
+          <small>records in current dataset</small>
+        </div>
       </div>
 
-      <div className="mv0-topic-grid">
-        <AnalyticsTopic number="01" title="Action performance" question="What happens after calls, texts, and emails?" detail="Review the available outbound and inbound event evidence before comparing outcomes." href="/analytics/engagement" />
-        <AnalyticsTopic number="02" title="Source performance" question="Which sources produce outcomes worth investigating?" detail="Begin with source populations and coverage. Lead counts alone do not establish ROI." href="/app/v0/sources" />
-        <AnalyticsTopic number="03" title="Funnel performance" question="Where does observed progression slow down?" detail="Compare recorded stages and evidence. Do not assume a missing transition never occurred." href="/analytics/progression" />
-        <AnalyticsTopic number="04" title="Outcome analysis" question="Which actions are associated with appointments and sales?" detail="Associations require defined populations, windows, and denominators; they do not prove causation." href="/analytics/sold" />
+      <div className="mv0-analytics-summary" aria-label="Dataset summary">
+        <div>
+          <span>LEADS</span>
+          <strong>{metrics.totalLeads.toLocaleString("en-US")}</strong>
+        </div>
+        <div>
+          <span>TIMELINE-LINKED</span>
+          <strong>{metrics.timelineLeads.toLocaleString("en-US")}</strong>
+        </div>
+        <div>
+          <span>OUTBOUND EVIDENCE</span>
+          <strong>{metrics.observedOutboundLeads.toLocaleString("en-US")}</strong>
+        </div>
+        <div>
+          <span>INBOUND RESPONSE</span>
+          <strong>{metrics.inboundResponseLeads.toLocaleString("en-US")}</strong>
+        </div>
+        <div>
+          <span>OBSERVED SALES</span>
+          <strong>{metrics.sales.toLocaleString("en-US")}</strong>
+        </div>
       </div>
 
-      <div className="mv0-dashboard-grid">
-        <Panel title="Source populations" description="Counts from recorded source labels.">
-          <div className="mv0-bar-list">
-            {sourceCounts.slice(0, 8).map(([source, count]) => (
-              <div className="mv0-bar-row" key={source}>
-                <span title={source}>{source}</span>
-                <div className="mv0-bar-track">
-                  <div className="mv0-bar-fill" style={{ width: `${Math.max(3, count / Math.max(sourceCounts[0]?.[1] || 1, 1) * 100)}%` }} />
-                </div>
-                <strong>{count}</strong>
-              </div>
-            ))}
+      <div className="mv0-analytics-controls">
+        <label className="mv0-analytics-search">
+          <span>FILTER POPULATIONS</span>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search source label…"
+            aria-label="Filter source populations"
+          />
+        </label>
+        <div className="mv0-analytics-filter-group" aria-label="Timeline coverage filter">
+          <span>COVERAGE</span>
+          {([
+            ["all", "All sources"],
+            ["covered", "Fully linked"],
+            ["missing", "Evidence gaps"],
+          ] as [CoverageFilter, string][]).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={coverageFilter === value ? "is-selected" : ""}
+              onClick={() => setCoverageFilter(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="mv0-analytics-result-count">
+          {filteredRows.length} / {sourceRows.length} populations
+        </div>
+      </div>
+
+      <div className="mv0-analytics-layout">
+        <section className="mv0-analytics-table-panel" aria-label="Source comparison table">
+          <div className="mv0-analytics-panel-heading">
+            <div>
+              <strong>Population comparison</strong>
+              <span>Recorded lead fields and timeline linkage</span>
+            </div>
+            <span className="mv0-analytics-table-hint">Select a row to inspect records →</span>
           </div>
-          {sourceCounts.length === 0 && <EmptyState text="No source labels available." />}
-        </Panel>
-        <Panel title="Recorded stages" description="Current stored stage values, not inferred transitions.">
-          <div className="mv0-bar-list">
-            {stageCounts.slice(0, 8).map(([stage, count]) => (
-              <div className="mv0-bar-row" key={stage}>
-                <span title={stage}>{stage}</span>
-                <div className="mv0-bar-track">
-                  <div className="mv0-bar-fill" style={{ width: `${Math.max(3, count / Math.max(stageCounts[0]?.[1] || 1, 1) * 100)}%` }} />
-                </div>
-                <strong>{count}</strong>
-              </div>
-            ))}
+          <div className="mv0-table-scroll mv0-analytics-table-scroll">
+            <table className="mv0-table mv0-analytics-table">
+              <thead>
+                <tr>
+                  <th>{sortLabel("source", "Source")}</th>
+                  <th className="mv0-numeric">{sortLabel("leads", "Leads")}</th>
+                  <th className="mv0-numeric">{sortLabel("engaged", "Engaged*")}</th>
+                  <th className="mv0-numeric">{sortLabel("contacted", "Contacted")}</th>
+                  <th className="mv0-numeric">Timeline linked</th>
+                  <th className="mv0-numeric">{sortLabel("coverage", "Coverage")}</th>
+                  <th className="mv0-numeric">Evidence gaps</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRows.map((row) => (
+                  <tr
+                    key={row.source}
+                    className={activeSource?.source === row.source ? "is-selected" : ""}
+                    aria-selected={activeSource?.source === row.source}
+                  >
+                    <td>
+                      <button
+                        type="button"
+                        className="mv0-analytics-source"
+                        onClick={() => setSelectedSource(row.source)}
+                        title={`Inspect ${row.source}`}
+                      >
+                        <strong>{row.source}</strong>
+                        <span>{row.records.length} lead records</span>
+                      </button>
+                    </td>
+                    <td className="mv0-numeric">
+                      <button type="button" className="mv0-analytics-number" onClick={() => setSelectedSource(row.source)}>
+                        {row.leads}
+                      </button>
+                    </td>
+                    <td className="mv0-numeric">
+                      <button type="button" className="mv0-analytics-number" onClick={() => setSelectedSource(row.source)}>
+                        {row.engaged} <small>{percent(row.engagementRate)}</small>
+                      </button>
+                    </td>
+                    <td className="mv0-numeric">
+                      <button type="button" className="mv0-analytics-number" onClick={() => setSelectedSource(row.source)}>
+                        {row.contacted}
+                      </button>
+                    </td>
+                    <td className="mv0-numeric">
+                      <button type="button" className="mv0-analytics-number" onClick={() => setSelectedSource(row.source)}>
+                        {row.linked} / {row.leads}
+                      </button>
+                    </td>
+                    <td className="mv0-numeric">
+                      <button type="button" className="mv0-analytics-number" onClick={() => setSelectedSource(row.source)}>
+                        {percent(row.coverage)}
+                      </button>
+                    </td>
+                    <td className="mv0-numeric">
+                      <button
+                        type="button"
+                        className={`mv0-analytics-number ${row.missing ? "has-gap" : ""}`}
+                        onClick={() => {
+                          setSelectedSource(row.source);
+                          if (row.missing) setCoverageFilter("all");
+                        }}
+                      >
+                        {row.missing}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredRows.length === 0 && (
+                  <tr>
+                    <td colSpan={7}>
+                      <EmptyState text="No source populations match these filters." />
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-          {stageCounts.length === 0 && <EmptyState text="No recorded stages available." />}
-        </Panel>
-      </div>
+          <div className="mv0-analytics-footnote">
+            * Engaged = a lead record has a stored last-engaged timestamp.
+            Contacted = a stored last-contacted timestamp. These are field-based
+            counts, not verified communication-event counts. Appointment and sale
+            conversion rates are not calculated at source level in this view.
+          </div>
+        </section>
 
-      <Panel title="Move from metric to evidence" description="Use the canonical lead and timeline routes to verify what supports a result.">
-        <p className="mv0-muted">
-          {leads.length} lead records are available in this workspace. No
-          synthetic trend series or causal scores are generated by this view.
-        </p>
-        <Link href="/app/v0/leads" className="mv0-button">Explore lead records ↗</Link>
-      </Panel>
-    </>
+        <aside className="mv0-analytics-evidence" aria-label="Selected source evidence">
+          <div className="mv0-analytics-panel-heading">
+            <div>
+              <strong>Evidence inspector</strong>
+              <span>Population → lead record</span>
+            </div>
+            <span className="mv0-analytics-live-dot">LIVE DATA</span>
+          </div>
+
+          {activeSource ? (
+            <>
+              <div className="mv0-analytics-selected-source">
+                <span>SELECTED POPULATION</span>
+                <h2>{activeSource.source}</h2>
+                <div className="mv0-analytics-selected-stats">
+                  <div><span>Leads</span><strong>{activeSource.leads}</strong></div>
+                  <div><span>Engaged*</span><strong>{activeSource.engaged}</strong></div>
+                  <div><span>Timeline gaps</span><strong>{activeSource.missing}</strong></div>
+                </div>
+              </div>
+
+              <div className="mv0-analytics-evidence-heading">
+                <strong>Lead records</strong>
+                <span>{activeSource.records.length} records</span>
+              </div>
+              <div className="mv0-analytics-lead-list">
+                {[...activeSource.records]
+                  .sort((a, b) => {
+                    const dateA = a.lastEngagedAt || a.lastContactedAt || a.createdAt || "";
+                    const dateB = b.lastEngagedAt || b.lastContactedAt || b.createdAt || "";
+                    return dateB.localeCompare(dateA);
+                  })
+                  .map((lead) => (
+                    <Link
+                      key={lead.id}
+                      href={`/app/v0/leads/${lead.id}`}
+                      className="mv0-analytics-lead"
+                    >
+                      <span className="mv0-analytics-lead-main">
+                        <strong>{displayName(lead.name)}</strong>
+                        <small>{lead.externalId || "No external ID"} · {lead.stage || lead.status || "Stage unknown"}</small>
+                        <small>Last engaged: {formatDate(lead.lastEngagedAt)} · Last contacted: {formatDate(lead.lastContactedAt)}</small>
+                      </span>
+                      <span className={`mv0-analytics-link-state ${linkedIds.has(lead.id) ? "is-linked" : "is-missing"}`}>
+                        {linkedIds.has(lead.id) ? "TIMELINE ↗" : "NO TIMELINE ↗"}
+                      </span>
+                    </Link>
+                  ))}
+              </div>
+              <div className="mv0-analytics-limitation">
+                <strong>Interpretation boundary</strong>
+                <p>
+                  Timeline coverage indicates whether linked evidence is available
+                  for these records. It does not establish profitability, lead quality,
+                  causation, or the absence of activity when evidence is missing.
+                </p>
+              </div>
+            </>
+          ) : (
+            <EmptyState text="Select a source population to inspect its lead records." />
+          )}
+        </aside>
+      </div>
+    </section>
   );
 }
 
