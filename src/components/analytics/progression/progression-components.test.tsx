@@ -14,7 +14,7 @@ const data: ProgressionDashboardData = {
   leadCount: 0,
   funnel: stages.map((stage, index) => ({ stage, count: 0, rateFromPrevious: index ? null : null, eligibleCount: 0 })),
   transitions: stages.slice(0, -1).map((fromStage, index) => ({
-    fromStage, toStage: stages[index + 1], eligibleLeadCount: 0, progressedLeadCount: 0,
+    fromStage, toStage: stages[index + 1], eligibleLeadCount: 0, progressedLeadCount: 0, unresolvedLeadCount: 0, unresolvedLeadIds: [],
     rate: null, dropoffCount: 0, dropoffRate: null, medianMinutes: null, timedLeadCount: 0,
     commonPaths: [], channels: [], actions: [], templates: [], evidenceCoverage: null, leadIds: [], droppedLeadIds: [],
   })),
