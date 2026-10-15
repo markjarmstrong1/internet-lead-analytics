@@ -97,6 +97,22 @@ export type TimelineDatabase = {
           Record<string, unknown>;
         Relationships: [];
       };
+      progression_rule_definitions: {
+        Row: {
+          rule_key: string; stage_key: string; version: number; label: string; description: string;
+          qualification_basis: string; definition: Record<string, unknown>; is_active: boolean;
+          created_at: string; updated_at: string;
+        };
+        Insert: {
+          rule_key: string; stage_key: string; version: number; label: string; description: string;
+          qualification_basis: string; definition?: Record<string, unknown>; is_active?: boolean;
+        } & Record<string, unknown>;
+        Update: Partial<{
+          rule_key: string; stage_key: string; version: number; label: string; description: string;
+          qualification_basis: string; definition: Record<string, unknown>; is_active: boolean;
+        }> & Record<string, unknown>;
+        Relationships: [];
+      };
     };
 
     Views: {
