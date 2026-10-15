@@ -31,7 +31,7 @@ export type StageTransition = {
   templates: Array<{ templateCode: string; occurrences: number }>;
   evidenceCoverage: number | null; leadIds: string[]; droppedLeadIds: string[];
 };
-export type ProgressionFunnelStage = { stage: ProgressionStage; count: number; rateFromPrevious: number | null; eligibleCount: number };
+export type ProgressionFunnelStage = { stage: ProgressionStage; count: number; progressedFromPreviousCount: number | null; rateFromPrevious: number | null; eligibleCount: number };
 export type ProgressionAnalysis = {
   generatedAt: string; ruleVersions: Array<{ ruleKey: string; version: number }>; leadCount: number;
   funnel: ProgressionFunnelStage[]; transitions: StageTransition[]; leads: LeadProgression[];
