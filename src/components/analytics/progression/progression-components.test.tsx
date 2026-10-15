@@ -34,7 +34,7 @@ describe("progression dashboard components", () => {
     expect(renderToStaticMarkup(createElement(DropoffAnalysisCard, { transitions: data.transitions }))).toContain("No eligible transitions");
   });
   it("renders association and path empty states", () => {
-    expect(renderToStaticMarkup(createElement(ObservedAssociations, { data }))).toContain("No factors have at least three eligible leads");
+    expect(renderToStaticMarkup(createElement(ObservedAssociations, { data }))).toContain("No reportable associations");
     expect(renderToStaticMarkup(createElement(JourneyPaths, { data }))).toContain("No ordered event paths");
   });
   it("renders evidence coverage and unresolved questions", () => {
