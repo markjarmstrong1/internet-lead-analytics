@@ -26,7 +26,7 @@ describe("buildProgressionAnalysis", () => {
     expect(entries.find((item) => item.stage === "sold")?.status).toBe("qualified");
   });
   it("does not count a sale without explicit sale evidence", () => {
-    const withoutSale = { ...dataset, leads: [{ ...dataset.leads[0], soldDate: null, stage: "Open" }], events: dataset.events.filter((event) => event.rawType !== "Deal Sold") };
+    const withoutSale = { ...dataset, leads: [{ ...dataset.leads[0], soldDate: null, closedTime: "2026-01-02T11:00:00.000Z", stage: "Closed" }], events: dataset.events.filter((event) => event.rawType !== "Deal Sold") };
     expect(buildProgressionAnalysis(withoutSale).funnel.find((stage) => stage.stage === "sold")?.count).toBe(0);
   });
   it("distinguishes missing timeline evidence from zero progression", () => {
