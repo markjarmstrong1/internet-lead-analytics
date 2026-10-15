@@ -122,9 +122,9 @@ const navigation = [
     description: "Manage incoming source evidence",
   },
   {
-    label: "Developer",
-    href: "/app/v0/developer",
-    group: "DEVELOPER",
+    label: "Terminal",
+    href: "/app/v0/terminal",
+    group: "DEVELOPER TOOLS",
     icon: "⌘",
     description: "Inspect and maintain the local project workspace",
   },
@@ -207,7 +207,7 @@ function eventMatchesFilter(event: Event, filter: TimelineFilter) {
 function pageTitle(view: string) {
   const titles: Record<string, string> = {
     dashboard: "Overview",
-    developer: "Developer",
+    terminal: "Terminal",
     leads: "Investigate",
     analytics: "Analyze",
     reports: "Findings & Reports",
@@ -325,7 +325,7 @@ export function MantikV0Workspace({
 
         <div className="mv0-workspace-label">WORKSPACE</div>
         <nav aria-label="MANTIK navigation" className="mv0-nav">
-          {["WORKFLOWS", "DATA & OPERATIONS", "DEVELOPER"].map((group) => (
+          {["WORKFLOWS", "DATA & OPERATIONS", "DEVELOPER TOOLS"].map((group) => (
             <div key={group}>
               <p className="mv0-nav-group">{group}</p>
               {navigation
@@ -495,7 +495,7 @@ export function MantikV0Workspace({
 
           {view === "methods" && <MethodsView />}
 
-          {view === "developer" && <DeveloperView />}
+          {view === "terminal" && <DeveloperView />}
 
           {view === "exceptions" && (
             <ExceptionsView
@@ -514,7 +514,7 @@ export function MantikV0Workspace({
             "imports",
             "methods",
             "exceptions",
-            "developer",
+            "terminal",
           ].includes(view) && (
             <section className="mv0-panel">
               <p className="mv0-eyebrow">WORKSPACE</p>
@@ -544,8 +544,8 @@ function DeveloperView() {
     <>
       <PageHeading
         eyebrow="LOCAL DEVELOPMENT"
-        title="Developer workspace"
-        description="A controlled workspace for maintaining MANTIK in your existing local project folder."
+        title="Terminal"
+        description="A controlled local terminal for maintaining MANTIK in your existing project folder."
         action={<Link href="/app/v0" className="mv0-button mv0-button-secondary">Back to overview</Link>}
       />
 
