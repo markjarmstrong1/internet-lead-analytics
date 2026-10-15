@@ -25,7 +25,18 @@ function eventsBetween(events: AnalyticsEvent[], from: string | null, to: string
   });
 }
 export function calculateTransition(leads: LeadProgression[], fromStage: ProgressionStage, toStage: ProgressionStage): StageTransition {
-  const eligible = leads.filter((lead) => entry(lead, fromStage));
+  const fromQualified = leads.filter((lead) => entry(lead, fromStage));
+  const unresolved = fromQualified.filter((lead) => {
+    const from = entry(lead, fromStage);
+    const to = lead.entries.find((item) => item.stage === toStage);
+    if (!to || to.status === "unresolved") return true;
+    if (to.status === "qualified") {
+      return !from?.enteredAt || !to.enteredAt || Date.parse(to.enteredAt) < Date.parse(from.enteredAt);
+    }
+    return false;
+  });
+  const unresolvedIds = new Set(unresolved.map((lead) => lead.lead.leadId));
+  const eligible = fromQualified.filter((lead) => !unresolvedIds.has(lead.lead.leadId));
   const progressed = eligible.filter((lead) => {
     const from = entry(lead, fromStage), to = entry(lead, toStage);
     return Boolean(from?.enteredAt && to?.enteredAt && Date.parse(to.enteredAt) >= Date.parse(from.enteredAt));
@@ -45,7 +56,8 @@ export function calculateTransition(leads: LeadProgression[], fromStage: Progres
   const progressedIds = new Set(progressed.map((lead) => lead.lead.leadId));
   const dropoffCount = eligible.length - progressed.length;
   return {
-    fromStage, toStage, eligibleLeadCount: eligible.length, progressedLeadCount: progressed.length, unresolvedLeadCount: unresolved.length, unresolvedLeadIds: unresolved.map((lead) => lead.lead.leadId),
+    fromStage, toStage, eligibleLeadCount: eligible.length, progressedLeadCount: progressed.length,
+    unresolvedLeadCount: unresolved.length, unresolvedLeadIds: unresolved.map((lead) => lead.lead.leadId),
     rate: eligible.length ? progressed.length / eligible.length : null,
     dropoffCount, dropoffRate: eligible.length ? dropoffCount / eligible.length : null,
     medianMinutes: median(durations), timedLeadCount: durations.length,
