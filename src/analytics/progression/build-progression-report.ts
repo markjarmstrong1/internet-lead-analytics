@@ -79,6 +79,11 @@ export function buildProgressionReport(analysis: ProgressionAnalysis): Progressi
     section("Weakest Associations", associations.length > 0 ? `${associations[associations.length - 1].factor} has the lowest observed rate difference among factors meeting the minimum cohort-size rule.` : "No factor comparison met the minimum cohort-size rule.", associations.slice(-5).reverse().map((item) => `${item.factor}: with ${item.progressedWithFactor}/${item.exposedLeadCount}; without ${item.progressedWithoutFactor}/${item.unexposedLeadCount}`)),
     section("Common Paths", paths.length ? "Most frequent observed event sequences between qualifying stage entries." : "No observed paths were available for this cohort.", paths.slice(0, 5).map((item) => `${item.transition}: ${item.path.join(" → ")} (${item.occurrences})`)),
     section("Unresolved Questions", `${analysis.unresolvedQuestions.reduce((sum, item) => sum + item.leadCount, 0)} unresolved evidence exceptions were identified across the listed categories.`, analysis.unresolvedQuestions.map((item) => `${item.label}: ${item.leadCount}`), [...new Set(analysis.unresolvedQuestions.flatMap((item) => item.leadIds))]),
+    section("Recommended Management Investigations", largest ? `Review the ${stageLabel[largest.fromStage]} → ${stageLabel[largest.toStage]} cohort before changing process. Inspect records that lack a qualifying next-stage event and validate whether evidence is missing or progression did not occur.` : "Review stage definitions and evidence coverage before interpreting progression.", [
+      largest ? `Inspect ${largest.droppedLeadIds.length} lead records in the largest recorded drop-off.` : "Confirm there is an eligible transition cohort.",
+      ...analysis.unresolvedQuestions.filter((item) => item.leadCount > 0).map((item) => `Resolve evidence gap: ${item.label} (${item.leadCount}).`),
+      "Compare observed tactics only after checking cohort maturity, source coverage, and sample sizes.",
+    ], [...new Set([...(largest?.droppedLeadIds ?? []), ...analysis.unresolvedQuestions.flatMap((item) => item.leadIds)])]),
   ];
   return {
     title: "What Is Moving Leads Forward?", generatedAt: analysis.generatedAt, cohortLeadCount: analysis.leadCount,
