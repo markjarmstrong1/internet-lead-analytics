@@ -1,4 +1,5 @@
-import type { AnalyticsEvent, AnalyticsLead } from "@/analytics/data/analytics-repository";
+import type { AnalyticsLead } from "@/analytics/data/analytics-repository";
+import type { AnalyticsEvent } from "@/analytics/data/analytics-types";
 import type { ProgressionRule, ProgressionStage, StageEntry, StageEvidence } from "./progression-types";
 
 function validTimestamp(value: string | null | undefined): string | null {
