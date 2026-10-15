@@ -6,12 +6,12 @@ const analysis: ProgressionAnalysis = {
   generatedAt: "2026-10-15T12:00:00.000Z", leadCount: 2,
   ruleVersions: [{ ruleKey: "lead-created-v1", version: 1 }],
   funnel: [
-    { stage: "new_lead", count: 2, rateFromPrevious: null, eligibleCount: 2 },
-    { stage: "engaged", count: 1, rateFromPrevious: 0.5, eligibleCount: 2 },
-    { stage: "conversation", count: 1, rateFromPrevious: 1, eligibleCount: 1 },
-    { stage: "appointment", count: 0, rateFromPrevious: 0, eligibleCount: 1 },
-    { stage: "show", count: 0, rateFromPrevious: null, eligibleCount: 0 },
-    { stage: "sold", count: 0, rateFromPrevious: null, eligibleCount: 0 },
+    { stage: "new_lead", count: 2, progressedFromPreviousCount: null, rateFromPrevious: null, eligibleCount: 2 },
+    { stage: "engaged", count: 1, progressedFromPreviousCount: 1, rateFromPrevious: 0.5, eligibleCount: 2 },
+    { stage: "conversation", count: 1, progressedFromPreviousCount: 1, rateFromPrevious: 1, eligibleCount: 1 },
+    { stage: "appointment", count: 0, progressedFromPreviousCount: 0, rateFromPrevious: 0, eligibleCount: 1 },
+    { stage: "show", count: 0, progressedFromPreviousCount: 0, rateFromPrevious: null, eligibleCount: 0 },
+    { stage: "sold", count: 0, progressedFromPreviousCount: 0, rateFromPrevious: null, eligibleCount: 0 },
   ],
   transitions: [
     { fromStage: "new_lead", toStage: "engaged", eligibleLeadCount: 2, progressedLeadCount: 1, unresolvedLeadCount: 0, unresolvedLeadIds: [], rate: 0.5, dropoffCount: 1, dropoffRate: 0.5, medianMinutes: 10, timedLeadCount: 1, commonPaths: [], channels: [{ channel: "text", occurrences: 1 }], actions: [{ action: "Text sent", occurrences: 1 }], templates: [], evidenceCoverage: 1, leadIds: ["a"], droppedLeadIds: ["b"] },
