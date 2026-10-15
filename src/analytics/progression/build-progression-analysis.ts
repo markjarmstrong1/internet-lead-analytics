@@ -2,9 +2,10 @@ import type { AnalyticsDataset } from "@/analytics/data/analytics-repository";
 import { calculateTransition } from "./calculate-transition";
 import { qualifyAllStages } from "./qualify-stage";
 import { DEFAULT_PROGRESSION_RULES, TRANSITION_PAIRS } from "./progression-rules";
+import type { ProgressionRule } from "./progression-types";
 import type { LeadProgression, ProgressionAnalysis, ProgressionStage } from "./progression-types";
 
-export function buildProgressionAnalysis(dataset: AnalyticsDataset): ProgressionAnalysis {
+export function buildProgressionAnalysis(dataset: AnalyticsDataset, rules: ProgressionRule[] = DEFAULT_PROGRESSION_RULES): ProgressionAnalysis {
   const eventsByRecord = new Map<string, typeof dataset.events>();
   for (const event of dataset.events) {
     const group = eventsByRecord.get(event.timelineRecordId) ?? [];
@@ -14,7 +15,7 @@ export function buildProgressionAnalysis(dataset: AnalyticsDataset): Progression
   const leads: LeadProgression[] = dataset.leads.map((lead) => {
     const events = lead.timelineRecordIds.flatMap((id) => eventsByRecord.get(id) ?? [])
       .sort((a, b) => Date.parse(a.occurredAt) - Date.parse(b.occurredAt));
-    const entries = qualifyAllStages({ lead, events, rules: DEFAULT_PROGRESSION_RULES });
+    const entries = qualifyAllStages({ lead, events, rules });
     const qualifiedCount = entries.filter((item) => item.status === "qualified").length;
     const unresolvedStages = entries.filter((item) => item.status === "unresolved").map((item) => item.stage);
     const coverageStatus = events.length === 0
@@ -42,7 +43,7 @@ export function buildProgressionAnalysis(dataset: AnalyticsDataset): Progression
     { code: "unknown_show", label: "Show stage is unresolved because explicit attendance evidence is absent", leadIds: leads.filter((lead) => lead.entries.some((item) => item.stage === "show" && item.status === "unresolved")).map((lead) => lead.lead.leadId) },
   ].map((item) => ({ ...item, leadCount: item.leadIds.length }));
   return {
-    generatedAt: new Date().toISOString(), ruleVersions: DEFAULT_PROGRESSION_RULES.map(({ ruleKey, version }) => ({ ruleKey, version })),
+    generatedAt: new Date().toISOString(), ruleVersions: rules.filter((rule) => rule.isActive).map(({ ruleKey, version }) => ({ ruleKey, version })),
     leadCount: leads.length, funnel, transitions, leads,
     evidenceCoverage: {
       completeLeadCount, partialLeadCount, missingLeadCount, unknownLeadCount,
