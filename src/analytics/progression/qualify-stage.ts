@@ -98,16 +98,17 @@ export function qualifyStage(input: {
         summary: "Lead creation timestamp is present in the canonical lead record.",
       }];
     }
-  } else if (stage === "engaged" || stage === "conversation") {
+  } else if (stage === "engaged") {
     matched = ordered.find((event) => isInboundCustomerCommunication(event) || isConnectedCall(event)) ?? null;
     if (matched) {
       enteredAt = validTimestamp(matched.occurredAt);
-      evidence = [evidenceForEvent(
-        matched,
-        "observed",
-        isInboundCustomerCommunication(matched) ? "inbound_customer_communication" : "connected_phone_call",
-        stage === "engaged" ? "Qualifying customer response or connected call was observed." : "A qualifying two-way customer interaction was observed.",
-      )];
+      evidence = [evidenceForEvent(matched, "observed", isInboundCustomerCommunication(matched) ? "inbound_customer_communication" : "connected_phone_call", "A qualifying customer response or connected call was observed.")];
+    }
+  } else if (stage === "conversation") {
+    matched = isConversationStageEvent(ordered);
+    if (matched) {
+      enteredAt = validTimestamp(matched.occurredAt);
+      evidence = [evidenceForEvent(matched, "observed", isConnectedCall(matched) ? "subsequent_connected_phone_call" : "continued_two_way_communication", "A subsequent two-way exchange or later connected call was observed.")];
     }
   } else if (stage === "appointment") {
     matched = ordered.find(isAppointmentCreated) ?? null;
