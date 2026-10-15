@@ -145,7 +145,7 @@ export function qualifyStage(input: {
     ? "qualified"
     : stage === "new_lead"
       ? "unresolved"
-      : lead.timelineRecordIds.length === 0
+      : events.length === 0
         ? "unresolved"
         : "not_qualified";
 
