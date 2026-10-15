@@ -29,7 +29,7 @@ describe("buildProgressionReport", () => {
     const report = buildProgressionReport(analysis);
     expect(report.title).toBe("What Is Moving Leads Forward?");
     expect(report.executiveSummary.map((section) => section.title)).toEqual([
-      "Executive Summary", "Biggest Drop-off", "Strongest Associations", "Weakest Associations", "Common Paths", "Unresolved Questions",
+      "Executive Summary", "Biggest Drop-off", "Strongest Associations", "Weakest Associations", "Common Paths", "Unresolved Questions", "Recommended Management Investigations",
     ]);
     expect(report.biggestDropoff.transition).not.toBeNull();
     expect(report.methodology.limitations.some((item) => item.includes("causal"))).toBe(true);
