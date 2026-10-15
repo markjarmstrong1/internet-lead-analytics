@@ -121,6 +121,13 @@ const navigation = [
     icon: "⇧",
     description: "Manage incoming source evidence",
   },
+  {
+    label: "Terminal",
+    href: "/app/v0/terminal",
+    group: "DEVELOPER TOOLS",
+    icon: "⌘",
+    description: "Inspect and maintain the local project workspace",
+  },
 ];
 
 const timelineFilters = [
@@ -200,6 +207,7 @@ function eventMatchesFilter(event: Event, filter: TimelineFilter) {
 function pageTitle(view: string) {
   const titles: Record<string, string> = {
     dashboard: "Overview",
+    terminal: "Terminal",
     leads: "Investigate",
     analytics: "Analyze",
     reports: "Findings & Reports",
@@ -317,7 +325,7 @@ export function MantikV0Workspace({
 
         <div className="mv0-workspace-label">WORKSPACE</div>
         <nav aria-label="MANTIK navigation" className="mv0-nav">
-          {["WORKFLOWS", "DATA & OPERATIONS"].map((group) => (
+          {["WORKFLOWS", "DATA & OPERATIONS", "DEVELOPER TOOLS"].map((group) => (
             <div key={group}>
               <p className="mv0-nav-group">{group}</p>
               {navigation
@@ -487,6 +495,8 @@ export function MantikV0Workspace({
 
           {view === "methods" && <MethodsView />}
 
+          {view === "terminal" && <DeveloperView />}
+
           {view === "exceptions" && (
             <ExceptionsView
               leads={exceptions}
@@ -504,6 +514,7 @@ export function MantikV0Workspace({
             "imports",
             "methods",
             "exceptions",
+            "terminal",
           ].includes(view) && (
             <section className="mv0-panel">
               <p className="mv0-eyebrow">WORKSPACE</p>
@@ -519,6 +530,146 @@ export function MantikV0Workspace({
         </main>
       </div>
     </div>
+  );
+}
+
+function DeveloperView() {
+  const [token, setToken] = useState("");
+  const [connected, setConnected] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [output, setOutput] = useState("Agent not connected. Start the local agent and enter its one-time pairing token.");
+  const [directory, setDirectory] = useState("");
+  const [entries, setEntries] = useState<{name:string;type:string}[]>([]);
+  const [selectedPath, setSelectedPath] = useState("");
+  const [fileContent, setFileContent] = useState("");
+  const [gitBranch, setGitBranch] = useState("");
+  const [gitStatus, setGitStatus] = useState("");
+
+  async function agentRequest(endpoint: string, payload: Record<string, unknown> = {}) {
+    if (!token.trim()) throw new Error("Enter the pairing token printed by the local agent.");
+    const response = await fetch(`http://127.0.0.1:4318${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Mantik-Token": token.trim() },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(typeof data.error === "string" ? data.error : `Agent request failed (${response.status}).`);
+    setConnected(true);
+    return data;
+  }
+
+  async function perform(label: string, task: () => Promise<unknown>) {
+    setBusy(true);
+    setOutput(`${label}…`);
+    try {
+      const result = await task();
+      setOutput(JSON.stringify(result, null, 2));
+    } catch (error) {
+      setConnected(false);
+      setOutput(error instanceof Error ? error.message : "The local agent request failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function loadDirectory(path: string) {
+    await perform("Loading repository files", async () => {
+      const result = await agentRequest("/files/list", { path }) as {path:string;entries:{name:string;type:string}[]};
+      setDirectory(result.path);
+      setEntries(result.entries);
+      setSelectedPath("");
+      setFileContent("");
+      return result;
+    });
+  }
+
+  async function openFile(path: string) {
+    await perform(`Reading ${path}`, async () => {
+      const result = await agentRequest("/files/read", { path }) as {path:string;content:string};
+      setSelectedPath(result.path);
+      setFileContent(result.content);
+      return { path: result.path, characters: result.content.length, content: result.content };
+    });
+  }
+
+  async function loadGit() {
+    await perform("Inspecting Git status", async () => {
+      const result = await agentRequest("/git/status") as {branch:string;status:string};
+      setGitBranch(result.branch);
+      setGitStatus(result.status);
+      return result;
+    });
+  }
+
+  async function runTask(task: string) {
+    await perform(`Running approved task: ${task}`, () => agentRequest("/tasks/run", { task }));
+  }
+
+  const approvedTasks = [
+    ["test", "npm test -- --run", "Run the test suite"],
+    ["lint", "npm run lint", "Check code quality"],
+    ["build", "npm run build", "Verify the production build"],
+  ];
+
+  return (
+    <>
+      <PageHeading
+        eyebrow="LOCAL DEVELOPMENT"
+        title="Terminal"
+        description="A local developer workspace connected only to an agent running on your Mac."
+        action={<Link href="/app/v0" className="mv0-button mv0-button-secondary">Back to overview</Link>}
+      />
+
+      <div className="mv0-metrics-grid">
+        <Metric label="Execution location" value="Local Mac" detail="~/Desktop/internet-lead-analytics" />
+        <Metric label="Local agent" value={connected ? "Connected" : "Not connected"} detail="Agent runs locally; pairing token stays in this browser session." state={connected ? "CONNECTED" : "NOT CONNECTED"} />
+        <Metric label="Access policy" value="Restricted" detail="Named tasks only; no arbitrary shell input, commit, or push endpoint." />
+      </div>
+
+      <Panel title="Connect local agent" description="Run node tools/mantik-agent.mjs from the repository root in a separate terminal, then paste the pairing token printed there.">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <input aria-label="Local agent pairing token" type="password" autoComplete="off" value={token} onChange={(event) => { setToken(event.target.value); setConnected(false); }} placeholder="Paste local pairing token" className="min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100" />
+          <button type="button" className="mv0-button" disabled={busy || !token.trim()} onClick={() => void perform("Checking local agent", async () => { const result = await agentRequest("/git/status"); setGitBranch(result.branch); setGitStatus(result.status); return result; })}>Connect & inspect Git</button>
+        </div>
+        <p className="mt-3 text-xs text-slate-500">The agent binds to 127.0.0.1:4318. It rejects requests without a valid token and an approved localhost origin.</p>
+      </Panel>
+
+      <Panel title="Approved development tasks" description="These buttons invoke fixed commands; the page never accepts free-form shell commands.">
+        <div className="mv0-rule-list">
+          {approvedTasks.map(([task, command, detail]) => (
+            <div key={task} className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 py-3 last:border-b-0">
+              <div><p className="font-mono text-sm text-slate-200">{command}</p><p className="mt-1 text-xs text-slate-500">{detail}</p></div>
+              <button type="button" className="mv0-button mv0-button-secondary" disabled={!connected || busy} onClick={() => void runTask(task)}>Run task</button>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Panel title="Repository files" description="Browse folders and read text files up to 128 KB. Editing is intentionally not enabled yet.">
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className="mv0-button mv0-button-secondary" disabled={!connected || busy} onClick={() => void loadDirectory("")}>Load repository root</button>
+            <span className="font-mono text-xs text-slate-500">/{directory}</span>
+            {directory && <button type="button" className="mv0-button mv0-button-secondary" disabled={!connected || busy} onClick={() => void loadDirectory(directory.split("/").slice(0,-1).join("/"))}>Parent folder</button>}
+          </div>
+          {entries.length > 0 && <div className="mt-3 max-h-64 overflow-auto rounded-md border border-slate-800">{entries.map((entry) => {
+            const entryPath = directory ? `${directory}/${entry.name}` : entry.name;
+            return <button key={entryPath} type="button" className="flex w-full items-center gap-2 border-b border-slate-800 px-3 py-2 text-left text-sm text-slate-300 last:border-0 hover:bg-slate-900" disabled={busy} onClick={() => entry.type === "directory" ? void loadDirectory(entryPath) : void openFile(entryPath)}><span>{entry.type === "directory" ? "▸" : "·"}</span><span>{entry.name}</span><span className="ml-auto text-xs text-slate-600">{entry.type}</span></button>;
+          })}</div>}
+          {selectedPath && <div className="mt-3"><p className="mb-2 font-mono text-xs text-slate-400">{selectedPath}</p><pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md bg-slate-950 p-3 text-xs leading-5 text-slate-300">{fileContent}</pre></div>}
+        </Panel>
+        <Panel title="Git inspection" description="Read-only branch and worktree status; no commit or push capability.">
+          <button type="button" className="mv0-button mv0-button-secondary" disabled={!connected || busy} onClick={() => void loadGit()}>Refresh Git status</button>
+          {gitBranch && <p className="mt-3 text-sm text-slate-300">Branch: <span className="font-mono">{gitBranch || "(detached)"}</span></p>}
+          {gitStatus && <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-slate-950 p-3 text-xs leading-5 text-slate-300">{gitStatus}</pre>}
+        </Panel>
+      </div>
+
+      <Panel title="Agent output" description="Latest response from the local agent. Output is bounded to avoid unbounded logs.">
+        <pre aria-live="polite" className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-md border border-slate-800 bg-[#10151b] p-4 font-mono text-xs leading-5 text-slate-300">{busy ? "Working…" : output}</pre>
+      </Panel>
+    </>
   );
 }
 
