@@ -5531,94 +5531,32 @@ textarea {
 }
 
 
-/* MANTIK V0 LOGO SIZE FIX */
-.mantik-v0 .mv0-brand {
-  display: flex;
-  min-height: 104px;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #2b3743;
-  color: white;
-}
-
-.mantik-v0 .mv0-brand-logo {
-  display: block;
-  width: 100%;
-  max-width: 210px;
-  height: 66px;
-  object-fit: contain;
-}
-
-
-/* MANTIK V0 LOGO — LARGE DISPLAY */
-.mantik-v0 .mv0-brand {
-  min-height: 132px !important;
-  height: 132px !important;
-  flex-shrink: 0 !important;
+/* MANTIK V0 — FULL-SECTION LOGO */
+.mantik-v0 .mv0-sidebar > .mv0-brand {
+  box-sizing: border-box !important;
   display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 12px 18px !important;
+  width: 100% !important;
+  height: 132px !important;
+  min-height: 132px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 132px !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  gap: 0 !important;
   overflow: hidden !important;
 }
 
-.mantik-v0 .mv0-brand-logo {
+.mantik-v0 .mv0-sidebar > .mv0-brand .mv0-brand-logo {
   display: block !important;
-  width: 100% !important;
-  max-width: 360px !important;
-  height: 104px !important;
-  object-fit: contain !important;
-  flex: 1 1 auto !important;
-}
-
-
-/* MANTIK V0 FINAL LOGO OVERRIDE */
-.mantik-v0 .mv0-brand {
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 112px;
-  height: 112px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 18px;
-  overflow: hidden;
-}
-
-.mantik-v0 .mv0-brand-logo {
-  display: block;
-  width: 100%;
-  max-width: 212px;
-  height: auto;
-  max-height: 80px;
-  object-fit: contain;
-  flex: 0 1 auto;
-}
-
-
-/* MANTIK V0 CROPPED LOGO FIX */
-.mantik-v0 .mv0-sidebar .mv0-brand {
   box-sizing: border-box !important;
   width: 100% !important;
-  height: 112px !important;
-  min-height: 112px !important;
-  padding: 12px 16px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  overflow: hidden !important;
-}
-
-.mantik-v0 .mv0-sidebar .mv0-brand-logo {
-  display: block !important;
-  width: 100% !important;
-  max-width: 216px !important;
-  height: 84px !important;
-  max-height: 84px !important;
-  flex: 0 1 216px !important;
-  object-fit: contain !important;
+  max-width: none !important;
+  height: 100% !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1 1 100% !important;
+  object-fit: fill !important;
   object-position: center !important;
 }
