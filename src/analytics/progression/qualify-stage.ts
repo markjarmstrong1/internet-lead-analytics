@@ -24,20 +24,19 @@ function isConnectedCall(event: AnalyticsEvent): boolean {
 }
 
 function isConversationStageEvent(events: AnalyticsEvent[]): AnalyticsEvent | null {
-  for (const event of events) {
-    if (isConnectedCall(event)) return event;
-  }
-  const firstInboundAt = events.find(isInboundCustomerCommunication)?.occurredAt;
-  if (!firstInboundAt) return null;
-  const firstInboundTime = Date.parse(firstInboundAt);
-  const followupOutbound = events.find((event) =>
+  const engagement = events.find((event) => isInboundCustomerCommunication(event) || isConnectedCall(event));
+  if (!engagement) return null;
+  const engagementTime = Date.parse(engagement.occurredAt);
+  const laterEvents = events.filter((event) => Date.parse(event.occurredAt) > engagementTime);
+  const laterConnectedCall = laterEvents.find(isConnectedCall);
+  if (laterConnectedCall) return laterConnectedCall;
+  const followupOutbound = laterEvents.find((event) =>
     event.direction?.toLowerCase() === "outbound" &&
-    /employee|staff|salesperson|agent/i.test(event.actorType) &&
-    Date.parse(event.occurredAt) > firstInboundTime,
+    /employee|staff|salesperson|agent/i.test(event.actorType),
   );
   if (!followupOutbound) return null;
   const outboundTime = Date.parse(followupOutbound.occurredAt);
-  return events.find((event) =>
+  return laterEvents.find((event) =>
     isInboundCustomerCommunication(event) && Date.parse(event.occurredAt) > outboundTime,
   ) ?? null;
 }
