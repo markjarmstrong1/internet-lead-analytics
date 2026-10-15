@@ -12,7 +12,13 @@ function compareFactor(
   kind: ProgressionAssociation["kind"],
   factor: string,
 ): ProgressionAssociation {
-  const eligible = analysis.leads.filter((lead) => lead.entries.some((entry) => entry.stage === transition.fromStage && entry.status === "qualified"));
+  const eligible = analysis.leads.filter((lead) => {
+    const from = lead.entries.find((entry) => entry.stage === transition.fromStage);
+    const to = lead.entries.find((entry) => entry.stage === transition.toStage);
+    if (!from || from.status !== "qualified" || !to || to.status === "unresolved") return false;
+    if (to.status === "qualified") return Boolean(from.enteredAt && to.enteredAt && Date.parse(to.enteredAt) >= Date.parse(from.enteredAt));
+    return true;
+  });
   const progressed = new Set(transition.leadIds);
   const factorLeads = eligible.filter((lead) => lead.events.some((event) => {
     const inWindow = lead.entries.find((entry) => entry.stage === transition.fromStage)?.enteredAt;
