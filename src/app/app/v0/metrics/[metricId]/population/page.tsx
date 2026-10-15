@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMetricDefinition } from "@/features/analytics/metrics/metric-definition";
-import { getMetricPopulation } from "@/features/analytics/metrics/get-metric-population";
+import {
+  getMetricPopulation,
+  type MetricBreakdownDimension,
+} from "@/features/analytics/metrics/get-metric-population";
 
 export const dynamic = "force-dynamic";
 
@@ -27,23 +30,32 @@ export default async function MetricPopulationPage({
   const dimension = query.dimension || "";
   const group = query.group || "";
 
-  // The current query layer supports the overall qualifying population.
-  // A selected breakdown must not silently masquerade as a filtered population.
-  if (group) {
-    return (
-      <main className="mx-auto max-w-7xl space-y-5 px-6 py-8">
-        <Link href={`/app/v0/metrics/${metricId}`} className="text-sm underline">
-          ← Back to metric
-        </Link>
-        <h1 className="text-2xl font-semibold">Breakdown population: {group}</h1>
-        <p className="max-w-3xl text-sm leading-6 text-[var(--muted)]">
-          This breakdown is not yet supported by the population query. The group has not been applied as a filter, so no lead list is shown as if it were filtered. The query layer must implement dimension-specific population membership before this drilldown can be trusted.
-        </p>
-      </main>
-    );
+  const validDimensions: MetricBreakdownDimension[] = [
+    "source",
+    "channel",
+    "template",
+  ];
+  const breakdownDimension = validDimensions.includes(
+    dimension as MetricBreakdownDimension,
+  )
+    ? (dimension as MetricBreakdownDimension)
+    : undefined;
+
+  // Do not silently show the full population for an invalid or incomplete
+  // breakdown URL.
+  if ((dimension || group) && (!breakdownDimension || !group.trim())) {
+    notFound();
   }
 
-  const result = await getMetricPopulation(metricId, { page, pageSize: 25, search });
+  const result = await getMetricPopulation(metricId, {
+    page,
+    pageSize: 25,
+    search,
+    breakdown:
+      breakdownDimension && group
+        ? { dimension: breakdownDimension, value: group }
+        : undefined,
+  });
   if (!result) notFound();
 
   const pages = Math.max(1, Math.ceil(result.total / result.pageSize));
@@ -51,7 +63,10 @@ export default async function MetricPopulationPage({
     const q = new URLSearchParams();
     q.set("page", String(nextPage));
     if (search) q.set("search", search);
-    if (dimension) q.set("dimension", dimension);
+    if (breakdownDimension && group) {
+      q.set("dimension", breakdownDimension);
+      q.set("group", group);
+    }
     return `/app/v0/metrics/${metricId}/population?${q.toString()}`;
   };
 
@@ -71,6 +86,12 @@ export default async function MetricPopulationPage({
       </header>
 
       <form className="flex flex-wrap gap-2" method="get">
+        {breakdownDimension && group && (
+          <>
+            <input type="hidden" name="dimension" value={breakdownDimension} />
+            <input type="hidden" name="group" value={group} />
+          </>
+        )}
         <input
           name="search"
           defaultValue={search}
