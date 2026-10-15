@@ -52,9 +52,26 @@ function buildAssociations(analysis: ProgressionAnalysis): ProgressionAssociatio
   const results: ProgressionAssociation[] = [];
   for (const transition of analysis.transitions) {
     const factors = new Map<string, ProgressionAssociation["kind"]>();
-    for (const item of transition.channels) factors.set(item.channel, "channel");
-    for (const item of transition.actions) factors.set(item.action, "action");
-    for (const item of transition.templates) factors.set(item.templateCode, "template");
+    const eligible = analysis.leads.filter((lead) => {
+      const from = lead.entries.find((entry) => entry.stage === transition.fromStage);
+      const to = lead.entries.find((entry) => entry.stage === transition.toStage);
+      if (!from || from.status !== "qualified" || !to || to.status === "unresolved") return false;
+      if (to.status === "qualified") return Boolean(from.enteredAt && to.enteredAt && Date.parse(to.enteredAt) >= Date.parse(from.enteredAt));
+      return true;
+    });
+    for (const lead of eligible) {
+      const fromAt = lead.entries.find((entry) => entry.stage === transition.fromStage)?.enteredAt;
+      const toAt = lead.entries.find((entry) => entry.stage === transition.toStage);
+      const start = fromAt ? Date.parse(fromAt) : Number.NEGATIVE_INFINITY;
+      const end = toAt?.status === "qualified" && toAt.enteredAt ? Date.parse(toAt.enteredAt) : Number.POSITIVE_INFINITY;
+      for (const event of lead.events) {
+        const at = Date.parse(event.occurredAt);
+        if (!Number.isFinite(at) || at < start || at > end) continue;
+        factors.set(event.channel?.trim() || "unknown", "channel");
+        factors.set(event.rawType.trim() || event.category.trim() || "Unknown action", "action");
+        if (event.templateCode?.trim()) factors.set(event.templateCode.trim(), "template");
+      }
+    }
     for (const [factor, kind] of factors) {
       const association = compareFactor(analysis, transition, kind, factor);
       if (association.exposedLeadCount >= 3 && association.unexposedLeadCount >= 3) results.push(association);
