@@ -1,5 +1,7 @@
+
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore, type ReactNode } from "react";
@@ -63,17 +65,18 @@ export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const navigationLayout = useNavigationLayout();
   const appearance = useAppearancePreferences();
+
   const sidebarWidth = useSyncExternalStore(
     subscribeSidebarPreference,
     getStoredSidebarWidth,
     () => DEFAULT_WIDTH,
   );
+
   const collapsed = useSyncExternalStore(
     subscribeSidebarPreference,
     getStoredSidebarCollapsed,
     () => false,
   );
-
 
   function startResize(event: React.PointerEvent<HTMLDivElement>) {
     if (collapsed) return;
@@ -93,6 +96,7 @@ export function AppShell({ children }: AppShellProps) {
         SIDEBAR_WIDTH_KEY,
         String(nextWidth),
       );
+
       emitSidebarPreferenceChange();
     }
 
@@ -133,28 +137,36 @@ export function AppShell({ children }: AppShellProps) {
         ].join(" ")}
         style={{ width: "var(--sidebar-width)" }}
       >
+        {/* Sidebar logo */}
         <div
           className={[
-            "flex h-16 items-center border-b border-[var(--sidebar-border)]",
+            "flex h-16 shrink-0 items-center border-b border-[var(--sidebar-border)]",
             collapsed ? "justify-center px-2" : "px-4",
           ].join(" ")}
         >
-          {collapsed ? (
-            <Link
-              href="/"
-              aria-label="Internet Lead Analytics home"
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.08] text-xs font-bold text-white"
-            >
-              ILA
-            </Link>
-          ) : (
-            <Link
-              href="/"
-              className="truncate text-sm font-semibold tracking-tight text-white"
-            >
-              Internet Lead Analytics
-            </Link>
-          )}
+          <Link
+            href="/"
+            aria-label="MANTIK home"
+            title="MANTIK"
+            className={[
+              "flex min-w-0 items-center justify-center",
+              collapsed ? "h-10 w-10" : "w-full",
+            ].join(" ")}
+          >
+            <Image
+              src="/mantik-logo.png"
+              alt="MANTIK"
+              width={160}
+              height={48}
+              priority
+              className={[
+                "object-contain",
+                collapsed
+                  ? "h-9 w-9"
+                  : "h-10 w-auto max-w-full",
+              ].join(" ")}
+            />
+          </Link>
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 py-5">
@@ -348,7 +360,6 @@ function SidebarLink({
     </Link>
   );
 }
-
 
 function TopBarNavigation({ pathname }: { pathname: string }) {
   return (
