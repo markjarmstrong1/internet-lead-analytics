@@ -31,7 +31,7 @@ export async function GET() {
     }
     heading("Stage Funnel");
     for (const stage of report.stageCounts) {
-      doc.font("Helvetica").fontSize(10).fillColor("#334155").text(`${stage.stage.replaceAll("_", " ")}: ${stage.count} · rate from previous: ${stage.rateFromPrevious === null ? "n/a" : (stage.rateFromPrevious * 100).toFixed(1) + "%"}`);
+      doc.font("Helvetica").fontSize(10).fillColor("#334155").text(`${stage.stage.replaceAll("_", " ")}: ${stage.count} observed leads · ${stage.progressedFromPreviousCount === null ? "cohort baseline" : `${stage.progressedFromPreviousCount}/${stage.eligibleCount} eligible leads progressed`} · observed transition rate: ${stage.rateFromPrevious === null ? "not calculable" : (stage.rateFromPrevious * 100).toFixed(1) + "%"}`);
     }
     heading("Strongest Observed Associations");
     for (const item of report.strongestAssociations) {
