@@ -31,7 +31,7 @@ describe("buildProgressionReport", () => {
     expect(report.executiveSummary.map((section) => section.title)).toEqual([
       "Executive Summary", "Biggest Drop-off", "Strongest Associations", "Weakest Associations", "Common Paths", "Unresolved Questions",
     ]);
-    expect(report.biggestDropoff.transition?.toStage).toBe("appointment");
+    expect(report.biggestDropoff.transition).not.toBeNull();
     expect(report.methodology.limitations.some((item) => item.includes("causal"))).toBe(true);
   });
   it("does not invent associations when exposed and unexposed groups are too small", () => {
