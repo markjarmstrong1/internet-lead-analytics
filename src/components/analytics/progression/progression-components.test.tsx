@@ -30,7 +30,7 @@ describe("progression dashboard components", () => {
     expect(renderToStaticMarkup(createElement(ProgressionFunnel, { data }))).toContain("Lead funnel");
   });
   it("renders transition and drop-off cards without fabricated rates", () => {
-    expect(renderToStaticMarkup(createElement(TransitionAnalysisCard, { transition: data.transitions[0] })).toContain("Insufficient timestamp evidence");
+    expect(renderToStaticMarkup(createElement(TransitionAnalysisCard, { transition: data.transitions[0] }))).toContain("Insufficient timestamp evidence");
     expect(renderToStaticMarkup(createElement(DropoffAnalysisCard, { transitions: data.transitions }))).toContain("No eligible transitions");
   });
   it("renders association and path empty states", () => {
