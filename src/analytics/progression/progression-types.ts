@@ -23,7 +23,7 @@ export type LeadProgression = {
   evidenceCoverage: { status: EvidenceCoverageStatus; eventCount: number; timelineRecordCount: number; stagesWithEvidence: number; totalStages: number; unresolvedStages: ProgressionStage[] };
 };
 export type StageTransition = {
-  fromStage: ProgressionStage; toStage: ProgressionStage; eligibleLeadCount: number; progressedLeadCount: number;
+  fromStage: ProgressionStage; toStage: ProgressionStage; eligibleLeadCount: number; progressedLeadCount: number; unresolvedLeadCount: number; unresolvedLeadIds: string[];
   rate: number | null; dropoffCount: number; dropoffRate: number | null; medianMinutes: number | null; timedLeadCount: number;
   commonPaths: Array<{ path: string[]; occurrences: number }>;
   channels: Array<{ channel: string; occurrences: number }>;
