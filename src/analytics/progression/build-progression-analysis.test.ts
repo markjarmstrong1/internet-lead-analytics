@@ -34,6 +34,8 @@ describe("buildProgressionAnalysis", () => {
     const result = buildProgressionAnalysis(missing);
     expect(result.leads[0].evidenceCoverage.status).toBe("missing");
     expect(result.unresolvedQuestions.find((item) => item.code === "missing_timeline")?.leadCount).toBe(1);
+    expect(result.transitions[0].eligibleLeadCount).toBe(0);
+    expect(result.transitions[0].unresolvedLeadCount).toBe(1);
   });
   it("calculates rates using eligible prior-stage leads", () => {
     const result = buildProgressionAnalysis(dataset);
