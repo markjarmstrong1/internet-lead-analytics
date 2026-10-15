@@ -30,6 +30,7 @@ export async function GET() {
       for (const line of section.evidence) doc.moveDown(0.15).fontSize(9).text(`• ${line}`, { lineGap: 2 });
     }
     heading("Stage Funnel");
+    doc.font("Helvetica").fontSize(9).fillColor("#64748b").text("Stage counts are independent observed populations, not a reconstructed sequential funnel. Transition rates use the eligible prior-stage cohort.");
     for (const stage of report.stageCounts) {
       doc.font("Helvetica").fontSize(10).fillColor("#334155").text(`${stage.stage.replaceAll("_", " ")}: ${stage.count} observed leads · ${stage.progressedFromPreviousCount === null ? "cohort baseline" : `${stage.progressedFromPreviousCount}/${stage.eligibleCount} eligible leads progressed`} · observed transition rate: ${stage.rateFromPrevious === null ? "not calculable" : (stage.rateFromPrevious * 100).toFixed(1) + "%"}`);
     }
