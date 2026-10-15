@@ -5530,19 +5530,18 @@ textarea {
   }
 }
 
-
-/* MANTIK V0 — FULL-SECTION LOGO */
+/* MANTIK V0 — TOPBAR-HEIGHT LOGO HEADER */
 .mantik-v0 .mv0-sidebar > .mv0-brand {
   box-sizing: border-box !important;
   display: flex !important;
   width: 100% !important;
-  height: 132px !important;
-  min-height: 132px !important;
+  height: 68px !important;
+  min-height: 68px !important;
   margin: 0 !important;
-  padding: 0 !important;
-  flex: 0 0 132px !important;
-  align-items: stretch !important;
-  justify-content: stretch !important;
+  padding: 8px 12px !important;
+  flex: 0 0 68px !important;
+  align-items: center !important;
+  justify-content: center !important;
   gap: 0 !important;
   overflow: hidden !important;
 }
@@ -5553,10 +5552,10 @@ textarea {
   width: 100% !important;
   max-width: none !important;
   height: 100% !important;
-  max-height: none !important;
+  max-height: 52px !important;
   margin: 0 !important;
   padding: 0 !important;
-  flex: 1 1 100% !important;
-  object-fit: fill !important;
+  flex: 1 1 auto !important;
+  object-fit: contain !important;
   object-position: center !important;
 }
