@@ -5529,3 +5529,46 @@ textarea {
     position: static;
   }
 }
+
+
+/* MANTIK V0 LOGO SIZE FIX */
+.mantik-v0 .mv0-brand {
+  display: flex;
+  min-height: 104px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2b3743;
+  color: white;
+}
+
+.mantik-v0 .mv0-brand-logo {
+  display: block;
+  width: 100%;
+  max-width: 210px;
+  height: 66px;
+  object-fit: contain;
+}
+
+
+/* MANTIK V0 LOGO — LARGE DISPLAY */
+.mantik-v0 .mv0-brand {
+  min-height: 132px !important;
+  height: 132px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px 18px !important;
+  overflow: hidden !important;
+}
+
+.mantik-v0 .mv0-brand-logo {
+  display: block !important;
+  width: 100% !important;
+  max-width: 360px !important;
+  height: 104px !important;
+  object-fit: contain !important;
+  flex: 1 1 auto !important;
+}

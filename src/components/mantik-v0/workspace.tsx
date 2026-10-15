@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { DashboardMetrics } from "@/components/dashboard/dashboard-repository";
@@ -298,12 +300,19 @@ export function MantikV0Workspace({
   return (
     <div className="mantik-v0" data-mantik-v0="true">
       <aside className="mv0-sidebar">
-        <Link href="/app/v0" className="mv0-brand">
-          <span className="mv0-brand-mark">M</span>
-          <span>
-            <strong>MANTIK</strong>
-            <small>EVIDENCE INTELLIGENCE</small>
-          </span>
+        <Link
+          href="/app/v0"
+          className="mv0-brand"
+          aria-label="MANTIK home"
+        >
+          <Image
+            src="/mantik-logo.png"
+            alt="MANTIK — Evidence Intelligence"
+            width={220}
+            height={70}
+            priority
+            className="mv0-brand-logo"
+          />
         </Link>
 
         <div className="mv0-workspace-label">WORKSPACE</div>

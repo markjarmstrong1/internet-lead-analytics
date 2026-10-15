@@ -157,13 +157,13 @@ export function AppShell({ children }: AppShellProps) {
               src="/mantik-logo.png"
               alt="MANTIK"
               width={160}
-              height={48}
+              height={80}
               priority
               className={[
                 "object-contain",
                 collapsed
-                  ? "h-9 w-9"
-                  : "h-10 w-auto max-w-full",
+      ? "h-10 w-10"
+      : "h-14 w-full max-w-[190px]",
               ].join(" ")}
             />
           </Link>
