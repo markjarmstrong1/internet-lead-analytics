@@ -40,10 +40,10 @@ export function buildProgressionAnalysis(dataset: AnalyticsDataset, rules: Progr
   const unresolvedQuestions = [
     { code: "missing_timeline", label: "Leads have no linked timeline records", leadIds: leads.filter((lead) => lead.lead.timelineRecordIds.length === 0).map((lead) => lead.lead.leadId) },
     { code: "missing_events", label: "Leads have linked timeline records but no events", leadIds: leads.filter((lead) => lead.lead.timelineRecordIds.length > 0 && lead.events.length === 0).map((lead) => lead.lead.leadId) },
-    { code: "unknown_show", label: "Show stage is unresolved because explicit attendance evidence is absent", leadIds: leads.filter((lead) => lead.entries.some((item) => item.stage === "show" && item.status === "unresolved")).map((lead) => lead.lead.leadId) },
+    { code: "no_explicit_show", label: "Leads have timeline events but no explicit show-attendance event", leadIds: leads.filter((lead) => lead.events.length > 0 && lead.entries.some((item) => item.stage === "show" && item.status === "not_qualified")).map((lead) => lead.lead.leadId) },
   ].map((item) => ({ ...item, leadCount: item.leadIds.length }));
   return {
-    generatedAt: new Date().toISOString(), ruleVersions: rules.filter((rule) => rule.isActive).map(({ ruleKey, version }) => ({ ruleKey, version })),
+    generatedAt: new Date().toISOString(), ruleVersions: rules.filter((rule) => rule.isActive).map(({ ruleKey, version, label, description }) => ({ ruleKey, version, label, description })),
     leadCount: leads.length, funnel, transitions, leads,
     evidenceCoverage: {
       completeLeadCount, partialLeadCount, missingLeadCount, unknownLeadCount,

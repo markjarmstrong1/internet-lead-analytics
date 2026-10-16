@@ -36,8 +36,9 @@ export function TransitionAnalysisCard({ transition }: { transition: StageTransi
       <Metric label="Transition rate" value={percent(transition.rate)} />
       <Metric label="Median time" value={duration(transition.medianMinutes)} />
     </div>
-    <p className="mt-4 text-sm text-slate-600">Drop-off: {transition.dropoffCount.toLocaleString()} ({percent(transition.dropoffRate)}). Unresolved next-stage evidence: {transition.unresolvedLeadCount}. Timestamp coverage: {transition.timedLeadCount} of {transition.progressedLeadCount} progressed leads.</p>
-    <div className="mt-4 grid gap-4 md:grid-cols-2">
+    <p className="mt-4 text-sm text-slate-600">No qualifying next-stage event recorded: {transition.dropoffCount.toLocaleString()} ({percent(transition.dropoffRate)}). Unresolved next-stage evidence: {transition.unresolvedLeadCount}. Timestamp coverage: {transition.timedLeadCount} of {transition.progressedLeadCount} progressed leads.</p>
+    <details className="mt-4 rounded-lg border border-slate-200 p-3"><summary className="cursor-pointer text-sm font-medium text-slate-700">Inspect cohort records ({transition.eligibleLeadCount} eligible · {transition.unresolvedLeadCount} unresolved)</summary><div className="mt-3 grid gap-4 md:grid-cols-3"><LeadIdList title={`Progressed (${transition.leadIds.length})`} ids={transition.leadIds} /><LeadIdList title={`No qualifying next-stage event (${transition.droppedLeadIds.length})`} ids={transition.droppedLeadIds} /><LeadIdList title={`Unresolved (${transition.unresolvedLeadIds.length})`} ids={transition.unresolvedLeadIds} /></div></details>
+    <div className="mt-4 grid gap-4 md:grid-cols-2>
       <MetricList title="Common paths" items={transition.commonPaths.map((item) => ({ label: item.path.join(" → "), count: item.occurrences }))} />
       <MetricList title="Observed channels" items={transition.channels.map((item) => ({ label: item.channel, count: item.occurrences }))} />
       <MetricList title="Observed actions" items={transition.actions.map((item) => ({ label: item.action, count: item.occurrences }))} />
@@ -45,6 +46,7 @@ export function TransitionAnalysisCard({ transition }: { transition: StageTransi
     </div>
   </Panel>;
 }
+function LeadIdList({ title, ids }: { title: string; ids: string[] }) { return <div><h3 className="text-xs font-semibold text-slate-700">{title}</h3>{ids.length ? <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto">{ids.map((id) => <li key={id}><a className="break-all text-xs text-blue-700 underline underline-offset-2" href={`/leads/${encodeURIComponent(id)}`}>{id}</a></li>)}</ul> : <p className="mt-2 text-xs text-slate-400">None</p>}</div>; }
 function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">{label}</p><p className="mt-1 font-semibold text-slate-900">{value}</p></div>; }
 function MetricList({ title, items }: { title: string; items: Array<{ label: string; count: number }> }) {
   return <div><h3 className="text-sm font-semibold text-slate-800">{title}</h3>{items.length ? <ul className="mt-2 space-y-1">{items.slice(0, 5).map((item) => <li key={item.label} className="flex justify-between gap-3 text-sm text-slate-600"><span>{item.label}</span><span className="tabular-nums">{item.count}</span></li>)}</ul> : <p className="mt-2 text-sm text-slate-400">No qualifying evidence in this cohort.</p>}</div>;

@@ -10,6 +10,10 @@ function normalizeRules(rows: Array<{
   qualification_basis: string; is_active: boolean;
 }>): ProgressionRule[] {
   return rows.filter((row) => PROGRESSION_STAGES.includes(row.stage_key as ProgressionStage))
+    .filter((row) => typeof row.rule_key === "string" && row.rule_key.trim().length > 0)
+    .filter((row) => Number.isInteger(row.version) && row.version > 0)
+    .filter((row) => typeof row.label === "string" && row.label.trim().length > 0)
+    .filter((row) => typeof row.description === "string" && row.description.trim().length > 0)
     .filter((row) => ["source_record", "observed_event", "source_outcome"].includes(row.qualification_basis))
     .map((row) => ({
       ruleKey: row.rule_key, stage: row.stage_key as ProgressionStage, version: row.version,
@@ -30,7 +34,9 @@ export async function loadProgressionAnalysis() {
     const latestByStage = new Map<string, (typeof result.data)[number]>();
     for (const row of result.data ?? []) if (!latestByStage.has(row.stage_key)) latestByStage.set(row.stage_key, row);
     const configured = normalizeRules([...latestByStage.values()]);
-    if (configured.length) rules = configured;
+    const configuredByStage = new Map(configured.map((rule) => [rule.stage, rule]));
+    // Keep a complete six-stage rule set even when the database contains only a partial configuration.
+    rules = DEFAULT_PROGRESSION_RULES.map((fallback) => configuredByStage.get(fallback.stage) ?? fallback);
   } catch (error) {
     // Local development can run before the migration is applied; defaults are versioned and explicit.
     console.warn("Progression rules table unavailable; using bundled rule definitions.", error);

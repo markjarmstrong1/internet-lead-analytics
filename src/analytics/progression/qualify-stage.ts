@@ -9,10 +9,13 @@ function validTimestamp(value: string | null | undefined): string | null {
 }
 
 function isInboundCustomerCommunication(event: AnalyticsEvent): boolean {
-  const inbound = event.direction?.toLowerCase() === "inbound";
-  const customerActor = /customer|consumer|prospect|lead/i.test(event.actorType);
-  const channel = ["email", "text", "phone", "voicemail"].includes(event.channel ?? "");
-  return inbound && channel && (customerActor || event.actorType.trim().toLowerCase() === "unknown");
+  const direction = event.direction?.trim().toLowerCase();
+  const actorType = event.actorType.trim().toLowerCase();
+  const rawChannel = event.channel?.trim().toLowerCase() ?? "";
+  const channel = new Set(["email", "text", "sms", "text message", "phone", "phone call", "call", "telephone", "voicemail"]);
+  const customerActor = /customer|consumer|prospect|lead/.test(actorType);
+  return direction === "inbound" && channel.has(rawChannel)
+    && (customerActor || actorType === "unknown");
 }
 
 function isConnectedCall(event: AnalyticsEvent): boolean {
@@ -20,7 +23,7 @@ function isConnectedCall(event: AnalyticsEvent): boolean {
   const connected = /connected|answered|conversation|spoke with|talked to/i.test(
     [event.rawType, event.details].join(" "),
   );
-  return call && connected && event.direction !== "outbound";
+  return call && connected && event.direction?.trim().toLowerCase() !== "outbound";
 }
 
 function isConversationStageEvent(events: AnalyticsEvent[]): AnalyticsEvent | null {

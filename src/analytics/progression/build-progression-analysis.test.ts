@@ -37,6 +37,25 @@ describe("buildProgressionAnalysis", () => {
     expect(result.transitions[0].eligibleLeadCount).toBe(0);
     expect(result.transitions[0].unresolvedLeadCount).toBe(1);
   });
+  it("normalizes inbound channel and direction casing when qualifying engagement", () => {
+    const mixedCase = {
+      ...dataset,
+      events: dataset.events.map((event) => event.sourceEventId === "event-1"
+        ? { ...event, channel: "TEXT", direction: "INBOUND", actorType: "Customer" }
+        : event),
+    };
+    expect(buildProgressionAnalysis(mixedCase).leads[0].entries.find((item) => item.stage === "engaged")?.status).toBe("qualified");
+  });
+  it("does not count missing timelines as missing-show evidence", () => {
+    const missing = { ...dataset, leads: [{ ...dataset.leads[0], timelineRecordIds: [] }], events: [] };
+    const result = buildProgressionAnalysis(missing);
+    expect(result.unresolvedQuestions.find((item) => item.code === "missing_timeline")?.leadCount).toBe(1);
+    expect(result.unresolvedQuestions.find((item) => item.code === "no_explicit_show")?.leadCount).toBe(0);
+  });
+  it("identifies timelines with events but no explicit show-attendance event", () => {
+    const result = buildProgressionAnalysis(dataset);
+    expect(result.unresolvedQuestions.find((item) => item.code === "no_explicit_show")?.leadCount).toBe(1);
+  });
   it("calculates rates using eligible prior-stage leads", () => {
     const result = buildProgressionAnalysis(dataset);
     expect(result.transitions[0].eligibleLeadCount).toBe(1);

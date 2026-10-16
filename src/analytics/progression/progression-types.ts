@@ -33,7 +33,7 @@ export type StageTransition = {
 };
 export type ProgressionFunnelStage = { stage: ProgressionStage; count: number; progressedFromPreviousCount: number | null; rateFromPrevious: number | null; eligibleCount: number };
 export type ProgressionAnalysis = {
-  generatedAt: string; ruleVersions: Array<{ ruleKey: string; version: number }>; leadCount: number;
+  generatedAt: string; ruleVersions: Array<{ ruleKey: string; version: number; label: string; description: string }>; leadCount: number;
   funnel: ProgressionFunnelStage[]; transitions: StageTransition[]; leads: LeadProgression[];
   evidenceCoverage: { completeLeadCount: number; partialLeadCount: number; missingLeadCount: number; unknownLeadCount: number; coveredLeadRate: number | null };
   unresolvedQuestions: Array<{ code: string; label: string; leadCount: number; leadIds: string[] }>;
