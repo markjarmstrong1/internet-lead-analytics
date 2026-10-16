@@ -4,7 +4,7 @@ import { buildProgressionReport } from "./build-progression-report";
 
 const analysis: ProgressionAnalysis = {
   generatedAt: "2026-10-15T12:00:00.000Z", leadCount: 2,
-  ruleVersions: [{ ruleKey: "lead-created-v1", version: 1 }],
+  ruleVersions: [{ ruleKey: "lead-created-v1", version: 1, label: "Lead created", description: "Canonical lead has a valid creation timestamp." }],
   funnel: [
     { stage: "new_lead", count: 2, progressedFromPreviousCount: null, rateFromPrevious: null, eligibleCount: 2 },
     { stage: "engaged", count: 1, progressedFromPreviousCount: 1, rateFromPrevious: 0.5, eligibleCount: 2 },

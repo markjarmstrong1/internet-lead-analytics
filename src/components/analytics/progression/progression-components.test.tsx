@@ -10,7 +10,7 @@ import {
 const stages = ["new_lead", "engaged", "conversation", "appointment", "show", "sold"] as const;
 const data: ProgressionDashboardData = {
   generatedAt: "2026-10-15T12:00:00.000Z",
-  ruleVersions: [{ ruleKey: "lead-created-v1", version: 1 }],
+  ruleVersions: [{ ruleKey: "lead-created-v1", version: 1, label: "Lead created", description: "Canonical lead has a valid creation timestamp." }],
   leadCount: 0,
   funnel: stages.map((stage, index) => ({ stage, count: 0, progressedFromPreviousCount: null, rateFromPrevious: null, eligibleCount: 0 })),
   transitions: stages.slice(0, -1).map((fromStage, index) => ({
