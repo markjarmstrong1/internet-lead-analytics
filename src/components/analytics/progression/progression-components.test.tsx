@@ -26,7 +26,7 @@ const data: ProgressionDashboardData = {
 
 describe("progression dashboard components", () => {
   it("renders the overview and funnel", () => {
-    expect(renderToStaticMarkup(createElement(ProgressionOverview, { data }))).toContain("Eligible leads");
+    expect(renderToStaticMarkup(createElement(ProgressionOverview, { data }))).toContain("Canonical leads evaluated");
     expect(renderToStaticMarkup(createElement(ProgressionFunnel, { data }))).toContain("Lead funnel");
   });
   it("renders transition and drop-off cards without fabricated rates", () => {

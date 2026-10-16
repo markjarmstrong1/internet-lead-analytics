@@ -14,7 +14,7 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 export function ProgressionOverview({ data }: { data: ProgressionDashboardData }) {
   const sales = data.funnel.find((item) => item.stage === "sold");
   return <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-    {[["Eligible leads", data.leadCount.toLocaleString()], ["Engaged", data.funnel.find((item) => item.stage === "engaged")?.count.toLocaleString() ?? "0"], ["Appointments", data.funnel.find((item) => item.stage === "appointment")?.count.toLocaleString() ?? "0"], ["Sales", sales?.count.toLocaleString() ?? "0"]].map(([label, value]) =>
+    {[["Canonical leads evaluated", data.leadCount.toLocaleString()], ["Engaged", data.funnel.find((item) => item.stage === "engaged")?.count.toLocaleString() ?? "0"], ["Appointments", data.funnel.find((item) => item.stage === "appointment")?.count.toLocaleString() ?? "0"], ["Sales", sales?.count.toLocaleString() ?? "0"]].map(([label, value]) =>
       <div key={label} className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{value}</p></div>)}
   </div>;
 }
@@ -38,7 +38,7 @@ export function TransitionAnalysisCard({ transition }: { transition: StageTransi
     </div>
     <p className="mt-4 text-sm text-slate-600">No qualifying next-stage event recorded: {transition.dropoffCount.toLocaleString()} ({percent(transition.dropoffRate)}). Unresolved next-stage evidence: {transition.unresolvedLeadCount}. Timestamp coverage: {transition.timedLeadCount} of {transition.progressedLeadCount} progressed leads.</p>
     <details className="mt-4 rounded-lg border border-slate-200 p-3"><summary className="cursor-pointer text-sm font-medium text-slate-700">Inspect cohort records ({transition.eligibleLeadCount} eligible · {transition.unresolvedLeadCount} unresolved)</summary><div className="mt-3 grid gap-4 md:grid-cols-3"><LeadIdList title={`Progressed (${transition.leadIds.length})`} ids={transition.leadIds} /><LeadIdList title={`No qualifying next-stage event (${transition.droppedLeadIds.length})`} ids={transition.droppedLeadIds} /><LeadIdList title={`Unresolved (${transition.unresolvedLeadIds.length})`} ids={transition.unresolvedLeadIds} /></div></details>
-    <div className="mt-4 grid gap-4 md:grid-cols-2>
+    <div className="mt-4 grid gap-4 md:grid-cols-2">
       <MetricList title="Common paths" items={transition.commonPaths.map((item) => ({ label: item.path.join(" → "), count: item.occurrences }))} />
       <MetricList title="Observed channels" items={transition.channels.map((item) => ({ label: item.channel, count: item.occurrences }))} />
       <MetricList title="Observed actions" items={transition.actions.map((item) => ({ label: item.action, count: item.occurrences }))} />
